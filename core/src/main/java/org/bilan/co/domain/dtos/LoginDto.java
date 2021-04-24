@@ -11,7 +11,7 @@ import javax.validation.constraints.Pattern;
 @Data
 public class LoginDto {
 
-    @Pattern(regexp = "/[1-9][0-9]{8,12}/g")
+    @Pattern(regexp = "[1-9][0-9]{8,12}")
     private String document;
     @NotNull
     private DocumentType documentType;
