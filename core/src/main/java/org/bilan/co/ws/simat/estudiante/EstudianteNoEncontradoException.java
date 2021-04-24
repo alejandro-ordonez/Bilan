@@ -37,7 +37,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "EstudianteNoEncontradoException", namespace = "http://www.mineducacion.gov.co/1.0/ServiciosSimat/servicios", propOrder = {
     "message"
 })
-public class EstudianteNoEncontradoException {
+public class EstudianteNoEncontradoException extends Exception {
 
     @XmlElement(namespace = "")
     protected String message;
