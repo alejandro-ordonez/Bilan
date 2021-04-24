@@ -6,6 +6,7 @@
 
 package org.bilan.co.application;
 
+import org.bilan.co.domain.dtos.LoginDto;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,4 +17,8 @@ import org.springframework.stereotype.Service;
 public class LoginService implements ILoginService {
 
 
+    @Override
+    public String DoLogin(LoginDto loginInfo) {
+        return  "TESTJWT";
+    }
 }

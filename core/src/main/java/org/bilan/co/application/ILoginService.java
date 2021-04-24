@@ -5,12 +5,14 @@
  */
 package org.bilan.co.application;
 
+import org.bilan.co.domain.dtos.LoginDto;
 import org.springframework.stereotype.Service;
 
-/**
- *
- * @author Manuel Alejandro
- */
 public interface ILoginService {
-    
+    /**
+     * Creates a JWT token to validate if the session is valid
+     * @param loginInfo Login info containing the required data to validate the user.
+     * @return Returns a String containing the JWT
+     */
+    String DoLogin(LoginDto loginInfo);
 }

@@ -6,31 +6,33 @@
 
 package org.bilan.co.api;
 
+import org.bilan.co.application.ILoginService;
+import org.bilan.co.domain.dtos.LoginDto;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
 import org.bilan.co.ws.simat.estudiante.EstudianteNoEncontradoException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-/**
- * @author Manuel Alejandro
- */
+import javax.validation.Valid;
+
 @RestController
+@RequestMapping("/auth/login")
 public class LoginController {
 
-    private SimatEstudianteClient simatEstudianteClient;
+    private final SimatEstudianteClient simatEstudianteClient;
+    private final ILoginService loginService;
 
-    public LoginController(SimatEstudianteClient simatEstudianteClient) {
+    public LoginController(SimatEstudianteClient simatEstudianteClient, ILoginService loginService) {
         this.simatEstudianteClient = simatEstudianteClient;
+        this.loginService = loginService;
     }
 
-    @GetMapping("/login/{studentId}")
-    public ResponseEntity<Estudiante> test(@PathVariable String studentId) {
-        return this.simatEstudianteClient.getStudent(studentId)
+    @PostMapping
+    public ResponseEntity<String> Login(@Valid @RequestBody LoginDto login) {
+        return ResponseEntity.ok(loginService.DoLogin(login));
+        /*return this.simatEstudianteClient.getStudent(studentId)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());*/
     }
 }
