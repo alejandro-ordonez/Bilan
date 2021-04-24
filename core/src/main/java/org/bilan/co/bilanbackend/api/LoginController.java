@@ -13,18 +13,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- *
  * @author Manuel Alejandro
  */
 @RestController
 @RequestMapping("/login")
 public class LoginController {
-    
-    @Autowired
+
     private ILoginService loginService;
-    
+
+    public LoginController(ILoginService loginService) {
+        this.loginService = loginService;
+    }
+
     @GetMapping
-    public String test(){
+    public String test() {
         return "Hey!";
     }
 }
