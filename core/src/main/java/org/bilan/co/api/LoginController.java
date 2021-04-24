@@ -8,6 +8,7 @@ package org.bilan.co.api;
 
 import org.bilan.co.application.ILoginService;
 import org.bilan.co.domain.dtos.LoginDto;
+import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
 import org.bilan.co.ws.simat.estudiante.EstudianteNoEncontradoException;
@@ -28,9 +29,9 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping
-    public ResponseEntity<String> Login(@Valid @RequestBody LoginDto login) {
-        return ResponseEntity.ok(loginService.DoLogin(login));
+    @PostMapping("/phase1")
+    public ResponseEntity<ResponseDto<String>> Login(@Valid @RequestBody LoginDto login) {
+        return loginService.DoLogin(login);
         /*return this.simatEstudianteClient.getStudent(studentId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());*/

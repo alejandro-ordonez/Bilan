@@ -6,6 +6,8 @@
 package org.bilan.co.application;
 
 import org.bilan.co.domain.dtos.LoginDto;
+import org.bilan.co.domain.dtos.ResponseDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 public interface ILoginService {
@@ -14,5 +16,5 @@ public interface ILoginService {
      * @param loginInfo Login info containing the required data to validate the user.
      * @return Returns a String containing the JWT
      */
-    String DoLogin(LoginDto loginInfo);
+    ResponseEntity<ResponseDto<String>> DoLogin(LoginDto loginInfo);
 }

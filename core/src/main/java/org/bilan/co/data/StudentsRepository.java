@@ -16,5 +16,5 @@ import org.springframework.stereotype.Repository;
 public interface StudentsRepository extends JpaRepository<Students, Integer>{
 
     @Query(value="SELECT s FROM Students s WHERE s.document = ?1")
-    Students findByNumber(int document);
+    Students findByNumber(String document);
 }
