@@ -14,5 +14,6 @@ import org.bilan.co.domain.dtos.enums.UserState;
  * @author Manuel Alejandro
  */
 public interface IRegisterService {
-    public ResponseDto<UserState> userExists(RegisterDto registerDto);
+    ResponseDto<UserState> userExists(RegisterDto registerDto);
+    ResponseDto<UserState> updateUser(RegisterDto registerDto);
 }

@@ -31,4 +31,9 @@ public class RegisterController {
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
+    @PostMapping("/update")
+    public ResponseEntity<ResponseDto<UserState>> update(@RequestBody RegisterDto registerDto){
+
+        return null;
+    }
 }

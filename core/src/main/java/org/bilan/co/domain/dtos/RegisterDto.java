@@ -4,11 +4,13 @@ public class RegisterDto {
     private String document;
     private String documentType;
     private String userType;
+    private String password;
 
-    RegisterDto(String document, String documentType, String userType){
+    RegisterDto(String document, String documentType, String userType, String password){
         this.document = document;
         this.documentType = documentType;
         this.userType = userType;
+        this.password = password;
     }
 
     public String getDocument() {
@@ -21,6 +23,10 @@ public class RegisterDto {
 
     public String getUserType(){
         return userType;
+    }
+
+    public String getPassword(){
+        return password;
     }
 
 }

@@ -12,5 +12,4 @@ import org.springframework.stereotype.Service;
  * @author Manuel Alejandro
  */
 public interface ILoginService {
-    
 }
