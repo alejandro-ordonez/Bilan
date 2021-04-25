@@ -5,14 +5,14 @@
  */
 package org.bilan.co.application;
 
-import org.springframework.stereotype.Service;
+import org.bilan.co.domain.dtos.RegisterDto;
+import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.enums.UserState;
 
 /**
  *
  * @author Manuel Alejandro
  */
 public interface IRegisterService {
-    
-    
-    
+    public ResponseDto<UserState> userExists(RegisterDto registerDto);
 }

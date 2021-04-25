@@ -6,27 +6,29 @@
 
 package org.bilan.co.api;
 
+import org.bilan.co.domain.dtos.RegisterDto;
 import org.bilan.co.application.RegisterService;
+import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.enums.UserState;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  *
  * @author Manuel Alejandro
  */
 @RestController
-@RequestMapping("/register-user")
+@RequestMapping("/auth/register")
 public class RegisterController {
-    
+
     @Autowired
     private RegisterService registerService;
     
-    @GetMapping
-    public String test(){
-        return "Hey from register";
+    @PostMapping("/validate")
+    public ResponseEntity<ResponseDto<UserState>> validate(@RequestBody RegisterDto registerDto){
+        ResponseDto response = registerService.userExists(registerDto);
+        return ResponseEntity.status(response.getCode()).body(response);
     }
-    
-    
+
 }
