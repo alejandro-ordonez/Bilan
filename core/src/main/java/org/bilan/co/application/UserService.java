@@ -37,13 +37,13 @@ public class UserService implements UserDetailsService{
         switch (userType){
 
             case Student:
-                Students students = studentsRepository.findByNumber(document);
+                Students students = studentsRepository.findByDocument(document);
                 if(students == null)
                     return new AuthenticatedUserDto("", "", "");
                 return new AuthenticatedUserDto(students.getDocument(), userType.name(), students.getDocumentType());
 
             case Teacher:
-                Teachers teachers = teachersRepository.findTeacherByDocument(document);
+                Teachers teachers = teachersRepository.findByDocument(document);
                 if(teachers == null)
                     return new AuthenticatedUserDto("", "", "");
                 return new AuthenticatedUserDto(teachers.getDocument(), userType.name(), teachers.getDocumentType());
@@ -57,10 +57,10 @@ public class UserService implements UserDetailsService{
         LoginDto loginDto = new ObjectMapper().readValue(data, LoginDto.class);
         switch (loginDto.getUserType()){
             case Teacher:
-                Teachers teachers = teachersRepository.findTeacherByDocument(loginDto.getDocument());
+                Teachers teachers = teachersRepository.findByDocument(loginDto.getDocument());
                 return teachers.getPassword();
             case Student:
-                Students students = studentsRepository.findByNumber(loginDto.getDocument());
+                Students students = studentsRepository.findByDocument(loginDto.getDocument());
                 return students.getPassword();
             default:
                 return "";

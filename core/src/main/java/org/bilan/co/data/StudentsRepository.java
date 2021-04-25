@@ -7,6 +7,7 @@
 package org.bilan.co.data;
 
 import org.bilan.co.domain.entities.Students;
+import org.bilan.co.domain.entities.Teachers;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,5 +17,6 @@ import org.springframework.stereotype.Repository;
 public interface StudentsRepository extends JpaRepository<Students, Integer>{
 
     @Query(value="SELECT s FROM Students s WHERE s.document = ?1")
-    Students findByNumber(String document);
+    Students findByDocument(String document);
+
 }

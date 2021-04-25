@@ -16,6 +16,7 @@ import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -23,19 +24,13 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class RegisterService implements IRegisterService {
-    private final TeachersRepository teachersRepository;
-    private final StudentsRepository studentsRepository;
-    private final SimatEstudianteClient simatEstudianteClient;
+    @Autowired
+    private TeachersRepository teachersRepository;
+    @Autowired
+    private StudentsRepository studentsRepository;
+    @Autowired
+    private SimatEstudianteClient simatEstudianteClient;
 
-    RegisterService(
-            TeachersRepository teachersRepository,
-            StudentsRepository studentsRepository,
-            SimatEstudianteClient simatEstudianteClient
-    ){
-        this.teachersRepository = teachersRepository;
-        this.studentsRepository = studentsRepository;
-        this.simatEstudianteClient = simatEstudianteClient;
-    }
     @Override
     public ResponseDto<UserState> userExists(RegisterDto registerDto) {
         log.error("Receiving registerDTO with {}", registerDto.getDocument());

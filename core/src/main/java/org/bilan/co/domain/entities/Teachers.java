@@ -51,7 +51,7 @@ public class Teachers implements Serializable {
     @Column(name = "id")
     private Integer id;
     @Basic(optional = false)
-    @Column(name = "document")
+    @Column(name = "document", unique = true)
     private String document;
     @Column(name = "document_type")
     private String documentType;

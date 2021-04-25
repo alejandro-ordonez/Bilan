@@ -7,9 +7,9 @@
 package org.bilan.co.api;
 
 import org.bilan.co.domain.dtos.RegisterDto;
-import org.bilan.co.application.RegisterService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.enums.UserState;
+import org.bilan.co.application.IRegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class RegisterController {
 
     @Autowired
-    private RegisterService registerService;
+    private IRegisterService registerService;
     
     @PostMapping("/validate")
     public ResponseEntity<ResponseDto<UserState>> validate(@RequestBody RegisterDto registerDto){
