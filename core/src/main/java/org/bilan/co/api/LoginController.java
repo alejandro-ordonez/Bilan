@@ -29,11 +29,8 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping("/phase1")
+    @PostMapping
     public ResponseEntity<ResponseDto<String>> Login(@Valid @RequestBody LoginDto login) {
         return loginService.DoLogin(login);
-        /*return this.simatEstudianteClient.getStudent(studentId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());*/
     }
 }

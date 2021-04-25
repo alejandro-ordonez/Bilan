@@ -1,38 +1,38 @@
 package org.bilan.co.domain.dtos;
 
 public class AuthenticatedUserDto {
-    private String Document;
-    private String UserType;
-    private String DocumentType;
+    private String document;
+    private String userType;
+    private String documentType;
 
     public AuthenticatedUserDto(String document, String userType, String documentType) {
-        Document = document;
-        UserType = userType;
-        DocumentType = documentType;
+        this.document = document;
+        this.userType = userType;
+        this.documentType = documentType;
     }
 
 
     public String getDocument() {
-        return Document;
+        return document;
     }
 
     public void setDocument(String document) {
-        Document = document;
+        this.document = document;
     }
 
     public String getUserType() {
-        return UserType;
+        return userType;
     }
 
     public void setUserType(String userType) {
-        UserType = userType;
+        this.userType = userType;
     }
 
     public String getDocumentType() {
-        return DocumentType;
+        return documentType;
     }
 
     public void setDocumentType(String documentType) {
-        DocumentType = documentType;
+        this.documentType = documentType;
     }
 }
