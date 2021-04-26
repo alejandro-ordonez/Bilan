@@ -4,12 +4,11 @@ import lombok.Data;
 import org.bilan.co.domain.dtos.enums.DocumentType;
 import org.bilan.co.domain.dtos.enums.UserType;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Data
-public class LoginDto {
+public class AuthDto {
 
     @Pattern(regexp = "[1-9][0-9]{8,12}")
     private String document;
@@ -19,14 +18,15 @@ public class LoginDto {
     private UserType userType;
     private String password;
 
-    public LoginDto(String document, DocumentType documentType, UserType userType, String password) {
+    public AuthDto(String document, DocumentType documentType, UserType userType, String password) {
         this.document = document;
         this.documentType = documentType;
         this.userType = userType;
         this.password = password;
     }
 
-    public LoginDto(){}
+    public AuthDto() {
+    }
 
     public String getDocument() {
         return document;

@@ -1,11 +1,13 @@
 package org.bilan.co.domain.dtos;
 
+import org.bilan.co.domain.dtos.enums.DocumentType;
+
 public class AuthenticatedUserDto {
     private String document;
     private String userType;
-    private String documentType;
+    private DocumentType documentType;
 
-    public AuthenticatedUserDto(String document, String userType, String documentType) {
+    public AuthenticatedUserDto(String document, String userType, DocumentType documentType) {
         this.document = document;
         this.userType = userType;
         this.documentType = documentType;
@@ -28,11 +30,11 @@ public class AuthenticatedUserDto {
         this.userType = userType;
     }
 
-    public String getDocumentType() {
+    public DocumentType getDocumentType() {
         return documentType;
     }
 
-    public void setDocumentType(String documentType) {
+    public void setDocumentType(DocumentType documentType) {
         this.documentType = documentType;
     }
 }

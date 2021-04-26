@@ -6,13 +6,16 @@
 
 package org.bilan.co.api;
 
-import org.bilan.co.domain.dtos.RegisterDto;
+import org.bilan.co.application.IRegisterService;
+import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.enums.UserState;
-import org.bilan.co.application.IRegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
@@ -24,16 +27,16 @@ public class RegisterController {
 
     @Autowired
     private IRegisterService registerService;
-    
+
     @PostMapping("/validate")
-    public ResponseEntity<ResponseDto<UserState>> validate(@RequestBody RegisterDto registerDto){
-        ResponseDto response = registerService.userExists(registerDto);
+    public ResponseEntity<ResponseDto<UserState>> validate(@RequestBody AuthDto authDto) {
+        ResponseDto<UserState> response = registerService.userExists(authDto);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 
     @PostMapping("/update")
-    public ResponseEntity<ResponseDto<UserState>> update(@RequestBody RegisterDto registerDto){
-
-        return null;
+    public ResponseEntity<ResponseDto<UserState>> update(@RequestBody AuthDto authDto) {
+        ResponseDto<UserState> response = registerService.updateUser(authDto);
+        return ResponseEntity.status(response.getCode()).body(response);
     }
 }

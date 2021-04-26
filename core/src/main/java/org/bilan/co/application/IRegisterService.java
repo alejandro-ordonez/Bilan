@@ -5,15 +5,15 @@
  */
 package org.bilan.co.application;
 
-import org.bilan.co.domain.dtos.RegisterDto;
+import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.enums.UserState;
 
 /**
- *
  * @author Manuel Alejandro
  */
 public interface IRegisterService {
-    ResponseDto<UserState> userExists(RegisterDto registerDto);
-    ResponseDto<UserState> updateUser(RegisterDto registerDto);
+    ResponseDto<UserState> userExists(AuthDto authDto);
+
+    ResponseDto<UserState> updateUser(AuthDto authDto);
 }

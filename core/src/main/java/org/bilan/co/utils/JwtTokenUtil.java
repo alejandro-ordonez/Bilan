@@ -3,10 +3,9 @@ package org.bilan.co.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.LoginDto;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -59,7 +58,7 @@ public class JwtTokenUtil {
         return false;
     }
 
-    public String generateToken(LoginDto userDetails) {
+    public String generateToken(AuthDto userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(USER_TYPE, userDetails.getUserType());
         claims.put(DOCUMENT_TYPE, userDetails.getUserType());

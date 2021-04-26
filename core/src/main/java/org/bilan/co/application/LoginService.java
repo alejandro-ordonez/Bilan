@@ -8,7 +8,7 @@ package org.bilan.co.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.LoginDto;
+import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class LoginService implements ILoginService {
     private JwtTokenUtil jwtTokenUtil;
 
     @Override
-    public ResponseEntity<ResponseDto<String>> DoLogin(LoginDto loginInfo) {
+    public ResponseEntity<ResponseDto<String>> DoLogin(AuthDto loginInfo) {
 
         try {
             authenticate(new ObjectMapper().writeValueAsString(loginInfo), loginInfo.getPassword());
@@ -40,7 +40,7 @@ public class LoginService implements ILoginService {
         }
         String jwt = jwtTokenUtil.generateToken(loginInfo);
 
-        return  ResponseEntity.ok(
+        return ResponseEntity.ok(
                 new ResponseDto<>("Authentication Successful", 200, jwt));
     }
 

@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.data.StudentsRepository;
 import org.bilan.co.data.TeachersRepository;
+import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.LoginDto;
+import org.bilan.co.domain.dtos.enums.DocumentType;
 import org.bilan.co.domain.dtos.enums.UserType;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
@@ -39,28 +40,28 @@ public class UserService implements UserDetailsService{
             case Student:
                 Students students = studentsRepository.findByDocument(document);
                 if(students == null)
-                    return new AuthenticatedUserDto("", "", "");
+                    return new AuthenticatedUserDto("", "", DocumentType.Unknown);
                 return new AuthenticatedUserDto(students.getDocument(), userType.name(), students.getDocumentType());
 
             case Teacher:
                 Teachers teachers = teachersRepository.findByDocument(document);
                 if(teachers == null)
-                    return new AuthenticatedUserDto("", "", "");
+                    return new AuthenticatedUserDto("", "", DocumentType.Unknown);
                 return new AuthenticatedUserDto(teachers.getDocument(), userType.name(), teachers.getDocumentType());
             default:
-                return new AuthenticatedUserDto("", "", "");
+                return new AuthenticatedUserDto("", "", DocumentType.Unknown);
         }
     }
 
     private String getCredentials(String data) throws IOException {
         log.info("Getting credentials");
-        LoginDto loginDto = new ObjectMapper().readValue(data, LoginDto.class);
-        switch (loginDto.getUserType()){
+        AuthDto authDto = new ObjectMapper().readValue(data, AuthDto.class);
+        switch (authDto.getUserType()) {
             case Teacher:
-                Teachers teachers = teachersRepository.findByDocument(loginDto.getDocument());
+                Teachers teachers = teachersRepository.findByDocument(authDto.getDocument());
                 return teachers.getPassword();
             case Student:
-                Students students = studentsRepository.findByDocument(loginDto.getDocument());
+                Students students = studentsRepository.findByDocument(authDto.getDocument());
                 return students.getPassword();
             default:
                 return "";
