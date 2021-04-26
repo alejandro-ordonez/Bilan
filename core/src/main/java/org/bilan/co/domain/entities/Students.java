@@ -65,11 +65,11 @@ public class Students implements Serializable {
     @Column(name = "current_cycle")
     private Integer currentCycle;
     @Basic(optional = false)
-    @Column(name = "created_at")
+    @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
     @Basic(optional = false)
-    @Column(name = "modified_at")
+    @Column(name = "modified_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;
     @OneToMany(mappedBy = "idStudent")
