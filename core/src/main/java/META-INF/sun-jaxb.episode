@@ -6,7 +6,7 @@
 Este archivo ha sido generado por la arquitectura JavaTM para la implantación de la referencia de enlace (JAXB) XML v2.3.0 
 Visite <a href="https://javaee.github.io/jaxb-v2/">https://javaee.github.io/jaxb-v2/</a> 
 Todas las modificaciones realizadas en este archivo se perderán si se vuelve a compilar el esquema de origen. 
-Generado el: 2021.04.24 a las 11:58:33 AM COT 
+Generado el: 2021.04.26 a las 02:28:36 AM COT 
 
   -->
       
@@ -18,9 +18,9 @@ Generado el: 2021.04.24 a las 11:58:33 AM COT
                 
         </schemaBindings>
             
-        <bindings if-exists="true" scd="~tns:Acudiente">
+        <bindings if-exists="true" scd="~tns:Estudiante">
                   
-            <class ref="org.bilan.co.ws.simat.estudiante.Acudiente"/>
+            <class ref="org.bilan.co.ws.simat.estudiante.Estudiante"/>
                 
         </bindings>
             
@@ -84,9 +84,9 @@ Generado el: 2021.04.24 a las 11:58:33 AM COT
                 
         </bindings>
             
-        <bindings if-exists="true" scd="~tns:Estudiante">
+        <bindings if-exists="true" scd="~tns:Acudiente">
                   
-            <class ref="org.bilan.co.ws.simat.estudiante.Estudiante"/>
+            <class ref="org.bilan.co.ws.simat.estudiante.Acudiente"/>
                 
         </bindings>
             
