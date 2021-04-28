@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -89,6 +90,9 @@ public class RegisterService implements IRegisterService {
             newStudent.setDocumentType(authDto.getDocumentType());
             newStudent.setName(estudiante.getPrimerNombre() + " " + estudiante.getSegundoNombre());
             newStudent.setLastName(estudiante.getPrimerApellido() + " " + estudiante.getSegundoApellido());
+            newStudent.setCreatedAt(new Date());
+            newStudent.setModifiedAt(new Date());
+
             //TODO: create Students Classrooms
             student = studentsRepository.save(newStudent);
         }

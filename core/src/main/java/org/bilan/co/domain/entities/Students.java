@@ -60,9 +60,9 @@ public class Students implements Serializable {
     @Lob
     @Column(name = "last_state")
     private String lastState;
-    @Column(name = "action_points")
+    @Column(name = "action_points", columnDefinition = "INTEGER DEFAULT 4")
     private Integer actionPoints;
-    @Column(name = "current_cycle")
+    @Column(name = "current_cycle", columnDefinition = "INTEGER DEFAULT 1")
     private Integer currentCycle;
     @Basic(optional = false)
     @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
