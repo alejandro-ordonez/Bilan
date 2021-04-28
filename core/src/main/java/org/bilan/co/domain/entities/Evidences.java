@@ -6,22 +6,10 @@
 
 package org.bilan.co.domain.entities;
 
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
@@ -46,7 +34,7 @@ public class Evidences implements Serializable {
     @Column(name = "url_file")
     private String urlFile;
     @Basic(optional = false)
-    @Column(name = "created_at")
+    @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
     @JoinColumn(name = "id_student", referencedColumnName = "id")
@@ -122,10 +110,7 @@ public class Evidences implements Serializable {
             return false;
         }
         Evidences other = (Evidences) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override
