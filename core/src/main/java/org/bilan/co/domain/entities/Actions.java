@@ -7,8 +7,8 @@
 package org.bilan.co.domain.entities;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,15 +17,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "actions")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Actions.findAll", query = "SELECT a FROM Actions a"),
@@ -39,14 +40,15 @@ public class Actions implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
-    @Column(name = "name")
+    @Size(max = 255)
     private String name;
-    @Column(name = "description")
+    @Size(max = 255)
     private String description;
-    @Column(name = "representative")
+    @Size(max = 255)
     private String representative;
+    @OneToMany(mappedBy = "idAction")
+    private List<Challenges> challengesList;
     @JoinColumn(name = "id_tribe", referencedColumnName = "id")
     @ManyToOne
     private Tribes idTribe;
@@ -90,6 +92,15 @@ public class Actions implements Serializable {
         this.representative = representative;
     }
 
+    @XmlTransient
+    public List<Challenges> getChallengesList() {
+        return challengesList;
+    }
+
+    public void setChallengesList(List<Challenges> challengesList) {
+        this.challengesList = challengesList;
+    }
+
     public Tribes getIdTribe() {
         return idTribe;
     }
@@ -120,7 +131,7 @@ public class Actions implements Serializable {
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Actions[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Actions[ id=" + id + " ]";
     }
 
 }

@@ -20,7 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "questions")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Questions.findAll", query = "SELECT q FROM Questions q"),
@@ -43,15 +42,18 @@ public class Questions implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
-    @Column(name = "title")
+    @Size(max = 255)
     private String title;
     @Lob
-    @Column(name = "statments")
+    @Size(max = 65535)
     private String statments;
-    @Column(name = "difficulty")
+    @Lob
+    @Size(max = 65535)
+    @Column(name = "short_statments")
+    private String shortStatments;
     private Integer difficulty;
+    @Size(max = 255)
     @Column(name = "clue_chaman")
     private String clueChaman;
     @OneToMany(mappedBy = "idQuestion")
@@ -91,6 +93,14 @@ public class Questions implements Serializable {
 
     public void setStatments(String statments) {
         this.statments = statments;
+    }
+
+    public String getShortStatments() {
+        return shortStatments;
+    }
+
+    public void setShortStatments(String shortStatments) {
+        this.shortStatments = shortStatments;
     }
 
     public Integer getDifficulty() {
@@ -157,7 +167,7 @@ public class Questions implements Serializable {
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Questions[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Questions[ id=" + id + " ]";
     }
 
 }

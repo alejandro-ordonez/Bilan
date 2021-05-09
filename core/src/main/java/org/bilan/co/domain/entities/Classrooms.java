@@ -8,7 +8,6 @@ package org.bilan.co.domain.entities;
 
 import java.io.Serializable;
 import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,7 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -25,7 +23,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "classrooms")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Classrooms.findAll", query = "SELECT c FROM Classrooms c"),
@@ -36,7 +33,6 @@ public class Classrooms implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
     @JoinColumn(name = "id_tribe", referencedColumnName = "id")
     @ManyToOne
@@ -109,7 +105,7 @@ public class Classrooms implements Serializable {
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Classrooms[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Classrooms[ id=" + id + " ]";
     }
 
 }

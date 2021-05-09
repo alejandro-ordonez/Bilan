@@ -18,7 +18,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -27,7 +28,6 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "answers")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Answers.findAll", query = "SELECT a FROM Answers a"),
@@ -38,10 +38,10 @@ public class Answers implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @Column(name = "id")
+    @NotNull
     private Integer id;
     @Lob
-    @Column(name = "statments")
+    @Size(max = 65535)
     private String statments;
     @Column(name = "is_correct")
     private Boolean isCorrect;
@@ -121,7 +121,7 @@ public class Answers implements Serializable {
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Answers[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Answers[ id=" + id + " ]";
     }
 
 }
