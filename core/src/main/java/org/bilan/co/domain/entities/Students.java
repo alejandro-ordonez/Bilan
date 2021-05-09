@@ -8,19 +8,20 @@ package org.bilan.co.domain.entities;
 
 import org.bilan.co.domain.dtos.enums.DocumentType;
 
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "students")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Students.findAll", query = "SELECT s FROM Students s"),
@@ -31,8 +32,6 @@ import java.util.List;
     @NamedQuery(name = "Students.findByEmail", query = "SELECT s FROM Students s WHERE s.email = :email"),
     @NamedQuery(name = "Students.findByPassword", query = "SELECT s FROM Students s WHERE s.password = :password"),
     @NamedQuery(name = "Students.findByLastName", query = "SELECT s FROM Students s WHERE s.lastName = :lastName"),
-    @NamedQuery(name = "Students.findByActionPoints", query = "SELECT s FROM Students s WHERE s.actionPoints = :actionPoints"),
-    @NamedQuery(name = "Students.findByCurrentCycle", query = "SELECT s FROM Students s WHERE s.currentCycle = :currentCycle"),
     @NamedQuery(name = "Students.findByCreatedAt", query = "SELECT s FROM Students s WHERE s.createdAt = :createdAt"),
     @NamedQuery(name = "Students.findByModifiedAt", query = "SELECT s FROM Students s WHERE s.modifiedAt = :modifiedAt")})
 public class Students implements Serializable {
@@ -41,39 +40,42 @@ public class Students implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
     @Basic(optional = false)
-    @Column(name = "document", unique = true)
+    @NotNull
+    @Size(min = 1, max = 255)
     private String document;
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
     private DocumentType documentType;
-    @Column(name = "name")
+    @Size(max = 255)
     private String name;
-    @Column(name = "email")
+    // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
+    @Size(max = 255)
     private String email;
-    @Column(name = "password")
+    @Size(max = 255)
     private String password;
+    @Size(max = 255)
     @Column(name = "last_name")
     private String lastName;
     @Lob
+    @Size(max = 2147483647)
     @Column(name = "last_state")
     private String lastState;
-    @Column(name = "action_points", columnDefinition = "INTEGER DEFAULT 4")
-    private Integer actionPoints;
-    @Column(name = "current_cycle", columnDefinition = "INTEGER DEFAULT 1")
-    private Integer currentCycle;
     @Basic(optional = false)
-    @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @NotNull
+    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
     @Basic(optional = false)
-    @Column(name = "modified_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @NotNull
+    @Column(name = "modified_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;
     @OneToMany(mappedBy = "idStudent")
     private List<ResolvedAnswerBy> resolvedAnswerByList;
+    @OneToMany(mappedBy = "idStudent")
+    private List<StudentStats> studentStatsList;
     @OneToMany(mappedBy = "idStudent")
     private List<Evidences> evidencesList;
 
@@ -155,22 +157,6 @@ public class Students implements Serializable {
         this.lastState = lastState;
     }
 
-    public Integer getActionPoints() {
-        return actionPoints;
-    }
-
-    public void setActionPoints(Integer actionPoints) {
-        this.actionPoints = actionPoints;
-    }
-
-    public Integer getCurrentCycle() {
-        return currentCycle;
-    }
-
-    public void setCurrentCycle(Integer currentCycle) {
-        this.currentCycle = currentCycle;
-    }
-
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -197,6 +183,15 @@ public class Students implements Serializable {
     }
 
     @XmlTransient
+    public List<StudentStats> getStudentStatsList() {
+        return studentStatsList;
+    }
+
+    public void setStudentStatsList(List<StudentStats> studentStatsList) {
+        this.studentStatsList = studentStatsList;
+    }
+
+    @XmlTransient
     public List<Evidences> getEvidencesList() {
         return evidencesList;
     }
@@ -219,12 +214,15 @@ public class Students implements Serializable {
             return false;
         }
         Students other = (Students) object;
-        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Students[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Students[ id=" + id + " ]";
     }
 
 }

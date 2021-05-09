@@ -15,6 +15,21 @@
     <class>org.bilan.co.bilanbackend.domain.entities.ResolvedAnswerBy</class>
     <class>org.bilan.co.bilanbackend.domain.entities.Activities</class>
     <class>org.bilan.co.bilanbackend.domain.entities.Logs</class>
+    <class>org.bilan.co.domain.entities.Evidences</class>
+    <class>org.bilan.co.domain.entities.Logs</class>
+    <class>org.bilan.co.domain.entities.Questions</class>
+    <class>org.bilan.co.domain.entities.Activities</class>
+    <class>org.bilan.co.domain.entities.Courses</class>
+    <class>org.bilan.co.domain.entities.Answers</class>
+    <class>org.bilan.co.domain.entities.Tribes</class>
+    <class>org.bilan.co.domain.entities.StudentStats</class>
+    <class>org.bilan.co.domain.entities.StudentChallenges</class>
+    <class>org.bilan.co.domain.entities.Challenges</class>
+    <class>org.bilan.co.domain.entities.Actions</class>
+    <class>org.bilan.co.domain.entities.Classrooms</class>
+    <class>org.bilan.co.domain.entities.ResolvedAnswerBy</class>
+    <class>org.bilan.co.domain.entities.Students</class>
+    <class>org.bilan.co.domain.entities.Teachers</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bilan?zeroDateTimeBehavior=CONVERT_TO_NULL"/>
       <property name="javax.persistence.jdbc.user" value="root"/>

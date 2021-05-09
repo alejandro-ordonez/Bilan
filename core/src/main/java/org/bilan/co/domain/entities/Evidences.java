@@ -6,17 +6,29 @@
 
 package org.bilan.co.domain.entities;
 
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "evidences")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Evidences.findAll", query = "SELECT e FROM Evidences e"),
@@ -29,12 +41,13 @@ public class Evidences implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
+    @Size(max = 255)
     @Column(name = "url_file")
     private String urlFile;
     @Basic(optional = false)
-    @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @NotNull
+    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
     @JoinColumn(name = "id_student", referencedColumnName = "id")
@@ -110,12 +123,15 @@ public class Evidences implements Serializable {
             return false;
         }
         Evidences other = (Evidences) object;
-        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Evidences[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Evidences[ id=" + id + " ]";
     }
 
 }

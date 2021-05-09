@@ -16,9 +16,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -26,7 +27,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "logs")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Logs.findAll", query = "SELECT l FROM Logs l"),
@@ -40,13 +40,13 @@ public class Logs implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
     @Column(name = "id_user")
     private Integer idUser;
-    @Column(name = "event")
+    @Size(max = 255)
     private String event;
     @Basic(optional = false)
+    @NotNull
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
@@ -117,7 +117,7 @@ public class Logs implements Serializable {
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Logs[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Logs[ id=" + id + " ]";
     }
 
 }

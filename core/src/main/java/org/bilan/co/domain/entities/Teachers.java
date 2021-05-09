@@ -8,18 +8,20 @@ package org.bilan.co.domain.entities;
 
 import org.bilan.co.domain.dtos.enums.DocumentType;
 
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author Manuel Alejandro
  */
-@lombok.Data
 @Entity
-@Table(name = "teachers")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Teachers.findAll", query = "SELECT t FROM Teachers t"),
@@ -40,36 +42,41 @@ public class Teachers implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
     @Basic(optional = false)
-    @Column(name = "document", unique = true)
+    @NotNull
+    @Size(min = 1, max = 255)
     private String document;
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
     private DocumentType documentType;
-    @Column(name = "name")
+    @Size(max = 255)
     private String name;
-    @Column(name = "email")
+    // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
+    @Size(max = 255)
     private String email;
-    @Column(name = "password")
+    @Size(max = 255)
     private String password;
+    @Size(max = 255)
     @Column(name = "last_name")
     private String lastName;
     @Column(name = "id_class")
     private Integer idClass;
+    @Size(max = 255)
     @Column(name = "position_name")
     private String positionName;
     @Basic(optional = false)
-    @Column(name = "created_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @NotNull
+    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
     @Basic(optional = false)
-    @Column(name = "modified_at", columnDefinition = "DATE DEFAULT CURRENT_DATE")
+    @NotNull
+    @Column(name = "modified_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;
-    /*@OneToMany(mappedBy = "idTeacher")
-    private List<Classrooms> classroomsList;*/
+    @OneToMany(mappedBy = "idTeacher")
+    private List<Classrooms> classroomsList;
 
     public Teachers() {
     }
@@ -173,14 +180,14 @@ public class Teachers implements Serializable {
         this.modifiedAt = modifiedAt;
     }
 
-    /*@XmlTransient
+    @XmlTransient
     public List<Classrooms> getClassroomsList() {
         return classroomsList;
     }
 
     public void setClassroomsList(List<Classrooms> classroomsList) {
         this.classroomsList = classroomsList;
-    }*/
+    }
 
     @Override
     public int hashCode() {
@@ -196,12 +203,15 @@ public class Teachers implements Serializable {
             return false;
         }
         Teachers other = (Teachers) object;
-        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Teachers[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Teachers[ id=" + id + " ]";
     }
 
 }

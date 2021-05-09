@@ -17,10 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- *
- * @author Manuel Alejandro
- */
 @RestController
 @RequestMapping("/auth/register")
 public class RegisterController {

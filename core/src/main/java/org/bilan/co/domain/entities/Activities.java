@@ -14,12 +14,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -28,25 +27,23 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "activities")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Activities.findAll", query = "SELECT a FROM Activities a"),
     @NamedQuery(name = "Activities.findById", query = "SELECT a FROM Activities a WHERE a.id = :id"),
-    @NamedQuery(name = "Activities.findByDescription", query = "SELECT a FROM Activities a WHERE a.description = :description")})
+    @NamedQuery(name = "Activities.findByIdTribe", query = "SELECT a FROM Activities a WHERE a.idTribe = :idTribe")})
 public class Activities implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
-    @Column(name = "description")
+    @Column(name = "id_tribe")
+    private Integer idTribe;
+    @Lob
+    @Size(max = 65535)
     private String description;
-    @JoinColumn(name = "id_challenge", referencedColumnName = "id")
-    @ManyToOne
-    private Challenges idChallenge;
     @OneToMany(mappedBy = "idActiviy")
     private List<Evidences> evidencesList;
 
@@ -65,20 +62,20 @@ public class Activities implements Serializable {
         this.id = id;
     }
 
+    public Integer getIdTribe() {
+        return idTribe;
+    }
+
+    public void setIdTribe(Integer idTribe) {
+        this.idTribe = idTribe;
+    }
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Challenges getIdChallenge() {
-        return idChallenge;
-    }
-
-    public void setIdChallenge(Challenges idChallenge) {
-        this.idChallenge = idChallenge;
     }
 
     @XmlTransient
@@ -112,7 +109,7 @@ public class Activities implements Serializable {
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Activities[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Activities[ id=" + id + " ]";
     }
 
 }

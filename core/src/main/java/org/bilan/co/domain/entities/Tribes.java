@@ -3,22 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 package org.bilan.co.domain.entities;
 
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -27,7 +27,6 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "tribes")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Tribes.findAll", query = "SELECT t FROM Tribes t"),
@@ -41,31 +40,27 @@ public class Tribes implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
-    @Column(name = "name")
+    @Size(max = 255)
     private String name;
-    @Column(name = "culture")
+    @Size(max = 255)
     private String culture;
-    @Column(name = "element")
+    @Size(max = 255)
     private String element;
-    @OneToMany(mappedBy = "idTribe")
-    private List<Challenges> challengesList;
+    @OneToMany(mappedBy = "oppositeTribeId")
+    private List<Tribes> tribesList;
     @JoinColumn(name = "opposite_tribe_id", referencedColumnName = "id")
-    @OneToOne(mappedBy = "inverseOppositeTribe")
+    @ManyToOne
     private Tribes oppositeTribeId;
+    @OneToMany(mappedBy = "adjacentTribeId")
+    private List<Tribes> tribesList1;
     @JoinColumn(name = "adjacent_tribe_id", referencedColumnName = "id")
-    @OneToOne(mappedBy = "inverseAdjacent")
+    @ManyToOne
     private Tribes adjacentTribeId;
     @OneToMany(mappedBy = "idTribe")
     private List<Classrooms> classroomsList;
     @OneToMany(mappedBy = "idTribe")
     private List<Actions> actionsList;
-
-    @OneToOne
-    private Tribes inverseOppositeTribe;
-    @OneToOne
-    private Tribes inverseAdjacent;
 
     public Tribes() {
     }
@@ -107,12 +102,12 @@ public class Tribes implements Serializable {
     }
 
     @XmlTransient
-    public List<Challenges> getChallengesList() {
-        return challengesList;
+    public List<Tribes> getTribesList() {
+        return tribesList;
     }
 
-    public void setChallengesList(List<Challenges> challengesList) {
-        this.challengesList = challengesList;
+    public void setTribesList(List<Tribes> tribesList) {
+        this.tribesList = tribesList;
     }
 
     public Tribes getOppositeTribeId() {
@@ -121,6 +116,15 @@ public class Tribes implements Serializable {
 
     public void setOppositeTribeId(Tribes oppositeTribeId) {
         this.oppositeTribeId = oppositeTribeId;
+    }
+
+    @XmlTransient
+    public List<Tribes> getTribesList1() {
+        return tribesList1;
+    }
+
+    public void setTribesList1(List<Tribes> tribesList1) {
+        this.tribesList1 = tribesList1;
     }
 
     public Tribes getAdjacentTribeId() {
@@ -169,25 +173,9 @@ public class Tribes implements Serializable {
         return true;
     }
 
-    public Tribes getInverseOppositeTribe() {
-        return inverseOppositeTribe;
-    }
-
-    public void setInverseOppositeTribe(Tribes inverseOppositeTribe) {
-        this.inverseOppositeTribe = inverseOppositeTribe;
-    }
-
-    public Tribes getInverseAdjacent() {
-        return inverseAdjacent;
-    }
-
-    public void setInverseAdjacent(Tribes inverseAdjacent) {
-        this.inverseAdjacent = inverseAdjacent;
-    }
-
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Tribes[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Tribes[ id=" + id + " ]";
     }
 
 }

@@ -9,7 +9,6 @@ package org.bilan.co.domain.entities;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,7 +18,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -28,37 +27,38 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Manuel Alejandro
  */
 @Entity
-@Table(name = "challenges")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Challenges.findAll", query = "SELECT c FROM Challenges c"),
     @NamedQuery(name = "Challenges.findById", query = "SELECT c FROM Challenges c WHERE c.id = :id"),
     @NamedQuery(name = "Challenges.findByCost", query = "SELECT c FROM Challenges c WHERE c.cost = :cost"),
     @NamedQuery(name = "Challenges.findByName", query = "SELECT c FROM Challenges c WHERE c.name = :name"),
-    @NamedQuery(name = "Challenges.findByTimer", query = "SELECT c FROM Challenges c WHERE c.timer = :timer")})
+    @NamedQuery(name = "Challenges.findByTimer", query = "SELECT c FROM Challenges c WHERE c.timer = :timer"),
+    @NamedQuery(name = "Challenges.findByReward", query = "SELECT c FROM Challenges c WHERE c.reward = :reward"),
+    @NamedQuery(name = "Challenges.findByType", query = "SELECT c FROM Challenges c WHERE c.type = :type")})
 public class Challenges implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id")
     private Integer id;
-    @Column(name = "cost")
     private Integer cost;
-    @Column(name = "name")
+    @Size(max = 255)
     private String name;
-    @Column(name = "timer")
     private Integer timer;
-    @JoinColumn(name = "id_tribe", referencedColumnName = "id")
+    private Integer reward;
+    @Size(max = 255)
+    private String type;
+    @JoinColumn(name = "id_action", referencedColumnName = "id")
     @ManyToOne
-    private Tribes idTribe;
+    private Actions idAction;
     @OneToMany(mappedBy = "idChallenge")
     private List<Questions> questionsList;
     @OneToMany(mappedBy = "idChallenge")
     private List<ResolvedAnswerBy> resolvedAnswerByList;
     @OneToMany(mappedBy = "idChallenge")
-    private List<Activities> activitiesList;
+    private List<StudentChallenges> studentChallengesList;
 
     public Challenges() {
     }
@@ -99,12 +99,28 @@ public class Challenges implements Serializable {
         this.timer = timer;
     }
 
-    public Tribes getIdTribe() {
-        return idTribe;
+    public Integer getReward() {
+        return reward;
     }
 
-    public void setIdTribe(Tribes idTribe) {
-        this.idTribe = idTribe;
+    public void setReward(Integer reward) {
+        this.reward = reward;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Actions getIdAction() {
+        return idAction;
+    }
+
+    public void setIdAction(Actions idAction) {
+        this.idAction = idAction;
     }
 
     @XmlTransient
@@ -126,12 +142,12 @@ public class Challenges implements Serializable {
     }
 
     @XmlTransient
-    public List<Activities> getActivitiesList() {
-        return activitiesList;
+    public List<StudentChallenges> getStudentChallengesList() {
+        return studentChallengesList;
     }
 
-    public void setActivitiesList(List<Activities> activitiesList) {
-        this.activitiesList = activitiesList;
+    public void setStudentChallengesList(List<StudentChallenges> studentChallengesList) {
+        this.studentChallengesList = studentChallengesList;
     }
 
     @Override
@@ -156,7 +172,7 @@ public class Challenges implements Serializable {
 
     @Override
     public String toString() {
-        return "org.bilan.co.bilanbackend.domain.entities.Challenges[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Challenges[ id=" + id + " ]";
     }
 
 }
