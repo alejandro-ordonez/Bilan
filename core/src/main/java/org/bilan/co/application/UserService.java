@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.data.StudentsRepository;
 import org.bilan.co.data.TeachersRepository;
-import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.UserInfoDto;
+import org.bilan.co.domain.dtos.*;
 import org.bilan.co.domain.dtos.enums.UserType;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
@@ -31,6 +28,8 @@ public class UserService implements IUserService{
     private StudentsRepository studentsRepository;
     @Autowired
     private TeachersRepository teachersRepository;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     public AuthenticatedUserDto getUserNameTokenById(Map<String, Object> dataToken){
         String document = (String)dataToken.get(JwtTokenUtil.DOCUMENT);
@@ -55,8 +54,17 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public ResponseEntity<ResponseDto<UserInfoDto>> getUserInfo() {
-        return null;
+    public ResponseDto<UserInfoDto> getUserInfo(String token) {
+
+        AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
+
+        ResponseDto<UserInfoDto> responseDto = new ResponseDtoBuilder<UserInfoDto>()
+                .setDescription("Test")
+                .setResult(null)
+                .setCode(200)
+                .createResponseDto();
+
+        return responseDto;
     }
 
     private String getCredentials(String data) throws IOException {

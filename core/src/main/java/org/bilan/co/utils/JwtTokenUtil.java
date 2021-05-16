@@ -79,17 +79,26 @@ public class JwtTokenUtil {
         return (!isTokenExpired(token) || ignoreTokenExpiration(token));
     }
 
-    public Boolean validateToken(String token, AuthenticatedUserDto userName) {
-        final String username = getUsernameFromToken(token);
+    public AuthenticatedUserDto getInfoFromToken(String token){
+        if(token.startsWith("Bearer "))
+            token = token.substring(7);
         final Map<String, Object> claims = getAllClaimsFromToken(token);
-
         DocumentType documentType =  DocumentType.valueOf((String)claims.get(DOCUMENT_TYPE));
         UserType userType =  UserType.valueOf((String)claims.get(USER_TYPE));
+        String document = getUsernameFromToken(token);
+
+        return new AuthenticatedUserDto(document, userType, documentType);
+    }
+
+    public Boolean validateToken(String token, AuthenticatedUserDto userName) {
+        final String username = getUsernameFromToken(token);
+
+        AuthenticatedUserDto infoFromToken = getInfoFromToken(token);
 
         return (username.equals(userName.getDocument()) &&
-                claims.get(DOCUMENT).equals(userName.getDocument())&&
-                documentType == userName.getDocumentType()&&
-                userType == userName.getUserType()&&
+                infoFromToken.getDocument().equals(userName.getDocument())&&
+                infoFromToken.getDocumentType() == userName.getDocumentType()&&
+                infoFromToken.getUserType() == userName.getUserType()&&
                 !isTokenExpired(token));
     }
 }

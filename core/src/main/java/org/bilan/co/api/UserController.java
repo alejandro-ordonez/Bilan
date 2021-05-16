@@ -23,12 +23,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<ResponseDto<UserInfoDto>> getUserInfo(@RequestHeader("Authorization") String jwt){
-        log.debug("Request received, getting user info, token: "+jwt);
-        return userService.getUserInfo();
-    }
-
-    @GetMapping("/test")
-    public String test(){
-        return  "Hello!";
+        log.debug("Request received, getting user info");
+        return ResponseEntity.ok(userService.getUserInfo(jwt));
     }
 }
