@@ -1,5 +1,6 @@
 package org.bilan.co.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -50,6 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
+        log.info("Configuring Web Security");
         // We don't need CSRF for this example
         httpSecurity.csrf().disable()
                 // dont authenticate this particular request

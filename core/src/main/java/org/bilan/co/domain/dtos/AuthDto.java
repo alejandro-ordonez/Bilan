@@ -6,49 +6,23 @@ import org.bilan.co.domain.dtos.enums.UserType;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+public class AuthDto extends AuthenticatedUserDto{
 
-@Data
-public class AuthDto {
-
-    @Pattern(regexp = "[1-9][0-9]{8,12}")
-    private String document;
-    @NotNull
-    private DocumentType documentType;
-    @NotNull
-    private UserType userType;
     private String password;
 
     public AuthDto(String document, DocumentType documentType, UserType userType, String password) {
-        this.document = document;
-        this.documentType = documentType;
-        this.userType = userType;
+        super(document, userType, documentType);
         this.password = password;
     }
 
     public AuthDto() {
     }
 
-    public String getDocument() {
-        return document;
+    public String getPassword() {
+        return password;
     }
 
-    public void setDocument(String document) {
-        this.document = document;
-    }
-
-    public DocumentType getDocumentType() {
-        return documentType;
-    }
-
-    public void setDocumentType(DocumentType documentType) {
-        this.documentType = documentType;
-    }
-
-    public UserType getUserType() {
-        return userType;
-    }
-
-    public void setUserType(UserType userType) {
-        this.userType = userType;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
