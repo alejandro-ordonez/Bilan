@@ -31,25 +31,39 @@ public class UserService implements IUserService{
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    public AuthenticatedUserDto getUserNameTokenById(Map<String, Object> dataToken){
-        String document = (String)dataToken.get(JwtTokenUtil.DOCUMENT);
-        UserType userType =  UserType.valueOf((String) dataToken.get(JwtTokenUtil.USER_TYPE));
+    public AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken){
 
-        switch (userType){
+        Object user = getUser(dataToken);
+
+        if(user == null)
+            return new AuthenticatedUserDto();
+
+        switch (dataToken.getUserType()){
 
             case Student:
-                Students students = studentsRepository.findByDocument(document);
-                if(students == null)
-                    return new AuthenticatedUserDto();
-                return new AuthenticatedUserDto(students.getDocument(), userType, students.getDocumentType());
+                Students students = (Students) user;
+                return new AuthenticatedUserDto(students.getDocument(), dataToken.getUserType(), students.getDocumentType());
 
             case Teacher:
-                Teachers teachers = teachersRepository.findByDocument(document);
-                if(teachers == null)
-                    return new AuthenticatedUserDto();
-                return new AuthenticatedUserDto(teachers.getDocument(), userType, teachers.getDocumentType());
+                Teachers teachers = (Teachers) user;
+                return new AuthenticatedUserDto(teachers.getDocument(), dataToken.getUserType(), teachers.getDocumentType());
+
             default:
                 return new AuthenticatedUserDto();
+        }
+    }
+
+    private Object getUser(AuthenticatedUserDto userDto){
+        switch (userDto.getUserType()){
+
+            case Student:
+                return studentsRepository.findByDocument(userDto.getDocument());
+
+            case Teacher:
+                return teachersRepository.findByDocument(userDto.getDocument());
+
+            default:
+                return null;
         }
     }
 
@@ -57,14 +71,16 @@ public class UserService implements IUserService{
     public ResponseDto<UserInfoDto> getUserInfo(String token) {
 
         AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
+        Object user = getUser(userAuthenticated);
 
-        ResponseDto<UserInfoDto> responseDto = new ResponseDtoBuilder<UserInfoDto>()
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserInfoDto result =  objectMapper.convertValue(user, UserInfoDto.class);
+
+        return new ResponseDtoBuilder<UserInfoDto>()
                 .setDescription("Test")
-                .setResult(null)
+                .setResult(result)
                 .setCode(200)
                 .createResponseDto();
-
-        return responseDto;
     }
 
     private String getCredentials(String data) throws IOException {
