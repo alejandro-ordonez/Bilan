@@ -15,7 +15,9 @@ import org.bilan.co.domain.dtos.enums.UserState;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
+import org.bilan.co.ws.simat.client.SimatMatriculaClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
+import org.bilan.co.ws.simat.matricula.Matricula;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,8 @@ public class RegisterService implements IRegisterService {
     private StudentsRepository studentsRepository;
     @Autowired
     private SimatEstudianteClient simatEstudianteClient;
+    @Autowired
+    private SimatMatriculaClient simatMatriculaClient;
     @Autowired
     private BCryptPasswordEncoder cryptPasswordEncoder;
 
@@ -91,7 +95,13 @@ public class RegisterService implements IRegisterService {
             newStudent.setCreatedAt(new Date());
             newStudent.setModifiedAt(new Date());
 
+            log.debug("POR ACA");
+
             //TODO: create Students Classrooms
+            Optional<Matricula> optionalMatricula = this.simatMatriculaClient.getMatricula(authDto.getDocument());
+            if (optionalMatricula.isPresent()) {
+                log.debug(optionalMatricula.get().getNomGrupo() + optionalMatricula.get().getCodGradoEducativo());
+            }
             student = studentsRepository.save(newStudent);
         }
 
@@ -156,6 +166,4 @@ public class RegisterService implements IRegisterService {
             return new ResponseDto<>("Error saving teacher", 500, UserState.UserRegistered);
         }
     }
-
-
 }
