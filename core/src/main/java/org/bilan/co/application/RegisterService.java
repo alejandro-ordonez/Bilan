@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.data.StudentsRepository;
 import org.bilan.co.data.TeachersRepository;
 import org.bilan.co.domain.dtos.AuthDto;
+import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.enums.UserState;
 import org.bilan.co.domain.entities.Students;
@@ -120,10 +121,33 @@ public class RegisterService implements IRegisterService {
         }
     }
 
+    public ResponseDto<UserState> createUser(RegisterUserDto regUserDto) {
+        Students student = new Students();
+        student.setName(regUserDto.getName());
+        student.setDocument(regUserDto.getDocument());
+        student.setLastName(regUserDto.getLastname());
+        student.setEmail(regUserDto.getEmail());
+        student.setDocumentType(regUserDto.getDocumentType());
+        student.setCreatedAt(new Date());
+        student.setModifiedAt(new Date());
+
+        String encryptedPassword = cryptPasswordEncoder.encode(regUserDto.getPassword());
+        student.setPassword(encryptedPassword);
+
+        //TODO: add classRoom
+
+        try {
+            studentsRepository.save(student);
+            return new ResponseDto<>("Student registered successfully", 200, UserState.UserRegistered);
+        } catch (Exception e) {
+            return new ResponseDto<>("Student already exists", 500, UserState.UserExists);
+        }
+    }
+
     private ResponseDto<UserState> updateTeacher(String document, String password) {
         Teachers teacher = teachersRepository.findByDocument((document));
         if (teacher == null || teacher.getPassword() != null) {
-            return new ResponseDto<>("Teacher already exist", 500, UserState.UserExists);
+            return new ResponseDto<>("Teacher already exists", 500, UserState.UserExists);
         }
         String encryptedPassword = cryptPasswordEncoder.encode(password);
         teacher.setPassword(encryptedPassword);
@@ -135,4 +159,6 @@ public class RegisterService implements IRegisterService {
             return new ResponseDto<>("Error saving teacher", 500, UserState.UserRegistered);
         }
     }
+
+
 }

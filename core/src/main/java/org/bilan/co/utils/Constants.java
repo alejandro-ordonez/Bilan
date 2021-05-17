@@ -1,4 +1,4 @@
 package org.bilan.co.utils;
 
-public class Constatns {
+public class Constants {
 }
