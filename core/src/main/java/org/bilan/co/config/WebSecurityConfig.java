@@ -1,6 +1,8 @@
-package org.bilan.co.utils;
+package org.bilan.co.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bilan.co.utils.JwtAuthenticationEntryPoint;
+import org.bilan.co.utils.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,7 +54,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        log.info("Configuring Web Security");
         // We don't need CSRF for this example
         httpSecurity.csrf().disable()
                 // dont authenticate this particular request
