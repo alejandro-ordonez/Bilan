@@ -78,14 +78,11 @@ public class RegisterService implements IRegisterService {
         Students student = studentsRepository.findByDocument(authDto.getDocument());
 
         if (student == null) {
-            // validate from SIMAT
             Optional<Estudiante> optionalEstudiante = this.simatEstudianteClient.getStudent(authDto.getDocument());
             if (!optionalEstudiante.isPresent()) {
                 return new ResponseDto<>("Student does not exist", 404, UserState.UserNotFound);
             }
             Estudiante estudiante = optionalEstudiante.get();
-            log.error("Estudente Simat {}", estudiante.getIdentificacion());
-            //add new student with estudianteSimat data
             Students newStudent = new Students();
             newStudent.setDocument(authDto.getDocument());
             newStudent.setDocumentType(authDto.getDocumentType());
