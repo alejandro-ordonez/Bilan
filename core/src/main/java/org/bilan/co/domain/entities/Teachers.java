@@ -6,7 +6,7 @@
 
 package org.bilan.co.domain.entities;
 
-import org.bilan.co.domain.dtos.enums.DocumentType;
+import org.bilan.co.domain.enums.DocumentType;
 
 import java.io.Serializable;
 import java.util.Date;

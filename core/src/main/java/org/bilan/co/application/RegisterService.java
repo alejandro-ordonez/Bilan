@@ -6,12 +6,13 @@
 package org.bilan.co.application;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.data.StudentsRepository;
-import org.bilan.co.data.TeachersRepository;
+import org.bilan.co.domain.entities.builders.StudentsBuilder;
+import org.bilan.co.infraestructure.persistance.StudentsRepository;
+import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
-import org.bilan.co.domain.dtos.enums.UserState;
+import org.bilan.co.domain.enums.UserState;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
@@ -115,7 +116,7 @@ public class RegisterService implements IRegisterService {
             log.error("Estudente Simat {}", estudiante.getIdentificacion());
 
             //add new student with estudianteSimat data
-            Students newStudent = new Students();
+            Students newStudent = new StudentsBuilder().createStudents();
             newStudent.setDocument(authDto.getDocument());
             newStudent.setDocumentType(authDto.getDocumentType());
             newStudent.setName(estudiante.getPrimerNombre() + " " + estudiante.getSegundoNombre());

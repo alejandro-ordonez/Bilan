@@ -40,7 +40,7 @@ public class Courses implements Serializable {
     @Basic(optional = false)
     private Integer id;
     @Size(max = 255)
-    private String group;
+    private String groups;
     @Size(max = 255)
     private String grade;
     @Size(max = 255)
@@ -63,12 +63,12 @@ public class Courses implements Serializable {
         this.id = id;
     }
 
-    public String getGroup() {
-        return group;
+    public String getGroups() {
+        return groups;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
+    public void setGroups(String groups) {
+        this.groups = groups;
     }
 
     public String getGrade() {

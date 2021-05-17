@@ -62,7 +62,7 @@ public class StudentStats implements Serializable {
     @Column(name = "current_cycle_end")
     @Temporal(TemporalType.TIMESTAMP)
     private Date currentCycleEnd;
-    @JoinColumn(name = "id_student", referencedColumnName = "id")
+    @JoinColumn(name = "id_student", referencedColumnName = "document")
     @ManyToOne
     private Students idStudent;
     @OneToMany(mappedBy = "idStudentStat")
@@ -78,6 +78,15 @@ public class StudentStats implements Serializable {
     public StudentStats(Integer id, Date currentCycleEnd) {
         this.id = id;
         this.currentCycleEnd = currentCycleEnd;
+    }
+
+    public StudentStats(Integer generalTotems, Integer analyticalTotems, Integer criticalTotems, Integer currentCycle, Date currentCycleEnd, List<StudentChallenges> studentChallengesList) {
+        this.generalTotems = generalTotems;
+        this.analyticalTotems = analyticalTotems;
+        this.criticalTotems = criticalTotems;
+        this.currentCycle = currentCycle;
+        this.currentCycleEnd = currentCycleEnd;
+        this.studentChallengesList = studentChallengesList;
     }
 
     public Integer getId() {

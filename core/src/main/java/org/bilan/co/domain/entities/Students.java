@@ -6,7 +6,7 @@
 
 package org.bilan.co.domain.entities;
 
-import org.bilan.co.domain.dtos.enums.DocumentType;
+import org.bilan.co.domain.enums.DocumentType;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -74,23 +74,40 @@ public class Students implements Serializable {
     private Date modifiedAt;
     @OneToMany(mappedBy = "idStudent")
     private List<ResolvedAnswerBy> resolvedAnswerByList;
-    @OneToMany(mappedBy = "idStudent")
-    private List<StudentStats> studentStatsList;
+    @OneToOne(mappedBy = "idStudent")
+    private StudentStats studentStatsList;
     @OneToMany(mappedBy = "idStudent")
     private List<Evidences> evidencesList;
 
     public Students() {
+        createdAt = new Date();
     }
 
     public Students(Integer id) {
+        this();
         this.id = id;
     }
 
     public Students(Integer id, String document, Date createdAt, Date modifiedAt) {
+        this();
         this.id = id;
         this.document = document;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
+    }
+
+    public Students(String name, String lastName, String document, DocumentType documentType, String email, String password,
+                    List<ResolvedAnswerBy> resolvedAnswerByList, StudentStats studentStatsList, List<Evidences> evidencesList) {
+        this();
+        this.document = document;
+        this.documentType = documentType;
+        this.name = name;
+        this.email = email;
+        this.lastName = lastName;
+        this.password = password;
+        this.resolvedAnswerByList = resolvedAnswerByList;
+        this.studentStatsList = studentStatsList;
+        this.evidencesList = evidencesList;
     }
 
     public Integer getId() {
