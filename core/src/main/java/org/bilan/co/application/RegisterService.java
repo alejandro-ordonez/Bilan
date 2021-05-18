@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.data.StudentsRepository;
 import org.bilan.co.data.TeachersRepository;
 import org.bilan.co.domain.dtos.AuthDto;
+import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.enums.UserState;
