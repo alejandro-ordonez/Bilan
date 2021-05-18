@@ -4,17 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.data.StudentsRepository;
 import org.bilan.co.data.TeachersRepository;
-import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.enums.DocumentType;
+import org.bilan.co.domain.dtos.*;
 import org.bilan.co.domain.dtos.enums.UserType;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -24,33 +22,65 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class UserService implements UserDetailsService{
+public class UserService implements IUserService{
 
     @Autowired
     private StudentsRepository studentsRepository;
     @Autowired
     private TeachersRepository teachersRepository;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
-    public AuthenticatedUserDto getUserNameTokenById(Map<String, Object> dataToken){
-        String document = (String)dataToken.get(JwtTokenUtil.DOCUMENT);
-        UserType userType =  UserType.valueOf((String) dataToken.get(JwtTokenUtil.USER_TYPE));
+    public AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken){
 
-        switch (userType){
+        Object user = getUser(dataToken);
+
+        if(user == null)
+            return new AuthenticatedUserDto();
+
+        switch (dataToken.getUserType()){
 
             case Student:
-                Students students = studentsRepository.findByDocument(document);
-                if(students == null)
-                    return new AuthenticatedUserDto("", "", DocumentType.Unknown);
-                return new AuthenticatedUserDto(students.getDocument(), userType.name(), students.getDocumentType());
+                Students students = (Students) user;
+                return new AuthenticatedUserDto(students.getDocument(), dataToken.getUserType(), students.getDocumentType());
 
             case Teacher:
-                Teachers teachers = teachersRepository.findByDocument(document);
-                if(teachers == null)
-                    return new AuthenticatedUserDto("", "", DocumentType.Unknown);
-                return new AuthenticatedUserDto(teachers.getDocument(), userType.name(), teachers.getDocumentType());
+                Teachers teachers = (Teachers) user;
+                return new AuthenticatedUserDto(teachers.getDocument(), dataToken.getUserType(), teachers.getDocumentType());
+
             default:
-                return new AuthenticatedUserDto("", "", DocumentType.Unknown);
+                return new AuthenticatedUserDto();
         }
+    }
+
+    private Object getUser(AuthenticatedUserDto userDto){
+        switch (userDto.getUserType()){
+
+            case Student:
+                return studentsRepository.findByDocument(userDto.getDocument());
+
+            case Teacher:
+                return teachersRepository.findByDocument(userDto.getDocument());
+
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public ResponseDto<UserInfoDto> getUserInfo(String token) {
+
+        AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
+        Object user = getUser(userAuthenticated);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserInfoDto result =  objectMapper.convertValue(user, UserInfoDto.class);
+
+        return new ResponseDtoBuilder<UserInfoDto>()
+                .setDescription("Test")
+                .setResult(result)
+                .setCode(200)
+                .createResponseDto();
     }
 
     private String getCredentials(String data) throws IOException {

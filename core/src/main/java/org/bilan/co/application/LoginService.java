@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,12 +37,19 @@ public class LoginService implements ILoginService {
             authenticate(new ObjectMapper().writeValueAsString(loginInfo), loginInfo.getPassword());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    new ResponseDto<>("Authentication Failed", 400, null));
+                    new ResponseDtoBuilder<String>()
+                            .setDescription("Authentication Failed")
+                            .setCode(400)
+                            .setResult(null)
+                            .createResponseDto());
         }
         String jwt = jwtTokenUtil.generateToken(loginInfo);
 
         return ResponseEntity.ok(
-                new ResponseDto<>("Authentication Successful", 200, jwt));
+                new ResponseDtoBuilder<String>()
+                        .setDescription("Authentication Successful")
+                        .setCode(200).setResult(jwt)
+                        .createResponseDto());
     }
 
     private void authenticate(String data, String password) throws Exception {

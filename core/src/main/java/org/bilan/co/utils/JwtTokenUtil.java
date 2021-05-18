@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.AuthenticatedUserDto;
+import org.bilan.co.domain.dtos.enums.DocumentType;
+import org.bilan.co.domain.dtos.enums.UserType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -60,8 +62,8 @@ public class JwtTokenUtil {
 
     public String generateToken(AuthDto userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put(USER_TYPE, userDetails.getUserType());
-        claims.put(DOCUMENT_TYPE, userDetails.getUserType());
+        claims.put(DOCUMENT_TYPE, userDetails.getDocumentType());
+        claims.put(USER_TYPE , userDetails.getUserType());
         claims.put(DOCUMENT, userDetails.getDocument());
         return doGenerateToken(claims,
                 userDetails.getDocument());
@@ -77,13 +79,26 @@ public class JwtTokenUtil {
         return (!isTokenExpired(token) || ignoreTokenExpiration(token));
     }
 
+    public AuthenticatedUserDto getInfoFromToken(String token){
+        if(token.startsWith("Bearer "))
+            token = token.substring(7);
+        final Map<String, Object> claims = getAllClaimsFromToken(token);
+        DocumentType documentType =  DocumentType.valueOf((String)claims.get(DOCUMENT_TYPE));
+        UserType userType =  UserType.valueOf((String)claims.get(USER_TYPE));
+        String document = getUsernameFromToken(token);
+
+        return new AuthenticatedUserDto(document, userType, documentType);
+    }
+
     public Boolean validateToken(String token, AuthenticatedUserDto userName) {
         final String username = getUsernameFromToken(token);
-        final Map<String, Object> claims = getAllClaimsFromToken(token);
+
+        AuthenticatedUserDto infoFromToken = getInfoFromToken(token);
+
         return (username.equals(userName.getDocument()) &&
-                claims.get(DOCUMENT).equals(userName.getDocument())&&
-                claims.get(DOCUMENT_TYPE).equals(userName.getDocumentType())&&
-                claims.get(USER_TYPE).equals(userName.getUserType())&&
+                infoFromToken.getDocument().equals(userName.getDocument())&&
+                infoFromToken.getDocumentType() == userName.getDocumentType()&&
+                infoFromToken.getUserType() == userName.getUserType()&&
                 !isTokenExpired(token));
     }
 }

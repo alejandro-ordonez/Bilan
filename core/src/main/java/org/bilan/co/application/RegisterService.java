@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.data.StudentsRepository;
 import org.bilan.co.data.TeachersRepository;
 import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.enums.UserState;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
@@ -47,19 +47,30 @@ public class RegisterService implements IRegisterService {
             case Student:
                 return this.checkStudent(authDto);
             default:
-                return new ResponseDto<>("UserType does not exist", 500, UserState.UnknownUserType);
+                return new ResponseDtoBuilder<UserState>()
+                        .setDescription("UserType does not exist")
+                        .setCode(500)
+                        .setResult(UserState.UnknownUserType)
+                        .createResponseDto();
         }
     }
 
     @Override
     public ResponseDto<UserState> updateUser(AuthDto authDto) {
         switch (authDto.getUserType()) {
+
             case Teacher:
                 return this.updateTeacher(authDto.getDocument(), authDto.getPassword());
+
             case Student:
                 return this.updateStudent(authDto.getDocument(), authDto.getPassword());
+
             default:
-                return new ResponseDto<>("UserType does not exist", 500, UserState.UnknownUserType);
+                return new ResponseDtoBuilder<UserState>()
+                        .setDescription("UserType does not exist")
+                        .setCode(500)
+                        .setResult(UserState.UnknownUserType)
+                        .createResponseDto();
         }
     }
 
@@ -68,14 +79,26 @@ public class RegisterService implements IRegisterService {
 
         if (teacher == null) {
             // validate from SIMAT
-            return new ResponseDto<>("Teacher does not exist", 404, UserState.UserNotFound);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Teacher does not exist")
+                    .setCode(404)
+                    .setResult(UserState.UserNotFound)
+                    .createResponseDto();
         }
 
         if (teacher.getPassword() == null || teacher.getPassword().equals("")) {
-            return new ResponseDto<>("Teacher is not registered", 200, UserState.UserWithoutPassword);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Teacher is not registered")
+                    .setCode(200)
+                    .setResult(UserState.UserWithoutPassword)
+                    .createResponseDto();
         }
 
-        return new ResponseDto<>("Teacher already exist", 500, UserState.UserExists);
+        return new ResponseDtoBuilder<UserState>()
+                .setDescription("Teacher already exist")
+                .setCode(500)
+                .setResult(UserState.UserExists)
+                .createResponseDto();
     }
 
     private ResponseDto<UserState> checkStudent(AuthDto authDto) {
@@ -83,8 +106,13 @@ public class RegisterService implements IRegisterService {
 
         if (student == null) {
             Optional<Estudiante> optionalEstudiante = this.simatEstudianteClient.getStudent(authDto.getDocument());
+
             if (!optionalEstudiante.isPresent()) {
-                return new ResponseDto<>("Student does not exist", 404, UserState.UserNotFound);
+
+                return new ResponseDtoBuilder<UserState>()
+                        .setDescription("Student does not exist")
+                        .setCode(404)
+                        .setResult(UserState.UserNotFound).createResponseDto();
             }
             Estudiante estudiante = optionalEstudiante.get();
             Students newStudent = new Students();
@@ -95,8 +123,6 @@ public class RegisterService implements IRegisterService {
             newStudent.setCreatedAt(new Date());
             newStudent.setModifiedAt(new Date());
 
-            log.debug("POR ACA");
-
             //TODO: create Students Classrooms
             Optional<Matricula> optionalMatricula = this.simatMatriculaClient.getMatricula(authDto.getDocument());
             if (optionalMatricula.isPresent()) {
@@ -106,25 +132,47 @@ public class RegisterService implements IRegisterService {
         }
 
         if (student.getPassword() == null || student.getPassword().equals("")) {
-            return new ResponseDto<>("Student is not registered", 200, UserState.UserWithoutPassword);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Student is not registered")
+                    .setCode(200)
+                    .setResult(UserState.UserWithoutPassword)
+                    .createResponseDto();
         }
 
-        return new ResponseDto<>("Student already exist", 500, UserState.UserExists);
+        return new ResponseDtoBuilder<UserState>()
+                .setDescription("Student already exist")
+                .setCode(500)
+                .setResult(UserState.UserExists)
+                .createResponseDto();
     }
 
     private ResponseDto<UserState> updateStudent(String document, String password) {
         Students student = studentsRepository.findByDocument((document));
+
         if (student == null || student.getPassword() != null) {
-            return new ResponseDto<>("Student already exist", 500, UserState.UserExists);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Student already exist")
+                    .setCode(500)
+                    .setResult(UserState.UserExists).createResponseDto();
         }
+
         String encryptedPassword = cryptPasswordEncoder.encode(password);
         student.setPassword(encryptedPassword);
 
         try {
             studentsRepository.save(student);
-            return new ResponseDto<>("Student updated successfully", 200, UserState.UserUpdated);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Student updated successfully")
+                    .setCode(200)
+                    .setResult(UserState.UserUpdated)
+                    .createResponseDto();
+
         } catch (Exception e) {
-            return new ResponseDto<>("Error saving student", 500, UserState.UserRegistered);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Error saving student")
+                    .setCode(500)
+                    .setResult(UserState.UserRegistered)
+                    .createResponseDto();
         }
     }
 
@@ -153,17 +201,31 @@ public class RegisterService implements IRegisterService {
 
     private ResponseDto<UserState> updateTeacher(String document, String password) {
         Teachers teacher = teachersRepository.findByDocument((document));
+
         if (teacher == null || teacher.getPassword() != null) {
-            return new ResponseDto<>("Teacher already exists", 500, UserState.UserExists);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Teacher already exist")
+                    .setCode(500)
+                    .setResult(UserState.UserExists)
+                    .createResponseDto();
         }
+
         String encryptedPassword = cryptPasswordEncoder.encode(password);
         teacher.setPassword(encryptedPassword);
 
         try {
             teachersRepository.save(teacher);
-            return new ResponseDto<>("Teacher updated successfully", 200, UserState.UserUpdated);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Teacher updated successfully")
+                    .setCode(200).setResult(UserState.UserUpdated)
+                    .createResponseDto();
+
         } catch (Exception e) {
-            return new ResponseDto<>("Error saving teacher", 500, UserState.UserRegistered);
+            return new ResponseDtoBuilder<UserState>()
+                    .setDescription("Error saving teacher")
+                    .setCode(500)
+                    .setResult(UserState.UserRegistered)
+                    .createResponseDto();
         }
     }
 }
