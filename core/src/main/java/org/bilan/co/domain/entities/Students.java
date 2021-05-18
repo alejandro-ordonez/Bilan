@@ -45,6 +45,7 @@ public class Students implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
+    @Column(unique = true)
     private String document;
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
@@ -203,10 +204,7 @@ public class Students implements Serializable {
             return false;
         }
         Students other = (Students) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override
