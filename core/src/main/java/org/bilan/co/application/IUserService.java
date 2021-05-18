@@ -9,6 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.Map;
 
 public interface IUserService extends UserDetailsService {
-    AuthenticatedUserDto getUserNameTokenById(Map<String, Object> dataToken);
+    AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken);
     ResponseDto<UserInfoDto> getUserInfo(String token);
 }
