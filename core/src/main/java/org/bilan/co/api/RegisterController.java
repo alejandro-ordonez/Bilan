@@ -8,6 +8,7 @@ package org.bilan.co.api;
 
 import org.bilan.co.application.IRegisterService;
 import org.bilan.co.domain.dtos.AuthDto;
+import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.enums.UserState;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,12 @@ public class RegisterController {
     @PostMapping("/update")
     public ResponseEntity<ResponseDto<UserState>> update(@RequestBody AuthDto authDto) {
         ResponseDto<UserState> response = registerService.updateUser(authDto);
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<ResponseDto<UserState>> create(@RequestBody RegisterUserDto registerUserDto) {
+        ResponseDto<UserState> response = registerService.createUser(registerUserDto);
         return ResponseEntity.status(response.getCode()).body(response);
     }
 }

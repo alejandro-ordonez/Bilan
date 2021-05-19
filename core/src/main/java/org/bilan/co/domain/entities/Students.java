@@ -8,15 +8,15 @@ package org.bilan.co.domain.entities;
 
 import org.bilan.co.domain.dtos.enums.DocumentType;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -45,6 +45,7 @@ public class Students implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
+    @Column(unique = true)
     private String document;
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
@@ -59,9 +60,6 @@ public class Students implements Serializable {
     @Size(max = 255)
     @Column(name = "last_name")
     private String lastName;
-    @Lob
-    @Column(name = "last_state")
-    private String lastState;
     @Basic(optional = false)
     @NotNull
     @Column(name = "created_at")
@@ -149,14 +147,6 @@ public class Students implements Serializable {
         this.lastName = lastName;
     }
 
-    public String getLastState() {
-        return lastState;
-    }
-
-    public void setLastState(String lastState) {
-        this.lastState = lastState;
-    }
-
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -214,10 +204,7 @@ public class Students implements Serializable {
             return false;
         }
         Students other = (Students) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override

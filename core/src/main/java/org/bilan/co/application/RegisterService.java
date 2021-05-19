@@ -9,13 +9,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.data.StudentsRepository;
 import org.bilan.co.data.TeachersRepository;
 import org.bilan.co.domain.dtos.AuthDto;
+import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.enums.UserState;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
+import org.bilan.co.ws.simat.client.SimatMatriculaClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
+import org.bilan.co.ws.simat.matricula.Matricula;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,8 @@ public class RegisterService implements IRegisterService {
     private StudentsRepository studentsRepository;
     @Autowired
     private SimatEstudianteClient simatEstudianteClient;
+    @Autowired
+    private SimatMatriculaClient simatMatriculaClient;
     @Autowired
     private BCryptPasswordEncoder cryptPasswordEncoder;
 
@@ -101,7 +106,6 @@ public class RegisterService implements IRegisterService {
         Students student = studentsRepository.findByDocument(authDto.getDocument());
 
         if (student == null) {
-            // validate from SIMAT
             Optional<Estudiante> optionalEstudiante = this.simatEstudianteClient.getStudent(authDto.getDocument());
 
             if (!optionalEstudiante.isPresent()) {
@@ -112,9 +116,6 @@ public class RegisterService implements IRegisterService {
                         .setResult(UserState.UserNotFound).createResponseDto();
             }
             Estudiante estudiante = optionalEstudiante.get();
-            log.error("Estudente Simat {}", estudiante.getIdentificacion());
-
-            //add new student with estudianteSimat data
             Students newStudent = new Students();
             newStudent.setDocument(authDto.getDocument());
             newStudent.setDocumentType(authDto.getDocumentType());
@@ -124,6 +125,10 @@ public class RegisterService implements IRegisterService {
             newStudent.setModifiedAt(new Date());
 
             //TODO: create Students Classrooms
+            Optional<Matricula> optionalMatricula = this.simatMatriculaClient.getMatricula(authDto.getDocument());
+            if (optionalMatricula.isPresent()) {
+                log.debug(optionalMatricula.get().getNomGrupo() + optionalMatricula.get().getCodGradoEducativo());
+            }
             student = studentsRepository.save(newStudent);
         }
 
@@ -169,6 +174,29 @@ public class RegisterService implements IRegisterService {
                     .setCode(500)
                     .setResult(UserState.UserRegistered)
                     .createResponseDto();
+        }
+    }
+
+    public ResponseDto<UserState> createUser(RegisterUserDto regUserDto) {
+        Students student = new Students();
+        student.setName(regUserDto.getName());
+        student.setDocument(regUserDto.getDocument());
+        student.setLastName(regUserDto.getLastname());
+        student.setEmail(regUserDto.getEmail());
+        student.setDocumentType(regUserDto.getDocumentType());
+        student.setCreatedAt(new Date());
+        student.setModifiedAt(new Date());
+
+        String encryptedPassword = cryptPasswordEncoder.encode(regUserDto.getPassword());
+        student.setPassword(encryptedPassword);
+
+        //TODO: add classRoom
+
+        try {
+            studentsRepository.save(student);
+            return new ResponseDto<>("Student registered successfully", 200, UserState.UserRegistered);
+        } catch (Exception e) {
+            return new ResponseDto<>("Student already exists", 500, UserState.UserExists);
         }
     }
 

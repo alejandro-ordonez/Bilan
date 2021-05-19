@@ -6,26 +6,14 @@
 
 package org.bilan.co.domain.entities;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -57,6 +45,12 @@ public class StudentStats implements Serializable {
     private Integer criticalTotems;
     @Column(name = "current_cycle")
     private Integer currentCycle;
+    @Column(name = "current_spirits")
+    private Integer currentSpirits;
+    @Lob
+    @Size(max = 2147483647)
+    @Column(name = "tribes_points")
+    private String tribesPoints;
     @Basic(optional = false)
     @NotNull
     @Column(name = "current_cycle_end")
@@ -78,6 +72,14 @@ public class StudentStats implements Serializable {
     public StudentStats(Integer id, Date currentCycleEnd) {
         this.id = id;
         this.currentCycleEnd = currentCycleEnd;
+    }
+
+    public String getTribesPoints() {
+        return tribesPoints;
+    }
+
+    public void setTribesPoints(String tribesPoints) {
+        this.tribesPoints = tribesPoints;
     }
 
     public Integer getId() {
@@ -136,6 +138,14 @@ public class StudentStats implements Serializable {
         this.idStudent = idStudent;
     }
 
+    public Integer getCurrentSpirits() {
+        return currentSpirits;
+    }
+
+    public void setCurrentSpirits(Integer spirits) {
+        this.currentSpirits = spirits;
+    }
+
     @XmlTransient
     public List<StudentChallenges> getStudentChallengesList() {
         return studentChallengesList;
@@ -159,10 +169,7 @@ public class StudentStats implements Serializable {
             return false;
         }
         StudentStats other = (StudentStats) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override
