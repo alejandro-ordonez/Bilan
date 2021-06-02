@@ -16,7 +16,7 @@ public class StudentsBuilder {
     private String lastName;
     private String password;
     private List<ResolvedAnswerBy> resolvedAnswerByList;
-    private StudentStats studentStatsList;
+    private StudentStats studentStats;
     private List<Evidences> evidencesList;
 
 
@@ -55,8 +55,8 @@ public class StudentsBuilder {
         return this;
     }
 
-    public StudentsBuilder setStudentStatsList(StudentStats studentStatsList) {
-        this.studentStatsList = studentStatsList;
+    public StudentsBuilder setStudentStats(StudentStats studentStats) {
+        this.studentStats = studentStats;
         return this;
     }
 
@@ -67,6 +67,6 @@ public class StudentsBuilder {
 
     public Students createStudents() {
         return new Students(name, lastName, document, documentType, email, password, resolvedAnswerByList,
-                studentStatsList, evidencesList);
+                studentStats, evidencesList);
     }
 }

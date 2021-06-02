@@ -50,8 +50,8 @@ public class StudentChallenges implements Serializable {
     public StudentChallenges() {
     }
 
-    public StudentChallenges(Integer id) {
-        this.id = id;
+    public StudentChallenges(Integer currentPoints) {
+        this.currentPoints = currentPoints;
     }
 
     public Integer getId() {

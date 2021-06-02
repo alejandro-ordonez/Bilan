@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Students.findAll", query = "SELECT s FROM Students s"),
-    @NamedQuery(name = "Students.findById", query = "SELECT s FROM Students s WHERE s.id = :id"),
     @NamedQuery(name = "Students.findByDocument", query = "SELECT s FROM Students s WHERE s.document = :document"),
     @NamedQuery(name = "Students.findByDocumentType", query = "SELECT s FROM Students s WHERE s.documentType = :documentType"),
     @NamedQuery(name = "Students.findByName", query = "SELECT s FROM Students s WHERE s.name = :name"),
@@ -39,9 +38,6 @@ public class Students implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    private Integer id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
@@ -74,30 +70,25 @@ public class Students implements Serializable {
     private Date modifiedAt;
     @OneToMany(mappedBy = "idStudent")
     private List<ResolvedAnswerBy> resolvedAnswerByList;
-    @OneToOne(mappedBy = "idStudent")
-    private StudentStats studentStatsList;
+    @OneToOne(mappedBy = "idStudent", cascade = CascadeType.ALL)
+    private StudentStats studentStats;
     @OneToMany(mappedBy = "idStudent")
     private List<Evidences> evidencesList;
 
     public Students() {
         createdAt = new Date();
+        modifiedAt = new Date();
     }
 
-    public Students(Integer id) {
+    public Students(String document, Date createdAt, Date modifiedAt) {
         this();
-        this.id = id;
-    }
-
-    public Students(Integer id, String document, Date createdAt, Date modifiedAt) {
-        this();
-        this.id = id;
         this.document = document;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
     public Students(String name, String lastName, String document, DocumentType documentType, String email, String password,
-                    List<ResolvedAnswerBy> resolvedAnswerByList, StudentStats studentStatsList, List<Evidences> evidencesList) {
+                    List<ResolvedAnswerBy> resolvedAnswerByList, StudentStats studentStats, List<Evidences> evidencesList) {
         this();
         this.document = document;
         this.documentType = documentType;
@@ -106,16 +97,8 @@ public class Students implements Serializable {
         this.lastName = lastName;
         this.password = password;
         this.resolvedAnswerByList = resolvedAnswerByList;
-        this.studentStatsList = studentStatsList;
+        this.studentStats = studentStats;
         this.evidencesList = evidencesList;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getDocument() {
@@ -200,12 +183,12 @@ public class Students implements Serializable {
     }
 
     @XmlTransient
-    public List<StudentStats> getStudentStatsList() {
-        return studentStatsList;
+    public StudentStats getStudentStats() {
+        return studentStats;
     }
 
-    public void setStudentStatsList(List<StudentStats> studentStatsList) {
-        this.studentStatsList = studentStatsList;
+    public void setStudentStats(StudentStats studentStats) {
+        this.studentStats = studentStats;
     }
 
     @XmlTransient
@@ -218,28 +201,18 @@ public class Students implements Serializable {
     }
 
     @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Students)) {
             return false;
         }
         Students other = (Students) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.document != null || other.document == null) && (this.document == null || this.document.equals(other.document));
     }
 
     @Override
     public String toString() {
-        return "org.bilan.co.domain.entities.Students[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Students[ id=" + document + " ]";
     }
 
 }

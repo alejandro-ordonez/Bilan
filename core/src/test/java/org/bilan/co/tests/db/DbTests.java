@@ -1,22 +1,28 @@
 package org.bilan.co.tests.db;
 
 import io.jsonwebtoken.lang.Assert;
-import org.bilan.co.domain.entities.StudentStats;
+import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.entities.builders.StudentStatsBuilder;
 import org.bilan.co.domain.entities.builders.StudentsBuilder;
+import org.bilan.co.infraestructure.persistance.StatsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.domain.enums.DocumentType;
-import org.bilan.co.domain.entities.Students;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 @SpringBootTest
 public class DbTests {
 
     @Autowired
     private StudentsRepository studentsRepository;
+    @Autowired
+    private StatsRepository statsRepository;
 
     @Test
     public void insertData(){
@@ -48,16 +54,54 @@ public class DbTests {
 
     @Test
     public void insertStatsWithStudent(){
-        StudentStats stats =
+
+        Random random = new Random();
+
+        Tribes tribe = new Tribes();
+        tribe.setName("TribeName");
+        tribe.setCulture("Culture");
+
+        Actions actions = new Actions();
+        actions.setName("ActionName");
+        actions.setDescription("ActionDescription");
+        actions.setRepresentative("Representative");
+        actions.setIdTribe(tribe);
+
+        List<StudentChallenges> studentChallengesList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+
+            Challenges challenges = new Challenges();
+            challenges.setCost(random.nextInt(500));
+            challenges.setName("Challenge"+i);
+            challenges.setReward(random.nextInt(5));
+            challenges.setIdAction(actions);
+
+            StudentChallenges studentChallenges = new StudentChallenges(i);
+            studentChallenges.setIdChallenge(challenges);
+            studentChallengesList.add(studentChallenges);
+        }
+
+        StudentStats studentStats = new StudentStatsBuilder()
+                .setGeneralTotems(5)
+                .setAnalyticalTotems(3)
+                .setCriticalTotems(3)
+                .setCurrentCycle(1)
+                .setCurrentCycleEnd(new Date())
+                .setStudentChallengesList(studentChallengesList)
+                .createStudentStats();
 
         Students student = new StudentsBuilder()
-                .setDocument("123456789")
+                .setDocument("1234567891")
                 .setDocumentType(DocumentType.CC)
                 .setName("User")
                 .setLastName("Test")
                 .setEmail("user.test@test.com")
                 .setPassword("$2y$10$TsLKZtRXkymAbDNQ.YZUke0y0CQqBo05ltziqR8LJIvv6jj0DGROi")
-                .setStudentStatsList();
+                .setStudentStats(studentStats)
+                .createStudents();
+        
+        studentStats.setIdStudent(student);
+        studentsRepository.save(student);
     }
 
     @Test

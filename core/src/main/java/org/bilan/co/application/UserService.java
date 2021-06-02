@@ -91,6 +91,10 @@ public class UserService implements IUserService{
 
         StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserStatsDto userStatsDto = objectMapper.convertValue(studentStats, UserStatsDto.class);
+
+        return  new ResponseDto<>("Stats returned successfully", 200, userStatsDto);
     }
 
     private String getCredentials(String data) throws IOException {

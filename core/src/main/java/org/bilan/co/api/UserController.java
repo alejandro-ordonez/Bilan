@@ -25,12 +25,11 @@ public class UserController {
 
     @GetMapping("/info")
     public ResponseEntity<ResponseDto<UserInfoDto>> getUserInfo(@RequestHeader(Constants.AUTHORIZATION) String jwt){
-        log.debug("Request received, getting user info");
         return ResponseEntity.ok(userService.getUserInfo(jwt));
     }
 
     @GetMapping("/stats")
     public ResponseEntity<ResponseDto<UserStatsDto>> getStats(@RequestHeader(Constants.AUTHORIZATION) String jwt){
-
+        return  ResponseEntity.ok(userService.getUserStats(jwt));
     }
 }
