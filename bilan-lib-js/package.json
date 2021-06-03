@@ -1,0 +1,15 @@
+{
+  "name": "bilan-lib",
+  "version": "1.0.0",
+  "description": "Library to integrate bilan backend with front client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "backend",
+    "integration"
+  ],
+  "author": "Alejandro Ordoñez",
+  "license": "ISC"
+}
