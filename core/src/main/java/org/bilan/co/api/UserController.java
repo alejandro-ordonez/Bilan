@@ -1,9 +1,7 @@
 package org.bilan.co.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.IUserService;
-import org.bilan.co.application.UserService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.UserInfoDto;
 import org.bilan.co.domain.dtos.UserStatsDto;

@@ -1,7 +1,7 @@
 package org.bilan.co.domain.dtos;
 
-import org.bilan.co.domain.dtos.enums.DocumentType;
-import org.bilan.co.domain.dtos.enums.UserType;
+import org.bilan.co.domain.enums.DocumentType;
+import org.bilan.co.domain.enums.UserType;
 
 import javax.validation.constraints.NotNull;
 
@@ -16,7 +16,8 @@ public class RegisterUserDto extends AuthDto {
     private String grade;
     private String course;
 
-    public RegisterUserDto(String document, DocumentType documentType, UserType userType, String password, String name, String lastName, String email, String grade, String course) {
+    public RegisterUserDto(String document, DocumentType documentType, UserType userType, String password, String name,
+                           String lastName, String email, String grade, String course) {
         super(document, documentType, userType, password);
         this.name = name;
         this.lastName = lastName;

@@ -16,5 +16,5 @@ public interface ILoginService {
      * @param loginInfo Login info containing the required data to validate the user.
      * @return Returns a String containing the JWT
      */
-    ResponseEntity<ResponseDto<String>> DoLogin(AuthDto loginInfo);
+    ResponseEntity<ResponseDto<String>> doLogin(AuthDto loginInfo);
 }
