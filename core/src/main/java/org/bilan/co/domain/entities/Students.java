@@ -8,15 +8,15 @@ package org.bilan.co.domain.entities;
 
 import org.bilan.co.domain.enums.DocumentType;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -41,6 +41,7 @@ public class Students implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
+    @Column(unique = true)
     private String document;
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
@@ -147,14 +148,6 @@ public class Students implements Serializable {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getLastState() {
-        return lastState;
-    }
-
-    public void setLastState(String lastState) {
-        this.lastState = lastState;
     }
 
     public Date getCreatedAt() {
