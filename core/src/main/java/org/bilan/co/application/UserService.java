@@ -2,6 +2,7 @@ package org.bilan.co.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.bilan.co.domain.entities.StudentChallenges;
 import org.bilan.co.infraestructure.persistance.StatsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -91,8 +93,22 @@ public class UserService implements IUserService{
 
         StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
 
+        if(studentStats == null){
+            log.error("The record wasn't found");
+            return null;
+        }
+
+        List<StudentChallenges> studentChallengesList = studentStats.getStudentChallengesList();
+        studentStats.setStudentChallengesList(new ArrayList<>());
         ObjectMapper objectMapper = new ObjectMapper();
         UserStatsDto userStatsDto = objectMapper.convertValue(studentStats, UserStatsDto.class);
+
+        List<StudentChallengesDto> studentChallengesDtos = new ArrayList<>();
+        for (StudentChallenges challenge: studentChallengesList) {
+            studentChallengesDtos
+                    .add(new StudentChallengesDto(challenge.getCurrentPoints(), challenge.getIdChallenge().getId()));
+        }
+        userStatsDto.setStudentChallengesDto(studentChallengesDtos);
 
         return  new ResponseDto<>("Stats returned successfully", 200, userStatsDto);
     }

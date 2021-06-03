@@ -1,7 +1,10 @@
 package org.bilan.co.domain.dtos;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Date;
+import java.util.List;
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserStatsDto {
 
     private int generalTotems;
@@ -9,7 +12,7 @@ public class UserStatsDto {
     private int criticalTotems;
     private int currentCycle;
     private Date currentCycleEnd;
-    private StudentChallengesDto studentChallengesDto;
+    private List<StudentChallengesDto> studentChallengesDto;
 
     public UserStatsDto() {
     }
@@ -54,11 +57,11 @@ public class UserStatsDto {
         this.currentCycleEnd = currentCycleEnd;
     }
 
-    public StudentChallengesDto getStudentChallengesDto() {
+    public List<StudentChallengesDto> getStudentChallengesDto() {
         return studentChallengesDto;
     }
 
-    public void setStudentChallengesDto(StudentChallengesDto studentChallengesDto) {
+    public void setStudentChallengesDto(List<StudentChallengesDto> studentChallengesDto) {
         this.studentChallengesDto = studentChallengesDto;
     }
 }

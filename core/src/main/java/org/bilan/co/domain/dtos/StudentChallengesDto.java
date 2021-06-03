@@ -9,6 +9,11 @@ public class StudentChallengesDto {
     public StudentChallengesDto() {
     }
 
+    public StudentChallengesDto(int currentPoints, int challengeId) {
+        this.currentPoints = currentPoints;
+        this.challengeId = challengeId;
+    }
+
     public int getCurrentPoints() {
         return currentPoints;
     }

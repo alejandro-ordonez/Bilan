@@ -6,6 +6,8 @@
 
 package org.bilan.co.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -49,10 +51,11 @@ public class StudentStats implements Serializable {
     @Column(name = "current_cycle_end")
     @Temporal(TemporalType.TIMESTAMP)
     private Date currentCycleEnd;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne( cascade = CascadeType.ALL)
     @JoinColumn(name = "id_student", referencedColumnName = "document")
+    @JsonIgnore
     private Students idStudent;
-    @OneToMany(mappedBy = "idStudentStat")
+    @OneToMany(mappedBy = "idStudentStat", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StudentChallenges> studentChallengesList;
 
     public StudentStats() {
