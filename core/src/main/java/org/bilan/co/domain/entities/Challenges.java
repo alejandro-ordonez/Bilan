@@ -6,18 +6,13 @@
 
 package org.bilan.co.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -36,6 +31,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Challenges.findByTimer", query = "SELECT c FROM Challenges c WHERE c.timer = :timer"),
     @NamedQuery(name = "Challenges.findByReward", query = "SELECT c FROM Challenges c WHERE c.reward = :reward"),
     @NamedQuery(name = "Challenges.findByType", query = "SELECT c FROM Challenges c WHERE c.type = :type")})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Challenges implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -57,10 +53,13 @@ public class Challenges implements Serializable {
     private List<Questions> questionsList;
     @OneToMany(mappedBy = "idChallenge")
     private List<ResolvedAnswerBy> resolvedAnswerByList;
-    @OneToMany(mappedBy = "idChallenge")
-    private List<StudentChallenges> studentChallengesList;
+    @JoinColumn(name = "id_challenge", referencedColumnName = "id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
+    private StudentChallenges studentChallenges;
 
     public Challenges() {
+        questionsList = new ArrayList<>();
     }
 
     public Challenges(Integer id) {
@@ -142,12 +141,12 @@ public class Challenges implements Serializable {
     }
 
     @XmlTransient
-    public List<StudentChallenges> getStudentChallengesList() {
-        return studentChallengesList;
+    public StudentChallenges getStudentChallenges() {
+        return studentChallenges;
     }
 
-    public void setStudentChallengesList(List<StudentChallenges> studentChallengesList) {
-        this.studentChallengesList = studentChallengesList;
+    public void setStudentChallenges(StudentChallenges studentChallenges) {
+        this.studentChallenges = studentChallenges;
     }
 
     @Override

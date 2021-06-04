@@ -6,15 +6,16 @@
 package org.bilan.co.application;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.data.StudentsRepository;
-import org.bilan.co.data.TeachersRepository;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
-import org.bilan.co.domain.dtos.enums.UserState;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
+import org.bilan.co.domain.entities.builders.StudentsBuilder;
+import org.bilan.co.domain.enums.UserState;
+import org.bilan.co.infraestructure.persistance.StudentsRepository;
+import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.bilan.co.ws.simat.client.SimatMatriculaClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
@@ -116,19 +117,19 @@ public class RegisterService implements IRegisterService {
                         .setResult(UserState.UserNotFound).createResponseDto();
             }
             Estudiante estudiante = optionalEstudiante.get();
-            Students newStudent = new Students();
-            newStudent.setDocument(authDto.getDocument());
-            newStudent.setDocumentType(authDto.getDocumentType());
-            newStudent.setName(estudiante.getPrimerNombre() + " " + estudiante.getSegundoNombre());
-            newStudent.setLastName(estudiante.getPrimerApellido() + " " + estudiante.getSegundoApellido());
-            newStudent.setCreatedAt(new Date());
-            newStudent.setModifiedAt(new Date());
+            log.error("Estudente Simat {}", estudiante.getIdentificacion());
+
+            //add new student with estudianteSimat data
+            Students newStudent = new StudentsBuilder()
+                    .setDocument(authDto.getDocument())
+                    .setDocumentType(authDto.getDocumentType())
+                    .setName(estudiante.getPrimerNombre() + " " + estudiante.getSegundoNombre())
+                    .setLastName(estudiante.getPrimerApellido() + " " + estudiante.getSegundoApellido())
+                    .createStudents();
 
             //TODO: create Students Classrooms
             Optional<Matricula> optionalMatricula = this.simatMatriculaClient.getMatricula(authDto.getDocument());
-            if (optionalMatricula.isPresent()) {
-                log.debug(optionalMatricula.get().getNomGrupo() + optionalMatricula.get().getCodGradoEducativo());
-            }
+            optionalMatricula.ifPresent(matricula -> log.debug(matricula.getNomGrupo() + matricula.getCodGradoEducativo()));
             student = studentsRepository.save(newStudent);
         }
 

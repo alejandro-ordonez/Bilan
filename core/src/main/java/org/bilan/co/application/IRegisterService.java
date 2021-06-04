@@ -8,7 +8,7 @@ package org.bilan.co.application;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.enums.UserState;
+import org.bilan.co.domain.enums.UserState;
 
 /**
  * @author Manuel Alejandro

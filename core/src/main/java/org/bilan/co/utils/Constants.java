@@ -1,4 +1,7 @@
 package org.bilan.co.utils;
 
-public class Constants {
+public final class Constants {
+    public static final String AUTHORIZATION = "Authorization";
+
+    private Constants(){}
 }

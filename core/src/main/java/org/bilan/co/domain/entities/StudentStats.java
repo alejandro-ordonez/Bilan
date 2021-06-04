@@ -6,6 +6,8 @@
 
 package org.bilan.co.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -56,10 +58,11 @@ public class StudentStats implements Serializable {
     @Column(name = "current_cycle_end")
     @Temporal(TemporalType.TIMESTAMP)
     private Date currentCycleEnd;
-    @JoinColumn(name = "id_student", referencedColumnName = "id")
-    @ManyToOne
+    @OneToOne( cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_student", referencedColumnName = "document")
+    @JsonIgnore
     private Students idStudent;
-    @OneToMany(mappedBy = "idStudentStat")
+    @OneToMany(mappedBy = "idStudentStat", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StudentChallenges> studentChallengesList;
 
     public StudentStats() {
@@ -72,6 +75,15 @@ public class StudentStats implements Serializable {
     public StudentStats(Integer id, Date currentCycleEnd) {
         this.id = id;
         this.currentCycleEnd = currentCycleEnd;
+    }
+
+    public StudentStats(Integer generalTotems, Integer analyticalTotems, Integer criticalTotems, Integer currentCycle, Date currentCycleEnd, List<StudentChallenges> studentChallengesList) {
+        this.generalTotems = generalTotems;
+        this.analyticalTotems = analyticalTotems;
+        this.criticalTotems = criticalTotems;
+        this.currentCycle = currentCycle;
+        this.currentCycleEnd = currentCycleEnd;
+        this.studentChallengesList = studentChallengesList;
     }
 
     public String getTribesPoints() {

@@ -31,7 +31,7 @@ public class LoginController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto<String>> Login(@Valid @RequestBody AuthDto login) {
-        return loginService.DoLogin(login);
+    public ResponseEntity<ResponseDto<String>> login(@Valid @RequestBody AuthDto login) {
+        return loginService.doLogin(login);
     }
 }
