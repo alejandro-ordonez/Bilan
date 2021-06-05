@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package org.bilan.co.data;
+package org.bilan.co.infraestructure.persistance;
 
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;

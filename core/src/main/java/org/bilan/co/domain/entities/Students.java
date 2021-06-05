@@ -6,17 +6,17 @@
 
 package org.bilan.co.domain.entities;
 
-import org.bilan.co.domain.dtos.enums.DocumentType;
+import org.bilan.co.domain.enums.DocumentType;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Students.findAll", query = "SELECT s FROM Students s"),
-    @NamedQuery(name = "Students.findById", query = "SELECT s FROM Students s WHERE s.id = :id"),
     @NamedQuery(name = "Students.findByDocument", query = "SELECT s FROM Students s WHERE s.document = :document"),
     @NamedQuery(name = "Students.findByDocumentType", query = "SELECT s FROM Students s WHERE s.documentType = :documentType"),
     @NamedQuery(name = "Students.findByName", query = "SELECT s FROM Students s WHERE s.name = :name"),
@@ -39,12 +38,10 @@ public class Students implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    private Integer id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
+    @Column(unique = true)
     private String document;
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
@@ -74,31 +71,35 @@ public class Students implements Serializable {
     private Date modifiedAt;
     @OneToMany(mappedBy = "idStudent")
     private List<ResolvedAnswerBy> resolvedAnswerByList;
-    @OneToMany(mappedBy = "idStudent")
-    private List<StudentStats> studentStatsList;
+    @OneToOne(mappedBy = "idStudent", cascade = CascadeType.ALL)
+    private StudentStats studentStats;
     @OneToMany(mappedBy = "idStudent")
     private List<Evidences> evidencesList;
 
     public Students() {
+        createdAt = new Date();
+        modifiedAt = new Date();
     }
 
-    public Students(Integer id) {
-        this.id = id;
-    }
-
-    public Students(Integer id, String document, Date createdAt, Date modifiedAt) {
-        this.id = id;
+    public Students(String document, Date createdAt, Date modifiedAt) {
+        this();
         this.document = document;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public Students(String name, String lastName, String document, DocumentType documentType, String email, String password,
+                    List<ResolvedAnswerBy> resolvedAnswerByList, StudentStats studentStats, List<Evidences> evidencesList) {
+        this();
+        this.document = document;
+        this.documentType = documentType;
+        this.name = name;
+        this.email = email;
+        this.lastName = lastName;
+        this.password = password;
+        this.resolvedAnswerByList = resolvedAnswerByList;
+        this.studentStats = studentStats;
+        this.evidencesList = evidencesList;
     }
 
     public String getDocument() {
@@ -149,14 +150,6 @@ public class Students implements Serializable {
         this.lastName = lastName;
     }
 
-    public String getLastState() {
-        return lastState;
-    }
-
-    public void setLastState(String lastState) {
-        this.lastState = lastState;
-    }
-
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -183,12 +176,12 @@ public class Students implements Serializable {
     }
 
     @XmlTransient
-    public List<StudentStats> getStudentStatsList() {
-        return studentStatsList;
+    public StudentStats getStudentStats() {
+        return studentStats;
     }
 
-    public void setStudentStatsList(List<StudentStats> studentStatsList) {
-        this.studentStatsList = studentStatsList;
+    public void setStudentStats(StudentStats studentStats) {
+        this.studentStats = studentStats;
     }
 
     @XmlTransient
@@ -201,28 +194,18 @@ public class Students implements Serializable {
     }
 
     @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Students)) {
             return false;
         }
         Students other = (Students) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.document != null || other.document == null) && (this.document == null || this.document.equals(other.document));
     }
 
     @Override
     public String toString() {
-        return "org.bilan.co.domain.entities.Students[ id=" + id + " ]";
+        return "org.bilan.co.domain.entities.Students[ id=" + document + " ]";
     }
 
 }

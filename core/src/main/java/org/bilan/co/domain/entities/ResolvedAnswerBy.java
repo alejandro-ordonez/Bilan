@@ -50,7 +50,7 @@ public class ResolvedAnswerBy implements Serializable {
     @JoinColumn(name = "id_challenge", referencedColumnName = "id")
     @ManyToOne
     private Challenges idChallenge;
-    @JoinColumn(name = "id_student", referencedColumnName = "id")
+    @JoinColumn(name = "id_student", referencedColumnName = "document")
     @ManyToOne
     private Students idStudent;
     @JoinColumn(name = "id_question", referencedColumnName = "id")

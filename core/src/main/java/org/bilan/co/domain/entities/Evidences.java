@@ -50,7 +50,7 @@ public class Evidences implements Serializable {
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
-    @JoinColumn(name = "id_student", referencedColumnName = "id")
+    @JoinColumn(name = "id_student", referencedColumnName = "document")
     @ManyToOne
     private Students idStudent;
     @JoinColumn(name = "id_activiy", referencedColumnName = "id")

@@ -2,15 +2,16 @@ package org.bilan.co.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.data.StudentsRepository;
-import org.bilan.co.data.TeachersRepository;
+import org.bilan.co.domain.entities.StudentChallenges;
+import org.bilan.co.infraestructure.persistance.StatsRepository;
+import org.bilan.co.infraestructure.persistance.StudentsRepository;
+import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.domain.dtos.*;
-import org.bilan.co.domain.dtos.enums.UserType;
+import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -28,6 +29,8 @@ public class UserService implements IUserService{
     private StudentsRepository studentsRepository;
     @Autowired
     private TeachersRepository teachersRepository;
+    @Autowired
+    private StatsRepository statsRepository;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
@@ -81,6 +84,33 @@ public class UserService implements IUserService{
                 .setResult(result)
                 .setCode(200)
                 .createResponseDto();
+    }
+
+    @Override
+    public ResponseDto<UserStatsDto> getUserStats(String token) {
+
+        AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
+
+        StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
+
+        if(studentStats == null){
+            log.error("The record wasn't found");
+            return null;
+        }
+
+        List<StudentChallenges> studentChallengesList = studentStats.getStudentChallengesList();
+        studentStats.setStudentChallengesList(new ArrayList<>());
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserStatsDto userStatsDto = objectMapper.convertValue(studentStats, UserStatsDto.class);
+
+        List<StudentChallengesDto> studentChallengesDtos = new ArrayList<>();
+        for (StudentChallenges challenge: studentChallengesList) {
+            studentChallengesDtos
+                    .add(new StudentChallengesDto(challenge.getCurrentPoints(), challenge.getIdChallenge().getId()));
+        }
+        userStatsDto.setStudentChallengesDto(studentChallengesDtos);
+
+        return  new ResponseDto<>("Stats returned successfully", 200, userStatsDto);
     }
 
     private String getCredentials(String data) throws IOException {

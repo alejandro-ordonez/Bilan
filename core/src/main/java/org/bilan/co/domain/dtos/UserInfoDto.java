@@ -1,7 +1,6 @@
 package org.bilan.co.domain.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.bilan.co.domain.dtos.enums.DocumentType;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserInfoDto extends AuthenticatedUserDto{

@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Courses.findAll", query = "SELECT c FROM Courses c"),
     @NamedQuery(name = "Courses.findById", query = "SELECT c FROM Courses c WHERE c.id = :id"),
-    @NamedQuery(name = "Courses.findByGroup", query = "SELECT c FROM Courses c WHERE c.group = :group"),
+    @NamedQuery(name = "Courses.findByGroup", query = "SELECT c FROM Courses c WHERE c.groups = :groups"),
     @NamedQuery(name = "Courses.findByGrade", query = "SELECT c FROM Courses c WHERE c.grade = :grade"),
     @NamedQuery(name = "Courses.findBySchool", query = "SELECT c FROM Courses c WHERE c.school = :school")})
 public class Courses implements Serializable {
@@ -40,7 +40,7 @@ public class Courses implements Serializable {
     @Basic(optional = false)
     private Integer id;
     @Size(max = 255)
-    private String group;
+    private String groups;
     @Size(max = 255)
     private String grade;
     @Size(max = 255)
@@ -63,12 +63,12 @@ public class Courses implements Serializable {
         this.id = id;
     }
 
-    public String getGroup() {
-        return group;
+    public String getGroups() {
+        return groups;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
+    public void setGroups(String groups) {
+        this.groups = groups;
     }
 
     public String getGrade() {
@@ -110,10 +110,7 @@ public class Courses implements Serializable {
             return false;
         }
         Courses other = (Courses) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override

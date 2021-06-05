@@ -5,8 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.enums.DocumentType;
-import org.bilan.co.domain.dtos.enums.UserType;
+import org.bilan.co.domain.enums.DocumentType;
+import org.bilan.co.domain.enums.UserType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

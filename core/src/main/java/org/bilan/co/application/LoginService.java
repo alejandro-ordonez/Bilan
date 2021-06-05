@@ -31,7 +31,7 @@ public class LoginService implements ILoginService {
     private JwtTokenUtil jwtTokenUtil;
 
     @Override
-    public ResponseEntity<ResponseDto<String>> DoLogin(AuthDto loginInfo) {
+    public ResponseEntity<ResponseDto<String>> doLogin(AuthDto loginInfo) {
 
         try {
             authenticate(new ObjectMapper().writeValueAsString(loginInfo), loginInfo.getPassword());
