@@ -106,9 +106,10 @@ public class UserService implements IUserService{
         List<StudentChallengesDto> studentChallengesDtos = new ArrayList<>();
         for (StudentChallenges challenge: studentChallengesList) {
             studentChallengesDtos
-                    .add(new StudentChallengesDto(challenge.getCurrentPoints(), challenge.getIdChallenge().getId()));
+                    .add(new StudentChallengesDto(challenge.getCurrentPoints(), challenge.getIdChallenge().getId(),
+                            challenge.getIdChallenge().getIdAction().getIdTribe().getId()));
         }
-        userStatsDto.setStudentChallengesDto(studentChallengesDtos);
+        userStatsDto.setStudentChallenges(studentChallengesDtos);
 
         return  new ResponseDto<>("Stats returned successfully", 200, userStatsDto);
     }

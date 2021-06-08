@@ -5,13 +5,23 @@ import java.util.List;
 public class StudentChallengesDto {
     private int currentPoints;
     private int challengeId;
+    private int tribeId;
 
     public StudentChallengesDto() {
     }
 
-    public StudentChallengesDto(int currentPoints, int challengeId) {
+    public StudentChallengesDto(int currentPoints, int challengeId, int tribeId) {
         this.currentPoints = currentPoints;
         this.challengeId = challengeId;
+        this.tribeId = tribeId;
+    }
+
+    public int getTribeId() {
+        return tribeId;
+    }
+
+    public void setTribeId(int tribeId) {
+        this.tribeId = tribeId;
     }
 
     public int getCurrentPoints() {
