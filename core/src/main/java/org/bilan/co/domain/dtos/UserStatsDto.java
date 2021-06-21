@@ -11,10 +11,36 @@ public class UserStatsDto {
     private int analyticalTotems;
     private int criticalTotems;
     private int currentCycle;
-    private Date currentCycleEnd;
-    private List<StudentChallengesDto> studentChallengesDto;
+    private int currentSpirits;
+    private String tribePoints;
+    private Date lastTotemUpdate;
+    private List<StudentChallengesDto> studentChallenges;
 
     public UserStatsDto() {
+    }
+
+    public String getTribePoints() {
+        return tribePoints;
+    }
+
+    public void setTribePoints(String tribePoints) {
+        this.tribePoints = tribePoints;
+    }
+
+    public int getCurrentSpirits() {
+        return currentSpirits;
+    }
+
+    public void setCurrentSpirits(int currentSpirits) {
+        this.currentSpirits = currentSpirits;
+    }
+
+    public Date getLastTotemUpdate() {
+        return lastTotemUpdate;
+    }
+
+    public void setLastTotemUpdate(Date lastTotemUpdate) {
+        this.lastTotemUpdate = lastTotemUpdate;
     }
 
     public int getGeneralTotems() {
@@ -49,19 +75,11 @@ public class UserStatsDto {
         this.currentCycle = currentCycle;
     }
 
-    public Date getCurrentCycleEnd() {
-        return currentCycleEnd;
+    public List<StudentChallengesDto> getStudentChallenges() {
+        return studentChallenges;
     }
 
-    public void setCurrentCycleEnd(Date currentCycleEnd) {
-        this.currentCycleEnd = currentCycleEnd;
-    }
-
-    public List<StudentChallengesDto> getStudentChallengesDto() {
-        return studentChallengesDto;
-    }
-
-    public void setStudentChallengesDto(List<StudentChallengesDto> studentChallengesDto) {
-        this.studentChallengesDto = studentChallengesDto;
+    public void setStudentChallenges(List<StudentChallengesDto> studentChallenges) {
+        this.studentChallenges = studentChallenges;
     }
 }
