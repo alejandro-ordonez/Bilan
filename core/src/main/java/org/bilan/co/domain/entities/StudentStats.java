@@ -31,7 +31,7 @@ import java.util.List;
     @NamedQuery(name = "StudentStats.findByAnalyticalTotems", query = "SELECT s FROM StudentStats s WHERE s.analyticalTotems = :analyticalTotems"),
     @NamedQuery(name = "StudentStats.findByCriticalTotems", query = "SELECT s FROM StudentStats s WHERE s.criticalTotems = :criticalTotems"),
     @NamedQuery(name = "StudentStats.findByCurrentCycle", query = "SELECT s FROM StudentStats s WHERE s.currentCycle = :currentCycle"),
-    @NamedQuery(name = "StudentStats.findByCurrentCycleEnd", query = "SELECT s FROM StudentStats s WHERE s.currentCycleEnd = :currentCycleEnd")})
+    @NamedQuery(name = "StudentStats.findByLastTotemUpdate", query = "SELECT s FROM StudentStats s WHERE s.lastTotemUpdate = :lastTotemUpdate")})
 public class StudentStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -57,7 +57,7 @@ public class StudentStats implements Serializable {
     @NotNull
     @Column(name = "current_cycle_end")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date currentCycleEnd;
+    private Date lastTotemUpdate;
     @OneToOne( cascade = CascadeType.ALL)
     @JoinColumn(name = "id_student", referencedColumnName = "document")
     @JsonIgnore
@@ -72,17 +72,17 @@ public class StudentStats implements Serializable {
         this.id = id;
     }
 
-    public StudentStats(Integer id, Date currentCycleEnd) {
+    public StudentStats(Integer id, Date lastTotemUpdate) {
         this.id = id;
-        this.currentCycleEnd = currentCycleEnd;
+        this.lastTotemUpdate = lastTotemUpdate;
     }
 
-    public StudentStats(Integer generalTotems, Integer analyticalTotems, Integer criticalTotems, Integer currentCycle, Date currentCycleEnd, List<StudentChallenges> studentChallengesList) {
+    public StudentStats(Integer generalTotems, Integer analyticalTotems, Integer criticalTotems, Integer currentCycle, Date lastTotemUpdate, List<StudentChallenges> studentChallengesList) {
         this.generalTotems = generalTotems;
         this.analyticalTotems = analyticalTotems;
         this.criticalTotems = criticalTotems;
         this.currentCycle = currentCycle;
-        this.currentCycleEnd = currentCycleEnd;
+        this.lastTotemUpdate = lastTotemUpdate;
         this.studentChallengesList = studentChallengesList;
     }
 
@@ -134,12 +134,12 @@ public class StudentStats implements Serializable {
         this.currentCycle = currentCycle;
     }
 
-    public Date getCurrentCycleEnd() {
-        return currentCycleEnd;
+    public Date getLastTotemUpdate() {
+        return lastTotemUpdate;
     }
 
-    public void setCurrentCycleEnd(Date currentCycleEnd) {
-        this.currentCycleEnd = currentCycleEnd;
+    public void setLastTotemUpdate(Date lastTotemUpdate) {
+        this.lastTotemUpdate = lastTotemUpdate;
     }
 
     public Students getIdStudent() {

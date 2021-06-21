@@ -2,7 +2,7 @@
 // Este archivo ha sido generado por la arquitectura JavaTM para la implantación de la referencia de enlace (JAXB) XML v2.3.0 
 // Visite <a href="https://javaee.github.io/jaxb-v2/">https://javaee.github.io/jaxb-v2/</a> 
 // Todas las modificaciones realizadas en este archivo se perderán si se vuelve a compilar el esquema de origen. 
-// Generado el: 2021.04.24 a las 11:58:31 AM COT 
+// Generado el: 2021.06.05 a las 07:14:27 PM COT 
 //
 
 
@@ -43,11 +43,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Acudiente }
+     * Create an instance of {@link Estudiante }
      * 
      */
-    public Acudiente createAcudiente() {
-        return new Acudiente();
+    public Estudiante createEstudiante() {
+        return new Estudiante();
     }
 
     /**
@@ -123,11 +123,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Estudiante }
+     * Create an instance of {@link Acudiente }
      * 
      */
-    public Estudiante createEstudiante() {
-        return new Estudiante();
+    public Acudiente createAcudiente() {
+        return new Acudiente();
     }
 
     /**

@@ -4,8 +4,10 @@ import io.jsonwebtoken.lang.Assert;
 import org.bilan.co.domain.entities.*;
 import org.bilan.co.domain.entities.builders.StudentStatsBuilder;
 import org.bilan.co.domain.entities.builders.StudentsBuilder;
+import org.bilan.co.infraestructure.persistance.ActionsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.domain.enums.DocumentType;
+import org.bilan.co.infraestructure.persistance.TribesRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +22,10 @@ public class DbTests {
 
     @Autowired
     private StudentsRepository studentsRepository;
-
+    @Autowired
+    private TribesRepository tribesRepository;
+    @Autowired
+    private ActionsRepository actionsRepository;
     @Test
     public void insertData(){
         String baseId = "100011111%d";
@@ -58,11 +63,15 @@ public class DbTests {
         tribe.setName("TribeName");
         tribe.setCulture("Culture");
 
+        tribesRepository.save(tribe);
+
         Actions actions = new Actions();
         actions.setName("ActionName");
         actions.setDescription("ActionDescription");
         actions.setRepresentative("Representative");
         actions.setIdTribe(tribe);
+
+        actionsRepository.save(actions);
 
         StudentStats studentStats = new StudentStatsBuilder()
                 .setGeneralTotems(5)
@@ -71,6 +80,7 @@ public class DbTests {
                 .setCurrentCycle(1)
                 .setCurrentCycleEnd(new Date())
                 .createStudentStats();
+        studentStats.setCurrentSpirits(3);
 
         List<StudentChallenges> studentChallengesList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
@@ -82,7 +92,8 @@ public class DbTests {
             challenges.setQuestionsList(new ArrayList<>());
             challenges.setTimer(100);
             challenges.setType("Test");
-            challenges.setIdAction(null);
+            challenges.setIdAction(actions);
+            actions.getChallengesList().add(challenges);
 
             StudentChallenges studentChallenges = new StudentChallenges(i);
             studentChallenges.setIdChallenge(challenges);
@@ -91,11 +102,10 @@ public class DbTests {
             studentChallengesList.add(studentChallenges);
             studentChallenges.setIdStudentStat(studentStats);
         }
-
         studentStats.setStudentChallengesList(studentChallengesList);
 
         Students student = new StudentsBuilder()
-                .setDocument("1234567894")
+                .setDocument("1234567895")
                 .setDocumentType(DocumentType.CC)
                 .setName("User")
                 .setLastName("Test")
@@ -105,6 +115,7 @@ public class DbTests {
                 .createStudents();
 
         studentStats.setIdStudent(student);
+
         studentsRepository.save(student);
     }
 
