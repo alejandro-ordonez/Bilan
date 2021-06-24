@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import org.bilan.co.domain.dtos.TribeDto;
 import org.bilan.co.domain.entities.Tribes;
 import org.bilan.co.infraestructure.persistance.TribesRepository;
-import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
