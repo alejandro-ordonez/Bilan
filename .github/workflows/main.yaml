@@ -40,4 +40,6 @@ jobs:
           application_name: bilan
           environment: bilan-stage
           version_label: ${{ github.SHA }}
+          version_description: Github actions
+          region: us-east-2
           deployment_package: target/bilan-backend-0.0.1-SNAPSHOT.jar
