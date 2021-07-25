@@ -33,7 +33,7 @@ build/
 .vscode/
 
 ### SIMAT / SINEB SOAP autgenerated data
-src/main/java/org/bilan/co/ws/simat/estudiante/*
-src/main/java/org/bilan/co/ws/simat/matricula/*
-src/main/java/org/bilan/co/ws/sineb/establecimiento/*
-src/main/java/org/bilan/co/ws/simat/sedeeducativa/*
+###src/main/java/org/bilan/co/ws/simat/estudiante/*
+###src/main/java/org/bilan/co/ws/simat/matricula/*
+###src/main/java/org/bilan/co/ws/sineb/establecimiento/*
+###src/main/java/org/bilan/co/ws/simat/sedeeducativa/*
