@@ -27,7 +27,6 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build bilan project with maven
         run: mvn -B package --file pom.xml -Dmaven.test.skip=true
-      - name: Connect vpn goverments
       - name: Deploy to EB
         uses: einareglisson/beanstalk-deploy@v16
         with:
@@ -36,7 +35,4 @@ jobs:
           application_name: bilan
           environment: bilan-stage
           version_label: ${{ github.SHA }}
-          deployment_package: target/bilan-backend-0.0.1-SNA´SHOT.jar
-
-
-
+          deployment_package: target/bilan-backend-0.0.1-SNAPSHOT.jar
