@@ -19,12 +19,15 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Cache maven packages
-        uses: actions/cache@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2.1.4
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          restore-keys: |
+            ${{ runner.os }}-m2
+            ${{ runner.os }}-m2-
+            ${{ runner.os }}-
       - name: Grant execute permissions for maven
         run: chmod +x mvnw
       - name: Build bilan project with maven
