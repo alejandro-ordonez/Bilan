@@ -26,7 +26,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build bilan project with maven
-        run: mvn -B package --file pom.xml -Dmaven.test.skip=true
+        run: mvn -B package --file pom.xml -Dmaven.test.skip=true -X
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v16
         with:
