@@ -24,11 +24,11 @@ jobs:
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2-
+          restore-keys: ${{ runner.os }}-m2
       - name: Grant execute permissions for maven
         run: chmod +x mvnw
       - name: Build bilan project with maven
-        run: ./mvnw -B package --file pom.xml -Dmaven.test.skip=true -X
+        run: ./mvnw -B package --update-snapshots --no-transfer-progress --file pom.xml -Dmaven.test.skip=true -X
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v16
         with:
