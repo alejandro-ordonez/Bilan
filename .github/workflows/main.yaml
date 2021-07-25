@@ -20,11 +20,11 @@ jobs:
         with:
           java-version: 11
       - name: Cache maven packages
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          restore-keys: ${{ runner.os }}-m2-
       - name: Build bilan project with maven
         run: mvn -B package --file pom.xml -Dmaven.test.skip=true -X
       - name: Deploy to EB
