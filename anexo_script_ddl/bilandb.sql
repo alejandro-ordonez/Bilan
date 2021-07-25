@@ -262,17 +262,17 @@ CREATE TABLE IF NOT EXISTS `tribes` (
 
 
 LOAD DATA LOCAL INFILE '/home/Anexo3.csv'
-	 INTO TABLE teachers 
+	 INTO TABLE teachers
    CHARACTER SET utf8
    FIELDS TERMINATED BY ','
 	 LINES TERMINATED BY '\n'
-	 IGNORE 1 LINES 
+	 IGNORE 1 LINES
 	 (@ig1, @ig2, @ig3, @ig4, @ig5, @document_type, document, @ig6, @last_name_1, @last_name_2, @name_1, @name_2,
        @ig7, @ig8, @ig9, email, @ig10, @ig11, @ig12, @ig13, @ig14, @ig15, position_name)
-	 SET last_name = CONCAT(TRIM(@last_name_1), " ", TRIM(@last_name_2)), 
+	 SET last_name = CONCAT(TRIM(@last_name_1), " ", TRIM(@last_name_2)),
 	     name = CONCAT(TRIM(@name_1), " ", TRIM(@name_2)),
-	     document_type = CASE @document_type WHEN 'Cédula de Ciudania' THEN 'CC' 
-                                           WHEN 'Cédula de Extranjeria' THEN 'CE' 
+	     document_type = CASE @document_type WHEN 'Cédula de Ciudania' THEN 'CC'
+                                           WHEN 'Cédula de Extranjeria' THEN 'CE'
                                            ELSE 'Unknown' END;
 
 -- La exportación de datos fue deseleccionada.
@@ -280,3 +280,17 @@ LOAD DATA LOCAL INFILE '/home/Anexo3.csv'
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
+
+INSERT INTO teachers(document, document_type, last_name, name, position_name, email, created_at, modified_at)
+SELECT NRO_DOCUMENTO,
+	   CASE TIPO_DOCUMENTO WHEN 'Cédula de Ciudania' THEN 'CC'
+                           WHEN 'Cédula de Extranjeria' THEN 'CE'
+                           ELSE 'Unknown' END,
+        CONCAT(TRIM(APELLIDO1), " ", TRIM(APELLIDO2)),
+        CONCAT(TRIM(NOMBRE1), " ", TRIM(NOMBRE2)),
+        CARGO,
+        EMAIL,
+        NOW(),
+        NOW()
+	FROM Anexo3_csv;

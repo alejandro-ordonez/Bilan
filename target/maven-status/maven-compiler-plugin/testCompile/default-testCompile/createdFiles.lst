@@ -1,0 +1,5 @@
+org\bilan\co\tests\activities\ActivitiesTest.class
+org\bilan\co\tests\user\UserStatsTests.class
+org\bilan\co\tests\db\DbTests.class
+org\bilan\co\tests\db\ExportDbTest.class
+org\bilan\co\tests\tribes\TribesTest.class
