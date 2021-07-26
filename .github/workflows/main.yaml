@@ -39,9 +39,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: us-east-2
           application_name: bilan
-          environment: Bilan-env
+          environment_name: Bilan-env
           version_label: bilan-backend-${{ github.SHA }}
           version_description: Github actions
-          region: us-east-2
           deployment_package: target/bilan-backend-${{ github.SHA }}.jar
