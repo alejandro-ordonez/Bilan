@@ -1,13 +1,13 @@
 package org.bilan.co.api;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@Controller
 public class ConfigController {
 
     @GetMapping("/")
-    public String home() {
-        return "/swagger-ui.html";
+    public String redirectToSwagger() {
+        return "redirect:/swagger-ui.html";
     }
 }
