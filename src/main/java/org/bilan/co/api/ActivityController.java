@@ -24,11 +24,8 @@ public class ActivityController {
     @GetMapping("/all")
     public ResponseEntity<ResponseDto<List<ActivityDto>>> getAll() {
         List<ActivityDto> activities = activityService.getAll();
-
         ResponseDto<List<ActivityDto>> response = new ResponseDtoBuilder<List<ActivityDto>>().setResult(activities)
                 .setCode(200).setDescription("All activities retrieved successfully").createResponseDto();
-
         return ResponseEntity.ok(response);
-
     }
 }

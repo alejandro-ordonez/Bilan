@@ -19,20 +19,31 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Cache maven packages
-        uses: actions/cache@v1
+      - name: Cache local Maven repository
+        uses: actions/cache@v2.1.4
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Build bilan project with maven
-        run: mvn -B package --file pom.xml -Dmaven.test.skip=true
+          restore-keys: |
+            ${{ runner.os }}-m2
+            ${{ runner.os }}-m2-
+            ${{ runner.os }}-
+      - name: Grant execute permissions for maven
+        run: chmod +x mvnw
+      - name: Setup new version based on sha Build bilan project with maven
+        run: |
+          ./mvnw versions:set -DnewVersion=${{ github.SHA }}
+          ./mvnw -B package --update-snapshots --no-transfer-progress --file pom.xml -Dmaven.test.skip=true -Pstage
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v16
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: us-east-2
           application_name: bilan
-          environment: bilan-stage
-          version_label: ${{ github.SHA }}
-          deployment_package: target/bilan-backend-0.0.1-SNAPSHOT.jar
+          environment_name: Bilan-env
+          version_label: bilan-backend-${{ github.SHA }}
+          version_description: Github actions
+          deployment_package: target/bilan-backend-${{ github.SHA }}.jar
+          wait_for_deployment: true
+          wait_for_environment_recovery: 120
