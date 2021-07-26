@@ -3,6 +3,7 @@ target/classes
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+target
 
 ### STS ###
 .apt_generated
@@ -31,9 +32,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-### SIMAT / SINEB SOAP autgenerated data
-###src/main/java/org/bilan/co/ws/simat/estudiante/*
-###src/main/java/org/bilan/co/ws/simat/matricula/*
-###src/main/java/org/bilan/co/ws/sineb/establecimiento/*
-###src/main/java/org/bilan/co/ws/simat/sedeeducativa/*
