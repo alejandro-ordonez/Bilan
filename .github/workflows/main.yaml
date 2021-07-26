@@ -45,3 +45,5 @@ jobs:
           version_label: bilan-backend-${{ github.SHA }}
           version_description: Github actions
           deployment_package: target/bilan-backend-${{ github.SHA }}.jar
+          wait_for_deployment: true
+          wait_for_environment_recovery: 120
