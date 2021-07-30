@@ -30,16 +30,22 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class RegisterService implements IRegisterService {
-    @Autowired
+
     private TeachersRepository teachersRepository;
-    @Autowired
     private StudentsRepository studentsRepository;
-    @Autowired
     private SimatEstudianteClient simatEstudianteClient;
-    @Autowired
     private SimatMatriculaClient simatMatriculaClient;
-    @Autowired
-    private BCryptPasswordEncoder cryptPasswordEncoder;
+    private BCryptPasswordEncoder passwordEncoder;
+
+    public RegisterService(TeachersRepository teachersRepository, StudentsRepository studentsRepository,
+                           SimatEstudianteClient simatEstudianteClient, SimatMatriculaClient simatMatriculaClient,
+                           BCryptPasswordEncoder passwordEncoder) {
+        this.teachersRepository = teachersRepository;
+        this.studentsRepository = studentsRepository;
+        this.simatEstudianteClient = simatEstudianteClient;
+        this.simatMatriculaClient = simatMatriculaClient;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public ResponseDto<UserState> userExists(AuthDto authDto) {
@@ -158,7 +164,7 @@ public class RegisterService implements IRegisterService {
                     .setResult(UserState.UserExists).createResponseDto();
         }
 
-        String encryptedPassword = cryptPasswordEncoder.encode(password);
+        String encryptedPassword = passwordEncoder.encode(password);
         student.setPassword(encryptedPassword);
 
         try {
@@ -188,7 +194,7 @@ public class RegisterService implements IRegisterService {
         student.setCreatedAt(new Date());
         student.setModifiedAt(new Date());
 
-        String encryptedPassword = cryptPasswordEncoder.encode(regUserDto.getPassword());
+        String encryptedPassword = passwordEncoder.encode(regUserDto.getPassword());
         student.setPassword(encryptedPassword);
 
         //TODO: add classRoom
@@ -212,7 +218,7 @@ public class RegisterService implements IRegisterService {
                     .createResponseDto();
         }
 
-        String encryptedPassword = cryptPasswordEncoder.encode(password);
+        String encryptedPassword = passwordEncoder.encode(password);
         teacher.setPassword(encryptedPassword);
 
         try {

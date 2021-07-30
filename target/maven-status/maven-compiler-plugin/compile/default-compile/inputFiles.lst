@@ -1,3 +1,4 @@
+D:\freelance\Bilan\src\main\java\org\bilan\co\api\ConfigController.java
 D:\freelance\Bilan\src\main\java\org\bilan\co\ws\sineb\establecimiento\IdentificacionPersona.java
 D:\freelance\Bilan\src\main\java\org\bilan\co\application\ITribeService.java
 D:\freelance\Bilan\src\main\java\org\bilan\co\ws\simat\matricula\IdentificacionPersonaCC.java
@@ -102,6 +103,7 @@ D:\freelance\Bilan\src\main\java\org\bilan\co\ws\simat\matricula\CodGradoSectorE
 D:\freelance\Bilan\src\main\java\org\bilan\co\ws\simat\estudiante\ObtenerMatriculaResponse.java
 D:\freelance\Bilan\src\main\java\org\bilan\co\ws\simat\matricula\ObtenerEstudianteResponse.java
 D:\freelance\Bilan\src\main\java\org\bilan\co\ws\sineb\establecimiento\Rector.java
+D:\freelance\Bilan\src\main\java\org\bilan\co\config\CorsConfig.java
 D:\freelance\Bilan\src\main\java\org\bilan\co\ws\simat\matricula\IdentificacionPersonaRC.java
 D:\freelance\Bilan\src\main\java\org\bilan\co\ws\simat\estudiante\IdentificacionPersonaCC.java
 D:\freelance\Bilan\src\main\java\org\bilan\co\ws\sineb\sedeeducativa\package-info.java
