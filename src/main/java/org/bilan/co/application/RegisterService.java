@@ -22,6 +22,7 @@ import org.bilan.co.ws.simat.estudiante.Estudiante;
 import org.bilan.co.ws.simat.matricula.Matricula;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -35,11 +36,11 @@ public class RegisterService implements IRegisterService {
     private StudentsRepository studentsRepository;
     private SimatEstudianteClient simatEstudianteClient;
     private SimatMatriculaClient simatMatriculaClient;
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     public RegisterService(TeachersRepository teachersRepository, StudentsRepository studentsRepository,
                            SimatEstudianteClient simatEstudianteClient, SimatMatriculaClient simatMatriculaClient,
-                           BCryptPasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder) {
         this.teachersRepository = teachersRepository;
         this.studentsRepository = studentsRepository;
         this.simatEstudianteClient = simatEstudianteClient;

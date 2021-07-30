@@ -31,5 +31,4 @@ public class CorsConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
