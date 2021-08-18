@@ -201,7 +201,7 @@
                                     <schemas>
                                         <schema>
                                             <url>
-                                                http://wsstandardsineb.mineducacion.gov.co/wsstandardsineb/EstablecimientoEducativo?wsdl
+                                                http://wsstandardsinebcert.mineducacion.gov.co/wsstandardsineb/EstablecimientoEducativo?wsdl
                                             </url>
                                         </schema>
                                     </schemas>
@@ -220,7 +220,7 @@
                                     <schemas>
                                         <schema>
                                             <url>
-                                                http://wsstandardsineb.mineducacion.gov.co/wsstandardsineb/SedeEducativa?wsdl
+                                                http://wsstandardsinebcert.mineducacion.gov.co/wsstandardsineb/SedeEducativa?wsdl
                                             </url>
                                         </schema>
                                     </schemas>

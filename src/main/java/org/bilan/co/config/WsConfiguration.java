@@ -75,7 +75,7 @@ public class WsConfiguration {
     public SinebEstablecimientoClient sinebEstablecimientoClient(Jaxb2Marshaller marshallerSinebEstablecimiento) {
         SinebEstablecimientoClient client = new SinebEstablecimientoClient();
         client.setMessageFactory(soapMessageFactory());
-        client.setDefaultUri("http://wsstandardsineb.mineducacion.gov.co:80/wsstandardsineb/EstablecimientoEducativo");
+        client.setDefaultUri("http://wsstandardsinebcert.mineducacion.gov.co:80/wsstandardsineb/EstablecimientoEducativo");
         client.setMarshaller(marshallerSinebEstablecimiento);
         client.setUnmarshaller(marshallerSinebEstablecimiento);
         client.setInterceptors(new ClientInterceptor[]{new SimatEstudianteInterceptor()});
@@ -93,7 +93,7 @@ public class WsConfiguration {
     public SinebSedeEducativaClient sinebSedeEducativaClient(Jaxb2Marshaller marshallerSinebSedeEducativa) {
         SinebSedeEducativaClient client = new SinebSedeEducativaClient();
         client.setMessageFactory(soapMessageFactory());
-        client.setDefaultUri("http://wsstandardsineb.mineducacion.gov.co:80/wsstandardsineb/SedeEducativa");
+        client.setDefaultUri("http://wsstandardsinebcert.mineducacion.gov.co:80/wsstandardsineb/SedeEducativa");
         client.setMarshaller(marshallerSinebSedeEducativa);
         client.setUnmarshaller(marshallerSinebSedeEducativa);
         client.setInterceptors(new ClientInterceptor[]{new SimatEstudianteInterceptor()});
