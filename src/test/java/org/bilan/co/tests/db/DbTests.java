@@ -26,8 +26,9 @@ public class DbTests {
     private TribesRepository tribesRepository;
     @Autowired
     private ActionsRepository actionsRepository;
+
     @Test
-    public void insertData(){
+    public void seedDemoUsers(){
         String baseId = "100011111%d";
         for (int i = 0; i < 10; i++) {
             Students student = new StudentsBuilder().createStudents();

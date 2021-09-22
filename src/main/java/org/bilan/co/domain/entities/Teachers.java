@@ -6,7 +6,9 @@
 
 package org.bilan.co.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.bilan.co.domain.enums.DocumentType;
+import org.bilan.co.domain.enums.UserType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -76,8 +78,12 @@ public class Teachers implements Serializable {
     @Column(name = "modified_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;
+    @JsonIgnore
     @OneToMany(mappedBy = "idTeacher")
     private List<Classrooms> classroomsList;
+
+    @Transient
+    private UserType userType = UserType.Teacher;
 
     public Teachers() {
     }
@@ -188,6 +194,14 @@ public class Teachers implements Serializable {
 
     public void setClassroomsList(List<Classrooms> classroomsList) {
         this.classroomsList = classroomsList;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     @Override

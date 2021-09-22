@@ -68,6 +68,19 @@ public class StudentStats implements Serializable {
     public StudentStats() {
     }
 
+    public static StudentStats getDefault()
+    {
+        StudentStats stats = new StudentStats();
+        stats.analyticalTotems = 0;
+        stats.criticalTotems = 0;
+        stats.currentCycle = 1;
+        stats.currentSpirits = 3;
+        stats.lastTotemUpdate = new Date();
+        stats.tribesPoints = "TODO";
+
+        return stats;
+    }
+
     public StudentStats(Integer id) {
         this.id = id;
     }

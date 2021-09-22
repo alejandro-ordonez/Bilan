@@ -6,7 +6,9 @@
 
 package org.bilan.co.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.bilan.co.domain.enums.DocumentType;
+import org.bilan.co.domain.enums.UserType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -69,12 +71,18 @@ public class Students implements Serializable {
     @Column(name = "modified_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;
+    @JsonIgnore
     @OneToMany(mappedBy = "idStudent")
     private List<ResolvedAnswerBy> resolvedAnswerByList;
+    @JsonIgnore
     @OneToOne(mappedBy = "idStudent", cascade = CascadeType.ALL)
     private StudentStats studentStats;
+    @JsonIgnore
     @OneToMany(mappedBy = "idStudent")
     private List<Evidences> evidencesList;
+
+    @Transient
+    private UserType userType = UserType.Student;
 
     public Students() {
         createdAt = new Date();
@@ -164,6 +172,14 @@ public class Students implements Serializable {
 
     public void setModifiedAt(Date modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     @XmlTransient

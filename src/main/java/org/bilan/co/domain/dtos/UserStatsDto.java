@@ -2,6 +2,7 @@ package org.bilan.co.domain.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,6 +18,7 @@ public class UserStatsDto {
     private List<StudentChallengesDto> studentChallenges;
 
     public UserStatsDto() {
+        studentChallenges = new ArrayList<>();
     }
 
     public String getTribePoints() {
