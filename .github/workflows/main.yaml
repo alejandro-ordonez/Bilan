@@ -38,7 +38,7 @@ jobs:
         run: |
           mkdir bilan-backend
           cp -r target/bilan-backend-${{ github.SHA }}.jar bilan-backend/application.jar
-          cp .platform bilan-backend
+          cp -r .platform bilan-backend
           cp -r elb/* bilan-backend
           echo '************************'
           ls -la bilan-backend
