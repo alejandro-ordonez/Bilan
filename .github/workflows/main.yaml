@@ -40,8 +40,7 @@ jobs:
           cp -r target/bilan-backend-${{ github.SHA }}.jar bilan-backend/application.jar
           cp -r .platform bilan-backend
           cp -r elb/* bilan-backend
-          cd bilan-backend
-          zip -j bilan-backend-${{ github.SHA }}.zip .
+          zip -j bilan-backend-${{ github.SHA }}.zip bilan-backend/*
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v16
         with:
