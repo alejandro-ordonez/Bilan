@@ -83,23 +83,22 @@ public class DbTests {
                 .createStudentStats();
         studentStats.setCurrentSpirits(3);
 
-        List<StudentChallenges> studentChallengesList = new ArrayList<>();
+        List<StudentActions> studentChallengesList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
 
             Challenges challenges = new Challenges();
             challenges.setCost(random.nextInt(500));
             challenges.setName("Challenge"+i);
             challenges.setReward(random.nextInt(5));
-            challenges.setQuestionsList(new ArrayList<>());
             challenges.setTimer(100);
             challenges.setType("Test");
             challenges.setIdAction(actions);
-            actions.getChallengesList().add(challenges);
 
-            StudentChallenges studentChallenges = new StudentChallenges(i);
-            studentChallenges.setIdChallenge(challenges);
+
+            StudentActions studentChallenges = new StudentActions(i);
+            //studentChallenges.setIdChallenge(challenges);
             studentChallenges.setCurrentPoints(random.nextInt(200));
-            challenges.setStudentChallenges(studentChallenges);
+            //challenges.setStudentChallenges(studentChallenges);
             studentChallengesList.add(studentChallenges);
             studentChallenges.setIdStudentStat(studentStats);
         }

@@ -6,6 +6,8 @@
 
 package org.bilan.co.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,14 +41,18 @@ public class Actions implements Serializable {
     private String description;
     @Size(max = 255)
     private String representative;
-    @OneToMany(mappedBy = "idAction", cascade = CascadeType.ALL)
-    private List<Challenges> challengesList;
+    @Size(max = 255)
+    private String imagePath;
     @JoinColumn(name = "id_tribe", referencedColumnName = "id")
     @ManyToOne
     private Tribes idTribe;
 
+    @JoinColumn(name = "id_challenge", referencedColumnName = "id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
+    private StudentActions studentChallenges;
+
     public Actions() {
-        challengesList = new ArrayList<>();
     }
 
     public Actions(Integer id) {
@@ -85,21 +91,28 @@ public class Actions implements Serializable {
         this.representative = representative;
     }
 
-    @XmlTransient
-    public List<Challenges> getChallengesList() {
-        return challengesList;
-    }
-
-    public void setChallengesList(List<Challenges> challengesList) {
-        this.challengesList = challengesList;
-    }
-
     public Tribes getIdTribe() {
         return idTribe;
     }
 
     public void setIdTribe(Tribes idTribe) {
         this.idTribe = idTribe;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public StudentActions getStudentChallenges() {
+        return studentChallenges;
+    }
+
+    public void setStudentChallenges(StudentActions studentChallenges) {
+        this.studentChallenges = studentChallenges;
     }
 
     @Override

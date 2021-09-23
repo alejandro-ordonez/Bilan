@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/stats")
 public class StatsController {
 
     @Autowired
     private IStudentStatsService statsService;
 
-    @GetMapping("/stats")
+    @GetMapping
     public ResponseEntity<ResponseDto<UserStatsDto>> getStats(@RequestHeader(Constants.AUTHORIZATION) String jwt){
         return  ResponseEntity.ok(statsService.getUserStats(jwt));
     }
 
-    @PostMapping("/stats")
+    @PostMapping
     public ResponseEntity<ResponseDto<String>> updateStats(UserStatsDto statsDto, @RequestHeader(Constants.AUTHORIZATION) String jwt){
         return ResponseEntity.ok(statsService.updateUserStats(statsDto, jwt));
     }

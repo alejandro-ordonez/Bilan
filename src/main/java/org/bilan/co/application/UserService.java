@@ -2,13 +2,10 @@ package org.bilan.co.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.entities.StudentChallenges;
-import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.infraestructure.persistance.StatsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.domain.dtos.*;
-import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.utils.JwtTokenUtil;
@@ -20,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service

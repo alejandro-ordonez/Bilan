@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import org.bilan.co.domain.entities.Tribes;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TribeDto {
   private String name;
@@ -11,6 +15,7 @@ public class TribeDto {
   private String element;
   private Integer adjacentTribe;
   private Integer oppositeTribe;
+  private List<ActionDto> actionList;
 
   public TribeDto(String name, String culture, String element, Integer adjacentTribe, Integer oppositeTribe) {
     this.name = name;
@@ -18,6 +23,7 @@ public class TribeDto {
     this.adjacentTribe = adjacentTribe;
     this.element = element;
     this.oppositeTribe = oppositeTribe;
+    this.actionList = new ArrayList<>();
   }
 
   public TribeDto(Tribes tribe) {
@@ -26,6 +32,7 @@ public class TribeDto {
     this.element = tribe.getElement();
     this.adjacentTribe = tribe.getAdjacentTribeId().getId();
     this.oppositeTribe = tribe.getOppositeTribeId().getId();
+    //this.actionList = tribe.getActionImageList().stream().map(ActionImageDto::new).collect(Collectors.toList());
   }
 
   public String getName() {

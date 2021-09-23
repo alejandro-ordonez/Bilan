@@ -4,7 +4,6 @@ import org.bilan.co.application.IStudentStatsService;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.StudentChallengesDto;
 import org.bilan.co.domain.dtos.UserStatsDto;
-import org.bilan.co.domain.entities.StudentChallenges;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.junit.jupiter.api.Test;

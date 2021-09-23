@@ -63,7 +63,8 @@ public class StudentStats implements Serializable {
     @JsonIgnore
     private Students idStudent;
     @OneToMany(mappedBy = "idStudentStat", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<StudentChallenges> studentChallengesList;
+    private List<StudentActions> studentChallengesList;
+
 
     public StudentStats() {
     }
@@ -90,7 +91,7 @@ public class StudentStats implements Serializable {
         this.lastTotemUpdate = lastTotemUpdate;
     }
 
-    public StudentStats(Integer generalTotems, Integer analyticalTotems, Integer criticalTotems, Integer currentCycle, Date lastTotemUpdate, List<StudentChallenges> studentChallengesList) {
+    public StudentStats(Integer generalTotems, Integer analyticalTotems, Integer criticalTotems, Integer currentCycle, Date lastTotemUpdate, List<StudentActions> studentChallengesList) {
         this.generalTotems = generalTotems;
         this.analyticalTotems = analyticalTotems;
         this.criticalTotems = criticalTotems;
@@ -172,11 +173,11 @@ public class StudentStats implements Serializable {
     }
 
     @XmlTransient
-    public List<StudentChallenges> getStudentChallengesList() {
+    public List<StudentActions> getStudentChallengesList() {
         return studentChallengesList;
     }
 
-    public void setStudentChallengesList(List<StudentChallenges> studentChallengesList) {
+    public void setStudentChallengesList(List<StudentActions> studentChallengesList) {
         this.studentChallengesList = studentChallengesList;
     }
 

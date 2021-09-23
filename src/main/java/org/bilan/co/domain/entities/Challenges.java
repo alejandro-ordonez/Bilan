@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -51,15 +50,8 @@ public class Challenges implements Serializable {
     private Actions idAction;
     @OneToMany(mappedBy = "idChallenge")
     private List<Questions> questionsList;
-    @OneToMany(mappedBy = "idChallenge")
-    private List<ResolvedAnswerBy> resolvedAnswerByList;
-    @JoinColumn(name = "id_challenge", referencedColumnName = "id")
-    @OneToOne(cascade = CascadeType.ALL)
-    @JsonIgnore
-    private StudentChallenges studentChallenges;
 
     public Challenges() {
-        questionsList = new ArrayList<>();
     }
 
     public Challenges(Integer id) {
@@ -122,31 +114,12 @@ public class Challenges implements Serializable {
         this.idAction = idAction;
     }
 
-    @XmlTransient
     public List<Questions> getQuestionsList() {
         return questionsList;
     }
 
     public void setQuestionsList(List<Questions> questionsList) {
         this.questionsList = questionsList;
-    }
-
-    @XmlTransient
-    public List<ResolvedAnswerBy> getResolvedAnswerByList() {
-        return resolvedAnswerByList;
-    }
-
-    public void setResolvedAnswerByList(List<ResolvedAnswerBy> resolvedAnswerByList) {
-        this.resolvedAnswerByList = resolvedAnswerByList;
-    }
-
-    @XmlTransient
-    public StudentChallenges getStudentChallenges() {
-        return studentChallenges;
-    }
-
-    public void setStudentChallenges(StudentChallenges studentChallenges) {
-        this.studentChallenges = studentChallenges;
     }
 
     @Override

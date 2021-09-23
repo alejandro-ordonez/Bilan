@@ -7,7 +7,7 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.StudentChallengesDto;
 import org.bilan.co.domain.dtos.UserStatsDto;
 import org.bilan.co.domain.entities.Challenges;
-import org.bilan.co.domain.entities.StudentChallenges;
+import org.bilan.co.domain.entities.StudentActions;
 import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.infraestructure.persistance.ChallengesRepository;
@@ -37,6 +37,7 @@ public class StudentStatsService implements IStudentStatsService{
     private JwtTokenUtil jwtTokenUtil;
 
 
+    //TODO: Pending to change
     @Override
     public ResponseDto<UserStatsDto> getUserStats(String token) {
 
@@ -44,31 +45,6 @@ public class StudentStatsService implements IStudentStatsService{
 
         StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
 
-        if (studentStats == null) {
-            log.error("The record wasn't found");
-            return null;
-        }
-
-        List<StudentChallenges> studentChallengesList = studentStats.getStudentChallengesList();
-        studentStats.setStudentChallengesList(new ArrayList<>());
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserStatsDto userStatsDto = objectMapper.convertValue(studentStats, UserStatsDto.class);
-
-        List<StudentChallengesDto> studentChallengesDtos = new ArrayList<>();
-        for (StudentChallenges challenge : studentChallengesList) {
-            studentChallengesDtos.add(new StudentChallengesDto(challenge.getCurrentPoints(),
-                    challenge.getIdChallenge().getId(), challenge.getIdChallenge().getIdAction().getIdTribe().getId()));
-        }
-        userStatsDto.setStudentChallenges(studentChallengesDtos);
-
-        return new ResponseDto<>("Stats returned successfully", 200, userStatsDto);
-    }
-
-    @Override
-    public ResponseDto<String> updateUserStats(UserStatsDto userStatsDto, String token) {
-        AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
-
-        StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
         //Checks if there's a student stats records to be updated. If not, there will be inserted a new one with default values
         if (studentStats == null) {
             log.warn("The record wasn't found a new one will be created");
@@ -80,6 +56,31 @@ public class StudentStatsService implements IStudentStatsService{
 
         }
 
+        List<StudentActions> studentChallengesList = studentStats.getStudentChallengesList();
+        studentStats.setStudentChallengesList(new ArrayList<>());
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserStatsDto userStatsDto = objectMapper.convertValue(studentStats, UserStatsDto.class);
+
+        List<StudentChallengesDto> studentChallengesDtos = new ArrayList<>();
+        for (StudentActions studentChallenge : studentChallengesList) {
+
+            //Challenges challenge = studentChallenge.getIdChallenge();
+
+            //studentChallengesDtos.add(new StudentChallengesDto(studentChallenge.getCurrentPoints(),
+            //        challenge.getId(), challenge.getIdAction().getId(),challenge.getIdAction().getIdTribe().getId()));
+
+        }
+        userStatsDto.setStudentChallenges(studentChallengesDtos);
+
+        return new ResponseDto<>("Stats returned successfully", 200, userStatsDto);
+    }
+
+    @Override
+    public ResponseDto<String> updateUserStats(UserStatsDto userStatsDto, String token) {
+        AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
+
+        StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
+
         studentStats.setCurrentSpirits(userStatsDto.getCurrentSpirits());
         studentStats.setAnalyticalTotems(userStatsDto.getAnalyticalTotems());
         studentStats.setCriticalTotems(userStatsDto.getCriticalTotems());
@@ -90,12 +91,12 @@ public class StudentStatsService implements IStudentStatsService{
         for(StudentChallengesDto studentChallengesDto: userStatsDto.getStudentChallenges()){
             //Filters the record to be updated by challenge. The other values are ignored as the challenge must
             //be already referenced with his tribe. In case it's not the id must be wrong
-            Optional<StudentChallenges> studentChallenges = studentStats.getStudentChallengesList().stream()
-                    .filter(challenge -> challenge.getIdChallenge().getId() == studentChallengesDto.getChallengeId())
-                    .findFirst();
+            //Optional<StudentActions> studentChallenges = studentStats.getStudentChallengesList().stream()
+            //        .filter(challenge -> challenge.getIdChallenge().getId() == studentChallengesDto.getChallengeId())
+            //        .findFirst();
 
             // If it is not found in the records of StudentChallenges then a new one is created base in an existing challenge
-            if(!studentChallenges.isPresent()){
+            //if(!studentChallenges.isPresent()){
 
                 Optional<Challenges> challenge = challengesRepository.findById(studentChallengesDto.getChallengeId());
                 //If the challenge is not found will be assumed that the id is incorrect.
@@ -106,21 +107,21 @@ public class StudentStatsService implements IStudentStatsService{
                 }
 
                 //If it exists a new reference will be created.
-                StudentChallenges newStudentChallenge = new StudentChallenges();
+                StudentActions newStudentChallenge = new StudentActions();
                 //Reference to the challenge that belongs this record
-                newStudentChallenge.setIdChallenge(challenge.get());
+                //newStudentChallenge.setIdChallenge(challenge.get());
                 //Reference to the stats that this record belongs
                 newStudentChallenge.setIdStudentStat(studentStats);
                 //Updates the new points
                 newStudentChallenge.setCurrentPoints(studentChallengesDto.getCurrentPoints());
                 //Adds a reference to solve the relationship, JPA will take care of the rest.
-                challenge.get().setStudentChallenges(newStudentChallenge);
+                //challenge.get().setStudentChallenges(newStudentChallenge);
                 //The new record is added to the list.
                 studentStats.getStudentChallengesList().add(newStudentChallenge);
                 break;
-            }
+            //}
 
-            studentChallenges.get().setCurrentPoints(studentChallengesDto.getCurrentPoints());
+           // studentChallenges.get().setCurrentPoints(studentChallengesDto.getCurrentPoints());
 
         }
         return new ResponseDto<>("The update was applied successfully", 200, "Ok");

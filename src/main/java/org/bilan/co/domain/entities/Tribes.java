@@ -47,6 +47,9 @@ public class Tribes implements Serializable {
     private String culture;
     @Size(max = 255)
     private String element;
+    @Size(max = 255)
+    private String imagePath;
+
     @OneToMany(mappedBy = "oppositeTribeId")
     private List<Tribes> tribesList;
     @JoinColumn(name = "opposite_tribe_id", referencedColumnName = "id")
@@ -101,6 +104,22 @@ public class Tribes implements Serializable {
         this.element = element;
     }
 
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public List<Actions> getActionsList() {
+        return actionsList;
+    }
+
+    public void setActionsList(List<Actions> actionsList) {
+        this.actionsList = actionsList;
+    }
+
     @XmlTransient
     public List<Tribes> getTribesList() {
         return tribesList;
@@ -142,15 +161,6 @@ public class Tribes implements Serializable {
 
     public void setClassroomsList(List<Classrooms> classroomsList) {
         this.classroomsList = classroomsList;
-    }
-
-    @XmlTransient
-    public List<Actions> getActionsList() {
-        return actionsList;
-    }
-
-    public void setActionsList(List<Actions> actionsList) {
-        this.actionsList = actionsList;
     }
 
     @Override

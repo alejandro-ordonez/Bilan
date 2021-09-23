@@ -26,8 +26,10 @@ public class TribeController {
   public ResponseEntity<ResponseDto<List<TribeDto>>> getAll() {
     List<TribeDto> tribes = tribeService.getAll();
 
-    ResponseDto<List<TribeDto>> response = new ResponseDtoBuilder<List<TribeDto>>().setResult(tribes).setCode(200)
-        .setDescription("All tribes retrieved successfully").createResponseDto();
+    ResponseDto<List<TribeDto>> response = new ResponseDtoBuilder<List<TribeDto>>()
+            .setResult(tribes)
+            .setCode(200)
+            .setDescription("All tribes retrieved successfully").createResponseDto();
 
     return ResponseEntity.ok(response);
   }

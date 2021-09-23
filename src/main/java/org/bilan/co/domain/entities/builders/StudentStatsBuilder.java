@@ -1,6 +1,6 @@
 package org.bilan.co.domain.entities.builders;
 
-import org.bilan.co.domain.entities.StudentChallenges;
+import org.bilan.co.domain.entities.StudentActions;
 import org.bilan.co.domain.entities.StudentStats;
 
 import java.util.Date;
@@ -13,7 +13,7 @@ public class StudentStatsBuilder {
     private Integer analyticalTotems;
     private Integer criticalTotems;
     private Integer currentCycle;
-    private List<StudentChallenges> studentChallengesList;
+    private List<StudentActions> studentChallengesList;
 
     public StudentStatsBuilder setId(Integer id) {
         this.id = id;
@@ -45,7 +45,7 @@ public class StudentStatsBuilder {
         return this;
     }
 
-    public StudentStatsBuilder setStudentChallengesList(List<StudentChallenges> studentChallengesList) {
+    public StudentStatsBuilder setStudentChallengesList(List<StudentActions> studentChallengesList) {
         this.studentChallengesList = studentChallengesList;
         return this;
     }
