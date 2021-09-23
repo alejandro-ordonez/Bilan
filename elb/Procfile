@@ -1,1 +1,1 @@
-web: java -jar bilan-backend.jar
+web: java -jar application.jar
