@@ -36,11 +36,11 @@ jobs:
           ./mvnw -B package --update-snapshots --no-transfer-progress --file pom.xml -Dmaven.test.skip=true -Pstage
       - name: Check files and build ELB artifact
         run: |
-          rm -Rf target/bilan-backend-${{ github.SHA }}/*
-          cp -r /home/runner/work/Bilan/Bilan/.platform target/bilan-backend-${{ github.SHA }}
-          cp -r target/bilan-backend-${{ github.SHA }}.jar target/bilan-backend-${{ github.SHA }}
-          ls -la target/bilan-backend-${{ github.SHA }}
-          zip -r bilan-backend-${{ github.SHA }}.jar target/bilan-backend-${{ github.SHA }}
+          mkdir bilan-backend-${{ github.SHA }}
+          cp -r .platform bilan-backend-${{ github.SHA }}
+          cp -r target/bilan-backend-${{ github.SHA }}.jar bilan-backend-${{ github.SHA }}
+          ls -la bilan-backend-${{ github.SHA }}
+          zip -r bilan-backend-${{ github.SHA }}.jar bilan-backend-${{ github.SHA }}
           ls -la
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v16
