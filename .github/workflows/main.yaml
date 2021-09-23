@@ -38,10 +38,11 @@ jobs:
         run: |
           mkdir bilan-backend
           cp -r target/bilan-backend-${{ github.SHA }}.jar bilan-backend/application.jar
-          cp -r .platform bilan-backend
+          cp .platform bilan-backend
           cp -r elb/* bilan-backend
-          zip -j bilan-backend-${{ github.SHA }}.zip bilan-backend/*
+          echo '************************'
           ls -la bilan-backend
+          zip bilan-backend-${{ github.SHA }}.zip bilan-backend/*
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v16
         with:
