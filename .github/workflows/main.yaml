@@ -37,8 +37,9 @@ jobs:
       - name: Check files and build ELB artifact
         run: |
           rm -Rf target/bilan-backend-${{ github.SHA }}/*
-          cp /home/runner/work/Bilan/Bilan/.platform target/bilan-backend-${{ github.SHA }}
-          cp target/bilan-backend-${{ github.SHA }}.jar target/bilan-backend-${{ github.SHA }}
+          ls -la /home/runner/work/Bilan/Bilan/
+          cp -r /home/runner/work/Bilan/Bilan/.platform target/bilan-backend-${{ github.SHA }}
+          cp -r target/bilan-backend-${{ github.SHA }}.jar target/bilan-backend-${{ github.SHA }}
           ls -la target/bilan-backend-${{ github.SHA }}
           zip -r bilan-backend-${{ github.SHA }}.jar target/bilan-backend-${{ github.SHA }}
           ls
