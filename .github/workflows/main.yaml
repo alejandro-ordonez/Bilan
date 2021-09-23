@@ -37,12 +37,11 @@ jobs:
       - name: Check files and build ELB artifact
         run: |
           rm -Rf target/bilan-backend-${{ github.SHA }}/*
-          ls -la /home/runner/work/Bilan/Bilan/
           cp -r /home/runner/work/Bilan/Bilan/.platform target/bilan-backend-${{ github.SHA }}
           cp -r target/bilan-backend-${{ github.SHA }}.jar target/bilan-backend-${{ github.SHA }}
           ls -la target/bilan-backend-${{ github.SHA }}
           zip -r bilan-backend-${{ github.SHA }}.jar target/bilan-backend-${{ github.SHA }}
-          ls
+          ls -la
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v16
         with:
@@ -53,7 +52,7 @@ jobs:
           environment_name: Bilan-env
           version_label: bilan-backend-${{ github.SHA }}
           version_description: Github actions
-          deployment_package: target/bilan-backend-${{ github.SHA }}.jar
+          deployment_package: bilan-backend-${{ github.SHA }}.jar
           wait_for_deployment: true
           wait_for_environment_recovery: 120
           use_existing_version_if_available: true
