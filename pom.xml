@@ -183,6 +183,9 @@
                                 <copy todir="${project.build.directory}/${project.build.finalName}/" overwrite="false">
                                     <fileset dir="./" includes=".ebextensions/**"/>
                                 </copy>
+                                <copy todir="${project.build.directory}/${project.build.finalName}/" overwrite="false">
+                                    <fileset dir="./" includes=".platform/**"/>
+                                </copy>
                                 <zip compress="false"
                                      destfile="${project.build.directory}/${project.build.finalName}.jar"
                                      basedir="${project.build.directory}/${project.build.finalName}"/>
