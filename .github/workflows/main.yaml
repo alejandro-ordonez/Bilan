@@ -39,8 +39,8 @@ jobs:
           mkdir bilan-backend-${{ github.SHA }}
           cp -r .platform bilan-backend-${{ github.SHA }}
           cp -r elb/* bilan-backend-${{ github.SHA }}
-          cp -r target/bilan-backend-${{ github.SHA }}.jar bilan-backend-${{ github.SHA }}
-          zip -r application.jar bilan-backend-${{ github.SHA }}
+          cp -r target/bilan-backend-${{ github.SHA }}.jar bilan-backend-${{ github.SHA }}/application.jar
+          zip -r bilan-backend-${{ github.SHA }}.zip bilan-backend-${{ github.SHA }}
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v16
         with:
@@ -51,7 +51,7 @@ jobs:
           environment_name: Bilan-env
           version_label: bilan-backend-${{ github.SHA }}
           version_description: Github actions
-          deployment_package: application.jar
+          deployment_package: bilan-backend-${{ github.SHA }}.zip
           wait_for_deployment: true
           wait_for_environment_recovery: 120
           use_existing_version_if_available: true
