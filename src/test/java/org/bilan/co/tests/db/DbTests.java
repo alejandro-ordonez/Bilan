@@ -70,7 +70,7 @@ public class DbTests {
         actions.setName("ActionName");
         actions.setDescription("ActionDescription");
         actions.setRepresentative("Representative");
-        actions.setIdTribe(tribe);
+        actions.setTribe(tribe);
 
         actionsRepository.save(actions);
 
@@ -92,10 +92,11 @@ public class DbTests {
             challenges.setReward(random.nextInt(5));
             challenges.setTimer(100);
             challenges.setType("Test");
-            challenges.setIdAction(actions);
+            challenges.setAction(actions);
 
 
-            StudentActions studentChallenges = new StudentActions(i);
+            StudentActions studentChallenges = new StudentActions();
+            studentChallenges.setId(i);
             //studentChallenges.setIdChallenge(challenges);
             studentChallenges.setCurrentPoints(random.nextInt(200));
             //challenges.setStudentChallenges(studentChallenges);

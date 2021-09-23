@@ -10,6 +10,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Slf4j
 @Component
 public class DatabaseSeeder {
@@ -20,35 +22,34 @@ public class DatabaseSeeder {
     private ActionsRepository actionsRepository;
 
     @EventListener
-    public void seedDatabase(ContextRefreshedEvent contextRefreshedEvent){
+    public void seedDatabase(ContextRefreshedEvent contextRefreshedEvent) {
         log.info("Seed database triggered");
+        actionsRepository.deleteAll();
+        tribesRepository.deleteAll();
         seedTribes();
     }
 
+    public void seedActions(Tribes tribe) {
 
-    public  void seedActions(Tribes tribe){
         Actions spiritualAction = new Actions();
-        spiritualAction.setIdTribe(tribe);
+        spiritualAction.setTribe(tribe);
         spiritualAction.setName("Espiritual");
         spiritualAction.setRepresentative("No sé");
 
         Actions explorerAction = new Actions();
-        explorerAction.setIdTribe(tribe);
+        explorerAction.setTribe(tribe);
         explorerAction.setName("Exploración");
         explorerAction.setRepresentative("?");
 
         Actions civilAction = new Actions();
-        civilAction.setIdTribe(tribe);
+        civilAction.setTribe(tribe);
         civilAction.setName("Civil");
         civilAction.setRepresentative("?");
 
-        actionsRepository.save(spiritualAction);
-        actionsRepository.save(explorerAction);
-        actionsRepository.save(civilAction);
+        actionsRepository.saveAll(Arrays.asList(spiritualAction, explorerAction, civilAction));
     }
 
-
-    public void seedTribes(){
+    public void seedTribes() {
         log.info("Seeding tribes");
 
         Tribes fireTribe = new Tribes();
@@ -77,7 +78,6 @@ public class DatabaseSeeder {
         tribesRepository.save(airTribe);
         tribesRepository.save(lightTribe);
 
-
         lightTribe.setAdjacentTribeId(earthTribe);
         lightTribe.setOppositeTribeId(waterTribe);
 
@@ -86,7 +86,7 @@ public class DatabaseSeeder {
 
         waterTribe.setAdjacentTribeId(airTribe);
         waterTribe.setOppositeTribeId(fireTribe);
-        
+
         airTribe.setAdjacentTribeId(fireTribe);
         airTribe.setOppositeTribeId(lightTribe);
 

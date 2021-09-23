@@ -18,59 +18,66 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
  * @author Manuel Alejandro
  */
 @Entity
 @Table(name = "student_stats")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "StudentStats.findAll", query = "SELECT s FROM StudentStats s"),
-    @NamedQuery(name = "StudentStats.findById", query = "SELECT s FROM StudentStats s WHERE s.id = :id"),
-    @NamedQuery(name = "StudentStats.findByGeneralTotems", query = "SELECT s FROM StudentStats s WHERE s.generalTotems = :generalTotems"),
-    @NamedQuery(name = "StudentStats.findByAnalyticalTotems", query = "SELECT s FROM StudentStats s WHERE s.analyticalTotems = :analyticalTotems"),
-    @NamedQuery(name = "StudentStats.findByCriticalTotems", query = "SELECT s FROM StudentStats s WHERE s.criticalTotems = :criticalTotems"),
-    @NamedQuery(name = "StudentStats.findByCurrentCycle", query = "SELECT s FROM StudentStats s WHERE s.currentCycle = :currentCycle"),
-    @NamedQuery(name = "StudentStats.findByLastTotemUpdate", query = "SELECT s FROM StudentStats s WHERE s.lastTotemUpdate = :lastTotemUpdate")})
+        @NamedQuery(name = "StudentStats.findAll", query = "SELECT s FROM StudentStats s"),
+        @NamedQuery(name = "StudentStats.findById", query = "SELECT s FROM StudentStats s WHERE s.id = :id"),
+        @NamedQuery(name = "StudentStats.findByGeneralTotems", query = "SELECT s FROM StudentStats s WHERE s.generalTotems = :generalTotems"),
+        @NamedQuery(name = "StudentStats.findByAnalyticalTotems", query = "SELECT s FROM StudentStats s WHERE s.analyticalTotems = :analyticalTotems"),
+        @NamedQuery(name = "StudentStats.findByCriticalTotems", query = "SELECT s FROM StudentStats s WHERE s.criticalTotems = :criticalTotems"),
+        @NamedQuery(name = "StudentStats.findByCurrentCycle", query = "SELECT s FROM StudentStats s WHERE s.currentCycle = :currentCycle"),
+        @NamedQuery(name = "StudentStats.findByLastTotemUpdate", query = "SELECT s FROM StudentStats s WHERE s.lastTotemUpdate = :lastTotemUpdate")})
 public class StudentStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     private Integer id;
+
     @Column(name = "general_totems")
     private Integer generalTotems;
+
     @Column(name = "analytical_totems")
     private Integer analyticalTotems;
+
     @Column(name = "critical_totems")
     private Integer criticalTotems;
+
     @Column(name = "current_cycle")
     private Integer currentCycle;
+
     @Column(name = "current_spirits")
     private Integer currentSpirits;
+
     @Lob
     @Size(max = 2147483647)
     @Column(name = "tribes_points")
     private String tribesPoints;
+
     @Basic(optional = false)
     @NotNull
     @Column(name = "current_cycle_end")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastTotemUpdate;
-    @OneToOne( cascade = CascadeType.ALL)
+
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_student", referencedColumnName = "document")
     @JsonIgnore
     private Students idStudent;
+
     @OneToMany(mappedBy = "idStudentStat", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StudentActions> studentChallengesList;
-
 
     public StudentStats() {
     }
 
-    public static StudentStats getDefault()
-    {
+    public static StudentStats getDefault() {
         StudentStats stats = new StudentStats();
         stats.analyticalTotems = 0;
         stats.criticalTotems = 0;
