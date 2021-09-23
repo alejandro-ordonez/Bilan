@@ -16,7 +16,7 @@ public class QuestionController {
 
     @GetMapping
     public ResponseEntity<ResponseDto<List<QuestionDto>>> getQuestions(@RequestParam("idTribe") int idTribe,
-                                                                       @RequestHeader(Constants.AUTHORIZATION) String jwt){
-        return  null;
+                                                                       @RequestHeader(Constants.AUTHORIZATION) String jwt) {
+        return null;
     }
 }
