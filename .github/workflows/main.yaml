@@ -40,7 +40,6 @@ jobs:
           cp -r target/bilan-backend-${{ github.SHA }}.jar bilan-backend/application.jar
           cp -r .platform bilan-backend
           cp -r elb/* bilan-backend
-          ls -la bilan-backend
           zip -j bilan-backend-${{ github.SHA }}.zip bilan-backend/*
           ls -la bilan-backend
       - name: Deploy to EB
@@ -53,7 +52,7 @@ jobs:
           environment_name: Bilan-env
           version_label: bilan-backend-${{ github.SHA }}
           version_description: Github actions
-          deployment_package: bilan-backend/bilan-backend-${{ github.SHA }}.zip
+          deployment_package: bilan-backend-${{ github.SHA }}.zip
           wait_for_deployment: true
           wait_for_environment_recovery: 120
           use_existing_version_if_available: true
