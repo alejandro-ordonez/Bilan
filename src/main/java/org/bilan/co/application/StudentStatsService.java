@@ -7,7 +7,6 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.StudentChallengesDto;
 import org.bilan.co.domain.dtos.UserStatsDto;
 import org.bilan.co.domain.entities.Challenges;
-import org.bilan.co.domain.entities.StudentActions;
 import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.infraestructure.persistance.ChallengesRepository;

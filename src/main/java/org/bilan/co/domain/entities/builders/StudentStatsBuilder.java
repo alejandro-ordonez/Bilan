@@ -1,6 +1,5 @@
 package org.bilan.co.domain.entities.builders;
 
-import org.bilan.co.domain.entities.StudentActions;
 import org.bilan.co.domain.entities.StudentStats;
 
 import java.util.Date;
