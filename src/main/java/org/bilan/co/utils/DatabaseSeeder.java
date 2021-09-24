@@ -52,6 +52,9 @@ public class DatabaseSeeder {
     public void seedTribes() {
         log.info("Seeding tribes");
 
+        if(tribesRepository.count()>0)
+            return;
+
         Tribes fireTribe = new Tribes();
         fireTribe.setElement("Fuego");
         fireTribe.setName("Fire Tribe");

@@ -58,7 +58,7 @@ public class DbTests {
     @Test
     public void insertStatsWithStudent(){
 
-        Random random = new Random();
+       /* Random random = new Random();
 
         Tribes tribe = new Tribes();
         tribe.setName("TribeName");
@@ -117,7 +117,7 @@ public class DbTests {
 
         studentStats.setIdStudent(student);
 
-        studentsRepository.save(student);
+        studentsRepository.save(student);*/
     }
 
     @Test

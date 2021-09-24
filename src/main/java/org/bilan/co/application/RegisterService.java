@@ -205,7 +205,7 @@ public class RegisterService implements IRegisterService {
         //TODO: add classRoom
 
         try {
-            StudentStats studentStats = StudentStats.getDefault();
+            StudentStats studentStats = new StudentStats();
             student.setStudentStats(studentStats);
             studentStats.setIdStudent(student);
             studentsRepository.save(student);

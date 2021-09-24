@@ -1,11 +1,14 @@
 package org.bilan.co.domain.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.bilan.co.domain.entities.Actions;
 
-@NoArgsConstructor
+import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode
 @Data
 public class ActionDto {
@@ -13,10 +16,6 @@ public class ActionDto {
     private Integer id;
     private String name;
     private String imagePath;
-
-    public ActionDto(Actions actions) {
-        this.id = actions.getId();
-        this.name = actions.getName();
-        this.imagePath = actions.getImagePath();
-    }
+    private Integer currentPoints = 0;
+    private List<ChallengesDto> challenge;
 }

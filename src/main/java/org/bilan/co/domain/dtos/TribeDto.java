@@ -16,10 +16,12 @@ import java.util.stream.Collectors;
 @Data
 public final class TribeDto {
 
+    private Integer id;
     private String name;
     private String culture;
     private String element;
     private Integer adjacentTribe;
     private Integer oppositeTribe;
+    private int currentPoints = 0;
     private List<ActionDto> actions;
 }

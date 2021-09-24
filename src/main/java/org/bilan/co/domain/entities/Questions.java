@@ -68,7 +68,7 @@ public class Questions implements Serializable {
 
     @JoinColumn(name = "id_challenge", referencedColumnName = "id")
     @ManyToOne
-    private Challenges idChallenge;
+    private Tribes idTribe;
 
     @OneToMany(mappedBy = "idQuestion")
     private List<ResolvedAnswerBy> resolvedAnswerByList;

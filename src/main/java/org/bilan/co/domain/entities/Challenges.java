@@ -41,9 +41,6 @@ public class Challenges implements Serializable {
     @JoinColumn(name = "id_action", referencedColumnName = "id")
     private Actions action;
 
-    @OneToMany(mappedBy = "idChallenge")
-    private List<Questions> questionsList;
-
     private Integer cost;
     private Integer timer;
     private Integer reward;

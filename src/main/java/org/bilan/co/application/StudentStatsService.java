@@ -2,24 +2,24 @@ package org.bilan.co.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.StudentChallengesDto;
-import org.bilan.co.domain.dtos.UserStatsDto;
+import org.bilan.co.domain.dtos.*;
 import org.bilan.co.domain.entities.Challenges;
 import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
+import org.bilan.co.domain.entities.Tribes;
 import org.bilan.co.infraestructure.persistance.ChallengesRepository;
 import org.bilan.co.infraestructure.persistance.StatsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
+import org.bilan.co.infraestructure.persistance.TribesRepository;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import org.dozer.Mapper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -33,45 +33,55 @@ public class StudentStatsService implements IStudentStatsService{
     @Autowired
     private StudentsRepository studentsRepository;
     @Autowired
+    private TribesRepository tribesRepository;
+    @Autowired
+    private IActionsService actionsService;
+    @Autowired
+    private IScoreService scoreService;
+    @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private ITribeService tribeService;
 
 
     //TODO: Pending to change
     @Override
-    public ResponseDto<UserStatsDto> getUserStats(String token) {
+    public ResponseDto<GameStatsDto> getUserStats(String token) {
 
         AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
 
         StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
 
-        //Checks if there's a student stats records to be updated. If not, there will be inserted a new one with default values
-        if (studentStats == null) {
+        if(studentStats == null){
             log.warn("The record wasn't found a new one will be created");
-            Students students = studentsRepository.findByDocument(userAuthenticated.getDocument());
-            studentStats = StudentStats.getDefault();
-            students.setStudentStats(studentStats);
-            studentStats.setIdStudent(students);
-            studentsRepository.save(students);
 
+            Students student = studentsRepository.findByDocument(userAuthenticated.getDocument());
+
+            studentStats = new StudentStats();
+            studentStats.setIdStudent(student);
+            student.setStudentStats(studentStats);
+            studentsRepository.save(student);
         }
 
-        List<StudentActions> studentChallengesList = studentStats.getStudentChallengesList();
-        studentStats.setStudentChallengesList(new ArrayList<>());
         ObjectMapper objectMapper = new ObjectMapper();
-        UserStatsDto userStatsDto = objectMapper.convertValue(studentStats, UserStatsDto.class);
+        //The stored stats are mapped
+        GameStatsDto gameStatsDto = objectMapper.convertValue(studentStats, GameStatsDto.class);
+        // All the tribes are queried this includes the actions and challenges
+        List<TribeDto> tribes = tribeService.getAll();
 
-        List<StudentChallengesDto> studentChallengesDtos = new ArrayList<>();
-        for (StudentActions studentChallenge : studentChallengesList) {
-
-            //Challenges challenge = studentChallenge.getIdChallenge();
-
-            //studentChallengesDtos.add(new StudentChallengesDto(studentChallenge.getCurrentPoints(),
-            //        challenge.getId(), challenge.getIdAction().getId(),challenge.getIdAction().getIdTribe().getId()));
-
+        //Iterates on every tribe to update the score associated.
+        for(TribeDto tribe: tribes){
+            int currentTribePoints = 0;
+            for (ActionDto action : tribe.getActions()) {
+                int currentActionPoints = scoreService.getScore(studentStats.getIdStudent().getDocument(), tribe.getId(), action.getId());
+                action.setCurrentPoints(currentActionPoints);
+                currentTribePoints += currentActionPoints;
+            }
         }
-        userStatsDto.setStudentChallenges(studentChallengesDtos);
 
-        return new ResponseDto<>("Stats returned successfully", 200, userStatsDto);
+        gameStatsDto.setTribes(tribes);
+
+        return new ResponseDto<>("Stats returned successfully", 200, gameStatsDto);
     }
 
     @Override
@@ -80,6 +90,7 @@ public class StudentStatsService implements IStudentStatsService{
 
         StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
 
+        /*
         studentStats.setCurrentSpirits(userStatsDto.getCurrentSpirits());
         studentStats.setAnalyticalTotems(userStatsDto.getAnalyticalTotems());
         studentStats.setCriticalTotems(userStatsDto.getCriticalTotems());
@@ -122,7 +133,7 @@ public class StudentStatsService implements IStudentStatsService{
 
            // studentChallenges.get().setCurrentPoints(studentChallengesDto.getCurrentPoints());
 
-        }
+        }*/
         return new ResponseDto<>("The update was applied successfully", 200, "Ok");
     }
 

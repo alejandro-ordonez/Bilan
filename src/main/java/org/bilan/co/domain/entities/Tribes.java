@@ -61,4 +61,7 @@ public class Tribes implements Serializable {
 
     @OneToMany(mappedBy = "tribe", cascade = CascadeType.ALL)
     private List<Actions> actions;
+
+    @OneToMany(mappedBy = "idTribe", cascade = CascadeType.ALL)
+    private List<Questions> questions;
 }

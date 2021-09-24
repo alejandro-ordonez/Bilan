@@ -49,16 +49,11 @@ public class StudentStats implements Serializable {
     @Column(name = "current_spirits")
     private Integer currentSpirits = 3;
 
-    @Lob
-    @Size(max = 2147483647)
-    @Column(name = "tribes_points")
-    private String tribesPoints;
-
     @Basic(optional = false)
     @NotNull
     @Column(name = "current_cycle_end")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date lastTotemUpdate;
+    private Date lastTotemUpdate = new Date();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_student", referencedColumnName = "document")
