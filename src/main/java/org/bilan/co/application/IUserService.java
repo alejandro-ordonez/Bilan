@@ -12,5 +12,5 @@ import java.util.Map;
 public interface IUserService extends UserDetailsService {
     AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken);
     ResponseDto<UserInfoDto> getUserInfo(String token);
-    ResponseDto<UserStatsDto> getUserStats(String token);
+    ResponseDto<String> updateUserInfo(UserInfoDto userInfoDto, String token);
 }

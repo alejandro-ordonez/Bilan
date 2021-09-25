@@ -26,8 +26,9 @@ public class DbTests {
     private TribesRepository tribesRepository;
     @Autowired
     private ActionsRepository actionsRepository;
+
     @Test
-    public void insertData(){
+    public void seedDemoUsers(){
         String baseId = "100011111%d";
         for (int i = 0; i < 10; i++) {
             Students student = new StudentsBuilder().createStudents();
@@ -57,7 +58,7 @@ public class DbTests {
     @Test
     public void insertStatsWithStudent(){
 
-        Random random = new Random();
+       /* Random random = new Random();
 
         Tribes tribe = new Tribes();
         tribe.setName("TribeName");
@@ -69,7 +70,7 @@ public class DbTests {
         actions.setName("ActionName");
         actions.setDescription("ActionDescription");
         actions.setRepresentative("Representative");
-        actions.setIdTribe(tribe);
+        actions.setTribe(tribe);
 
         actionsRepository.save(actions);
 
@@ -82,23 +83,23 @@ public class DbTests {
                 .createStudentStats();
         studentStats.setCurrentSpirits(3);
 
-        List<StudentChallenges> studentChallengesList = new ArrayList<>();
+        List<StudentActions> studentChallengesList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
 
             Challenges challenges = new Challenges();
             challenges.setCost(random.nextInt(500));
             challenges.setName("Challenge"+i);
             challenges.setReward(random.nextInt(5));
-            challenges.setQuestionsList(new ArrayList<>());
             challenges.setTimer(100);
             challenges.setType("Test");
-            challenges.setIdAction(actions);
-            actions.getChallengesList().add(challenges);
+            challenges.setAction(actions);
 
-            StudentChallenges studentChallenges = new StudentChallenges(i);
-            studentChallenges.setIdChallenge(challenges);
+
+            StudentActions studentChallenges = new StudentActions();
+            studentChallenges.setId(i);
+            //studentChallenges.setIdChallenge(challenges);
             studentChallenges.setCurrentPoints(random.nextInt(200));
-            challenges.setStudentChallenges(studentChallenges);
+            //challenges.setStudentChallenges(studentChallenges);
             studentChallengesList.add(studentChallenges);
             studentChallenges.setIdStudentStat(studentStats);
         }
@@ -116,7 +117,7 @@ public class DbTests {
 
         studentStats.setIdStudent(student);
 
-        studentsRepository.save(student);
+        studentsRepository.save(student);*/
     }
 
     @Test

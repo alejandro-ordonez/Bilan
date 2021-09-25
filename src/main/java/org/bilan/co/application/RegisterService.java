@@ -10,10 +10,12 @@ import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
+import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.domain.entities.builders.StudentsBuilder;
 import org.bilan.co.domain.enums.UserState;
+import org.bilan.co.infraestructure.persistance.StatsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
@@ -41,11 +43,13 @@ public class RegisterService implements IRegisterService {
     public RegisterService(TeachersRepository teachersRepository, StudentsRepository studentsRepository,
                            SimatEstudianteClient simatEstudianteClient, SimatMatriculaClient simatMatriculaClient,
                            PasswordEncoder passwordEncoder) {
+
         this.teachersRepository = teachersRepository;
         this.studentsRepository = studentsRepository;
         this.simatEstudianteClient = simatEstudianteClient;
         this.simatMatriculaClient = simatMatriculaClient;
         this.passwordEncoder = passwordEncoder;
+
     }
 
     @Override
@@ -201,6 +205,9 @@ public class RegisterService implements IRegisterService {
         //TODO: add classRoom
 
         try {
+            StudentStats studentStats = new StudentStats();
+            student.setStudentStats(studentStats);
+            studentStats.setIdStudent(student);
             studentsRepository.save(student);
             return new ResponseDto<>("Student registered successfully", 200, UserState.UserRegistered);
         } catch (Exception e) {

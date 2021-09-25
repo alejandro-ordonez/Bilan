@@ -19,17 +19,19 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/tribes")
 public class TribeController {
 
-  @Autowired
-  private ITribeService tribeService;
+    private ITribeService tribeService;
 
-  @GetMapping("/all")
-  public ResponseEntity<ResponseDto<List<TribeDto>>> getAll() {
-    List<TribeDto> tribes = tribeService.getAll();
+    public TribeController(ITribeService tribeService) {
+        this.tribeService = tribeService;
+    }
 
-    ResponseDto<List<TribeDto>> response = new ResponseDtoBuilder<List<TribeDto>>().setResult(tribes).setCode(200)
-        .setDescription("All tribes retrieved successfully").createResponseDto();
-
-    return ResponseEntity.ok(response);
-  }
-
+    @GetMapping("/all")
+    public ResponseEntity<ResponseDto<List<TribeDto>>> getAll() {
+        List<TribeDto> tribes = tribeService.getAll();
+        ResponseDto<List<TribeDto>> response = new ResponseDtoBuilder<List<TribeDto>>()
+                .setResult(tribes)
+                .setCode(200)
+                .setDescription("All tribes retrieved successfully").createResponseDto();
+        return ResponseEntity.ok(response);
+    }
 }

@@ -2,12 +2,10 @@ package org.bilan.co.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.entities.StudentChallenges;
 import org.bilan.co.infraestructure.persistance.StatsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.domain.dtos.*;
-import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.utils.JwtTokenUtil;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -84,30 +81,8 @@ public class UserService implements IUserService {
   }
 
   @Override
-  public ResponseDto<UserStatsDto> getUserStats(String token) {
-
-    AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
-
-    StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
-
-    if (studentStats == null) {
-      log.error("The record wasn't found");
-      return null;
-    }
-
-    List<StudentChallenges> studentChallengesList = studentStats.getStudentChallengesList();
-    studentStats.setStudentChallengesList(new ArrayList<>());
-    ObjectMapper objectMapper = new ObjectMapper();
-    UserStatsDto userStatsDto = objectMapper.convertValue(studentStats, UserStatsDto.class);
-
-    List<StudentChallengesDto> studentChallengesDtos = new ArrayList<>();
-    for (StudentChallenges challenge : studentChallengesList) {
-      studentChallengesDtos.add(new StudentChallengesDto(challenge.getCurrentPoints(),
-          challenge.getIdChallenge().getId(), challenge.getIdChallenge().getIdAction().getIdTribe().getId()));
-    }
-    userStatsDto.setStudentChallenges(studentChallengesDtos);
-
-    return new ResponseDto<>("Stats returned successfully", 200, userStatsDto);
+  public ResponseDto<String> updateUserInfo(UserInfoDto userInfoDto, String token) {
+    return null;
   }
 
   private String getCredentials(String data) throws IOException {
