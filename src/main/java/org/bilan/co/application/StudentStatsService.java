@@ -26,6 +26,14 @@ public class StudentStatsService implements IStudentStatsService{
     @Autowired
     private SessionsRepository sessionsRepository;
     @Autowired
+    private ResolvedAnswerByRepository resolvedAnswerByRepository;
+    @Autowired
+    private AnswersRepository answersRepository;
+    @Autowired
+    private ChallengesRepository challengesRepository;
+    @Autowired
+    private QuestionsRepository questionsRepository;
+    @Autowired
     private IActionsService actionsService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -83,9 +91,6 @@ public class StudentStatsService implements IStudentStatsService{
         List<Sessions> sessions = updateStats.getActionsPoints().stream().map(update -> getSession(userAuthenticated.getDocument(), update))
                 .collect(Collectors.toList());
 
-        sessionsRepository.saveAll(sessions);
-
-
         return new ResponseDto<>("The update was applied successfully", 200, "Ok");
     }
 
@@ -103,32 +108,36 @@ public class StudentStatsService implements IStudentStatsService{
         sessions.setStudents(students);
         sessions.setActions(actions);
 
-        List<ResolvedAnswerBy> results= update.getAnswerRecords().stream().map(answerRecord ->  getResolvedAnswerBy(students, answerRecord, actions))
+        sessionsRepository.save(sessions);
+
+        List<ResolvedAnswerBy> results= update.getAnswerRecords().stream().map(answerRecord ->  getResolvedAnswerBy(students, answerRecord, actions, sessions))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         sessions.setResolvedAnswerBy(results);
 
+        resolvedAnswerByRepository.saveAll(results);
+
         return sessions;
     }
 
-    private List<ResolvedAnswerBy> getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions){
+    private List<ResolvedAnswerBy> getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions
+            , Sessions sessions){
 
     return answers.getAnswers().stream().map(answer -> {
             ResolvedAnswerBy resolvedAnswerBy = new ResolvedAnswerBy();
 
-            Challenges challenges = new Challenges();
-            challenges.setId(answers.getChallengeId());
+            Challenges challenges = challengesRepository.getById(answers.getChallengeId());
 
             resolvedAnswerBy.setIdChallenge(challenges);
             resolvedAnswerBy.setIdStudent(students);
             resolvedAnswerBy.setActions(actions);
+            resolvedAnswerBy.setCreatedAt(new Date());
+            resolvedAnswerBy.setSessions(sessions);
 
-            Questions questions = new Questions();
-            questions.setId(answer.getQuestionId());
+            Questions questions = questionsRepository.getById(answer.getQuestionId());
 
-            Answers answerEntity = new Answers();
-            answer.setAnswerId(answer.getAnswerId());
+            Answers answerEntity = answersRepository.getById(answer.getAnswerId());
 
             resolvedAnswerBy.setIdAnswer(answerEntity);
             resolvedAnswerBy.setIdQuestion(questions);
