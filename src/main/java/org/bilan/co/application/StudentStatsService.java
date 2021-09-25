@@ -3,22 +3,15 @@ package org.bilan.co.application;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.*;
-import org.bilan.co.domain.entities.Challenges;
-import org.bilan.co.domain.entities.StudentStats;
-import org.bilan.co.domain.entities.Students;
-import org.bilan.co.domain.entities.Tribes;
-import org.bilan.co.infraestructure.persistance.ChallengesRepository;
-import org.bilan.co.infraestructure.persistance.StatsRepository;
-import org.bilan.co.infraestructure.persistance.StudentsRepository;
-import org.bilan.co.infraestructure.persistance.TribesRepository;
+import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.utils.Tuple;
+import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.dozer.Mapper;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+
+import javax.transaction.Transactional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,24 +22,17 @@ public class StudentStatsService implements IStudentStatsService{
     @Autowired
     private StatsRepository statsRepository;
     @Autowired
-    private ChallengesRepository challengesRepository;
-    @Autowired
     private StudentsRepository studentsRepository;
     @Autowired
-    private TribesRepository tribesRepository;
+    private SessionsRepository sessionsRepository;
     @Autowired
     private IActionsService actionsService;
     @Autowired
-    private IScoreService scoreService;
-    @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    @Autowired
-    private ITribeService tribeService;
 
 
-    //TODO: Pending to change
     @Override
-    public ResponseDto<GameStatsDto> getUserStats(String token) {
+    public ResponseDto<BaseSatsDto> getUserStats(String token) {
 
         AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
 
@@ -66,76 +52,87 @@ public class StudentStatsService implements IStudentStatsService{
         ObjectMapper objectMapper = new ObjectMapper();
         //The stored stats are mapped
         GameStatsDto gameStatsDto = objectMapper.convertValue(studentStats, GameStatsDto.class);
-        // All the tribes are queried this includes the actions and challenges
-        List<TribeDto> tribes = tribeService.getAll();
+        gameStatsDto.setTribesPoints(new ArrayList<>());
 
-        //Iterates on every tribe to update the score associated.
-        for(TribeDto tribe: tribes){
-            int currentTribePoints = 0;
-            for (ActionDto action : tribe.getActions()) {
-                int currentActionPoints = scoreService.getScore(studentStats.getIdStudent().getDocument(), tribe.getId(), action.getId());
-                action.setCurrentPoints(currentActionPoints);
-                currentTribePoints += currentActionPoints;
-            }
-        }
+        List<ActionsPoints> actionsPoints = sessionsRepository.getActionsPoints(userAuthenticated.getDocument());
 
-        gameStatsDto.setTribes(tribes);
+        Map<Integer, List<ActionsPoints>> tribesPointMap =  actionsPoints.stream().collect(Collectors.groupingBy(ActionsPoints::getTribeId));
+
+        tribesPointMap.forEach((key, value) ->
+                gameStatsDto.getTribesPoints()
+                .add(new TribesPoints(key, value.stream().map(ActionsPoints::getScore).reduce(Long::sum).orElse(0L), value)));
 
         return new ResponseDto<>("Stats returned successfully", 200, gameStatsDto);
     }
 
+    @Transactional
     @Override
-    public ResponseDto<String> updateUserStats(UserStatsDto userStatsDto, String token) {
+    public ResponseDto<String> updateUserStats(UpdateStatsDto updateStats, String token) {
         AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
 
         StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
 
-        /*
-        studentStats.setCurrentSpirits(userStatsDto.getCurrentSpirits());
-        studentStats.setAnalyticalTotems(userStatsDto.getAnalyticalTotems());
-        studentStats.setCriticalTotems(userStatsDto.getCriticalTotems());
-        studentStats.setCurrentCycle(userStatsDto.getCurrentCycle());
         studentStats.setLastTotemUpdate(new Date());
+        studentStats.setCurrentCycle(updateStats.getCurrentCycle());
+        studentStats.setCurrentSpirits(updateStats.getCurrentSpirits());
+        studentStats.setAnalyticalTotems(updateStats.getAnalyticalTotems());
+        studentStats.setCriticalTotems(updateStats.getCriticalTotems());
 
-        //Iterates over each element in the update dto
-        for(StudentChallengesDto studentChallengesDto: userStatsDto.getStudentChallenges()){
-            //Filters the record to be updated by challenge. The other values are ignored as the challenge must
-            //be already referenced with his tribe. In case it's not the id must be wrong
-            //Optional<StudentActions> studentChallenges = studentStats.getStudentChallengesList().stream()
-            //        .filter(challenge -> challenge.getIdChallenge().getId() == studentChallengesDto.getChallengeId())
-            //        .findFirst();
+        statsRepository.save(studentStats);
 
-            // If it is not found in the records of StudentChallenges then a new one is created base in an existing challenge
-            //if(!studentChallenges.isPresent()){
+        List<Sessions> sessions = updateStats.getActionsPoints().stream().map(update -> getSession(userAuthenticated.getDocument(), update))
+                .collect(Collectors.toList());
 
-                Optional<Challenges> challenge = challengesRepository.findById(studentChallengesDto.getChallengeId());
-                //If the challenge is not found will be assumed that the id is incorrect.
-                if(!challenge.isPresent()){
-                    String message = "The challenge trying to be updated doesn't exists in the database, make sure the id is correct";
-                    log.error(message);
-                    return new ResponseDto<>(message, 404, "Failed");
-                }
+        sessionsRepository.saveAll(sessions);
 
-                //If it exists a new reference will be created.
-                StudentActions newStudentChallenge = new StudentActions();
-                //Reference to the challenge that belongs this record
-                //newStudentChallenge.setIdChallenge(challenge.get());
-                //Reference to the stats that this record belongs
-                newStudentChallenge.setIdStudentStat(studentStats);
-                //Updates the new points
-                newStudentChallenge.setCurrentPoints(studentChallengesDto.getCurrentPoints());
-                //Adds a reference to solve the relationship, JPA will take care of the rest.
-                //challenge.get().setStudentChallenges(newStudentChallenge);
-                //The new record is added to the list.
-                studentStats.getStudentChallengesList().add(newStudentChallenge);
-                break;
-            //}
 
-           // studentChallenges.get().setCurrentPoints(studentChallengesDto.getCurrentPoints());
-
-        }*/
         return new ResponseDto<>("The update was applied successfully", 200, "Ok");
     }
 
 
+    private Sessions getSession(String document, UpdateActionsPointsDto update){
+
+        Students students = new Students();
+        students.setDocument(document);
+
+        Actions actions = new Actions();
+        actions.setId(update.getId());
+
+        Sessions sessions = new Sessions();
+        sessions.setScore(update.getScore());
+        sessions.setStudents(students);
+        sessions.setActions(actions);
+
+        List<ResolvedAnswerBy> results= update.getAnswerRecords().stream().map(answerRecord ->  getResolvedAnswerBy(students, answerRecord, actions))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        sessions.setResolvedAnswerBy(results);
+
+        return sessions;
+    }
+
+    private List<ResolvedAnswerBy> getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions){
+
+    return answers.getAnswers().stream().map(answer -> {
+            ResolvedAnswerBy resolvedAnswerBy = new ResolvedAnswerBy();
+
+            Challenges challenges = new Challenges();
+            challenges.setId(answers.getChallengeId());
+
+            resolvedAnswerBy.setIdChallenge(challenges);
+            resolvedAnswerBy.setIdStudent(students);
+            resolvedAnswerBy.setActions(actions);
+
+            Questions questions = new Questions();
+            questions.setId(answer.getQuestionId());
+
+            Answers answerEntity = new Answers();
+            answer.setAnswerId(answer.getAnswerId());
+
+            resolvedAnswerBy.setIdAnswer(answerEntity);
+            resolvedAnswerBy.setIdQuestion(questions);
+            return resolvedAnswerBy;
+        }).collect(Collectors.toList());
+    }
 }

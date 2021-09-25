@@ -16,6 +16,5 @@ public class ActionDto {
     private Integer id;
     private String name;
     private String imagePath;
-    private Integer currentPoints = 0;
     private List<ChallengesDto> challenge;
 }

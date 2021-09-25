@@ -84,6 +84,10 @@ public class Students implements Serializable {
     @OneToMany(mappedBy = "idStudent")
     private List<Evidences> evidencesList;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "students")
+    private List<Sessions> sessions;
+
     @Transient
     private UserType userType = UserType.Student;
 

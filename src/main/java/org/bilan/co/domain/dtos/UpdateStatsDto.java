@@ -7,8 +7,8 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Data
-public class GameStatsDto extends BaseSatsDto{
-    private List<TribesPoints> tribesPoints;
+public class UpdateStatsDto extends BaseSatsDto{
+    List<UpdateActionsPointsDto> actionsPoints;
 }

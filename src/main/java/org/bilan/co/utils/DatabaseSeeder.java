@@ -1,16 +1,16 @@
 package org.bilan.co.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.entities.Actions;
-import org.bilan.co.domain.entities.Tribes;
-import org.bilan.co.infraestructure.persistance.ActionsRepository;
-import org.bilan.co.infraestructure.persistance.TribesRepository;
+import org.bilan.co.domain.entities.*;
+import org.bilan.co.infraestructure.persistance.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -20,13 +20,47 @@ public class DatabaseSeeder {
     private TribesRepository tribesRepository;
     @Autowired
     private ActionsRepository actionsRepository;
+    @Autowired
+    private ChallengesRepository challengesRepository;
+    @Autowired
+    private AnswersRepository answersRepository;
+    @Autowired
+    private QuestionsRepository questionsRepository;
 
     @EventListener
     public void seedDatabase(ContextRefreshedEvent contextRefreshedEvent) {
         log.info("Seed database triggered");
-        actionsRepository.deleteAll();
+       /* actionsRepository.deleteAll();
         tribesRepository.deleteAll();
+        challengesRepository.deleteAll();
+        questionsRepository.deleteAll();*/
+
         seedTribes();
+        seedQuestions();
+    }
+
+    private void seedQuestions() {
+        ArrayList<Questions> questions = new ArrayList<>();
+        for(int i = 0; i<5; i++){
+            Questions question = new Questions();
+            question.setClueChaman("ClueChaman "+i);
+            question.setDifficulty(i);
+            question.setStatments("Statementttt");
+            question.setShortStatments("asdfasdf");
+            question.setTitle("Question Title");
+
+            question.setAnswersList(new ArrayList<>());
+            questionsRepository.save(question);
+
+            for(int j = 0; j<4; j++){
+                Answers answer = new Answers();
+                answer.setStatments("asdfasdf");
+                answer.setIsCorrect(true);
+                answer.setIdQuestion(question);
+                question.getAnswersList().add(answer);
+                answersRepository.save(answer);
+            }
+        }
     }
 
     public void seedActions(Tribes tribe) {
@@ -47,6 +81,28 @@ public class DatabaseSeeder {
         civilAction.setRepresentative("?");
 
         actionsRepository.saveAll(Arrays.asList(spiritualAction, explorerAction, civilAction));
+
+        seedChallenge(spiritualAction);
+        seedChallenge(explorerAction);
+        seedChallenge(civilAction);
+    }
+
+    public void seedChallenge(Actions actions){
+        actions.setChallenges(new ArrayList<>());
+
+        for(int i=0; i<10; i++)
+        {
+            Challenges challenges = new Challenges();
+            challenges.setName("Challenge "+i);
+            challenges.setAction(actions);
+            challenges.setCost(i);
+            challenges.setReward(i*4);
+            challenges.setTimer(100);
+            challenges.setType("asdf");
+
+            actions.getChallenges().add(challenges);
+        }
+        challengesRepository.saveAll(actions.getChallenges());
     }
 
     public void seedTribes() {

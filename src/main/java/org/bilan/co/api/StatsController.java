@@ -2,13 +2,12 @@ package org.bilan.co.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.IStudentStatsService;
-import org.bilan.co.domain.dtos.GameStatsDto;
+import org.bilan.co.domain.dtos.BaseSatsDto;
 import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.UserStatsDto;
+import org.bilan.co.domain.dtos.UpdateStatsDto;
 import org.bilan.co.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -20,12 +19,12 @@ public class StatsController {
     private IStudentStatsService statsService;
 
     @GetMapping
-    public ResponseEntity<ResponseDto<GameStatsDto>> getStats(@RequestHeader(Constants.AUTHORIZATION) String jwt){
+    public ResponseEntity<ResponseDto<BaseSatsDto>> getStats(@RequestHeader(Constants.AUTHORIZATION) String jwt){
         return  ResponseEntity.ok(statsService.getUserStats(jwt));
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto<String>> updateStats(UserStatsDto statsDto, @RequestHeader(Constants.AUTHORIZATION) String jwt){
-        return ResponseEntity.ok(statsService.updateUserStats(statsDto, jwt));
+    public ResponseEntity<ResponseDto<String>> updateStats(@RequestBody UpdateStatsDto updateStats, @RequestHeader(Constants.AUTHORIZATION) String jwt){
+        return ResponseEntity.ok(statsService.updateUserStats(updateStats, jwt));
     }
 }
