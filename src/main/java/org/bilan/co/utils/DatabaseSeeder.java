@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -26,6 +25,8 @@ public class DatabaseSeeder {
     private AnswersRepository answersRepository;
     @Autowired
     private QuestionsRepository questionsRepository;
+    @Autowired
+    private ContextRepository contextRepository;
 
     @EventListener
     public void seedDatabase(ContextRefreshedEvent contextRefreshedEvent) {
@@ -36,25 +37,40 @@ public class DatabaseSeeder {
         questionsRepository.deleteAll();*/
 
         seedTribes();
-        seedQuestions();
     }
 
-    private void seedQuestions() {
-        ArrayList<Questions> questions = new ArrayList<>();
-        for(int i = 0; i<5; i++){
+    private void seedQuestions(Tribes tribes) {
+
+        Contexts contexts = new Contexts();
+        contexts.setContent("Content 0");
+        contexts.setQuestions(new ArrayList<>());
+
+        for(int i = 1; i<=20; i++){
+
+            if(i%5==0){
+                contexts = new Contexts();
+                contexts.setContent("Content "+ i);
+                contexts.setQuestions(new ArrayList<>());
+            }
+
+            contextRepository.save(contexts);
             Questions question = new Questions();
             question.setClueChaman("ClueChaman "+i);
             question.setDifficulty(i);
-            question.setStatments("Statementttt");
-            question.setShortStatments("asdfasdf");
+            question.setStatement("Statementttt");
+            question.setShortStatement("asdfasdf");
             question.setTitle("Question Title");
+            question.setGrade("10");
+            question.setIdTribe(tribes);
+            question.setContexts(contexts);
+
 
             question.setAnswersList(new ArrayList<>());
             questionsRepository.save(question);
 
             for(int j = 0; j<4; j++){
                 Answers answer = new Answers();
-                answer.setStatments("asdfasdf");
+                answer.setStatement("asdfasdf");
                 answer.setIsCorrect(true);
                 answer.setIdQuestion(question);
                 question.getAnswersList().add(answer);
@@ -163,5 +179,7 @@ public class DatabaseSeeder {
         seedActions(waterTribe);
         seedActions(airTribe);
         seedActions(lightTribe);
+
+        seedQuestions(fireTribe);
     }
 }

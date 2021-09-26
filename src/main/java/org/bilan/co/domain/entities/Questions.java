@@ -11,27 +11,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.io.Serializable;
-import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import java.io.Serializable;
+import java.util.List;
 
-/**
- * @author Manuel Alejandro
- */
 @Entity
 @XmlRootElement
 @NoArgsConstructor
@@ -51,25 +36,34 @@ public class Questions implements Serializable {
 
     @Lob
     @Size(max = 65535)
-    private String statments;
+    private String statement;
 
     @Lob
     @Size(max = 65535)
-    @Column(name = "short_statments")
-    private String shortStatments;
+    @Column(name = "short_statements")
+    private String shortStatement;
+
     private Integer difficulty;
 
     @Size(max = 255)
     @Column(name = "clue_chaman")
     private String clueChaman;
 
-    @OneToMany(mappedBy = "idQuestion")
+    private String grade;
+
+    @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Answers> answersList;
 
-    @JoinColumn(name = "id_challenge", referencedColumnName = "id")
+    @JoinColumn(name = "id_tribe", referencedColumnName = "id")
     @ManyToOne
     private Tribes idTribe;
 
-    @OneToMany(mappedBy = "idQuestion")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "context_id")
+    private Contexts contexts;
+
+    @OneToMany(mappedBy = "idQuestion", fetch = FetchType.LAZY)
     private List<ResolvedAnswerBy> resolvedAnswerByList;
+
+
 }
