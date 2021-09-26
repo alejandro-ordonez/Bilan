@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bilan.co.application;
 
-import jdk.internal.joptsimple.internal.Strings;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
@@ -17,15 +12,12 @@ import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.domain.entities.builders.StudentsBuilder;
 import org.bilan.co.domain.enums.UserState;
 import org.bilan.co.domain.utils.Tuple;
-import org.bilan.co.infraestructure.persistance.StatsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.bilan.co.ws.simat.client.SimatMatriculaClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
 import org.bilan.co.ws.simat.matricula.Matricula;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -74,13 +66,10 @@ public class RegisterService implements IRegisterService {
     @Override
     public ResponseDto<UserState> updateUser(AuthDto authDto) {
         switch (authDto.getUserType()) {
-
             case Teacher:
                 return this.updateTeacher(authDto.getDocument(), authDto.getPassword());
-
             case Student:
                 return this.updateStudent(authDto.getDocument(), authDto.getPassword());
-
             default:
                 return new ResponseDtoBuilder<UserState>()
                         .setDescription("UserType does not exist")
@@ -125,7 +114,7 @@ public class RegisterService implements IRegisterService {
             return userDoesNotExists();
         }
 
-        if (Strings.isNullOrEmpty(student.getPassword())) {
+        if (Strings.isBlank(student.getPassword())) {
             return userNoPassword();
         }
 
