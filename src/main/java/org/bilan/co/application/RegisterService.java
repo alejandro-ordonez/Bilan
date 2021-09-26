@@ -69,7 +69,7 @@ public class RegisterService implements IRegisterService {
             case Teacher:
                 return this.updateTeacher(authDto.getDocument(), authDto.getPassword());
             case Student:
-                return this.updateStudent(authDto.getDocument(), authDto.getPassword());
+                return this.updateStudent(authDto);
             default:
                 return new ResponseDtoBuilder<UserState>()
                         .setDescription("UserType does not exist")
@@ -169,18 +169,16 @@ public class RegisterService implements IRegisterService {
                 .createResponseDto();
     }
 
-    private ResponseDto<UserState> updateStudent(String document, String password) {
-        Students student = studentsRepository.findByDocument((document));
+    private ResponseDto<UserState> updateStudent(AuthDto authDto) {
+        Students student = studentsRepository.findByDocument(authDto.getDocument());
 
         if (student == null || student.getPassword() != null) {
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Student already exist")
-                    .setCode(500)
-                    .setResult(UserState.UserExists).createResponseDto();
+            return userAlreadyExists();
         }
 
-        String encryptedPassword = passwordEncoder.encode(password);
+        String encryptedPassword = passwordEncoder.encode(authDto.getPassword());
         student.setPassword(encryptedPassword);
+        student.setGrade(authDto.getGrade());
 
         try {
             studentsRepository.save(student);

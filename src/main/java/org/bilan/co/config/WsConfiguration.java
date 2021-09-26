@@ -10,12 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
 import org.springframework.ws.config.annotation.EnableWs;
-import org.springframework.ws.config.annotation.WsConfigurerAdapter;
-import org.springframework.ws.server.EndpointInterceptor;
 import org.springframework.ws.soap.SoapVersion;
 import org.springframework.ws.soap.saaj.SaajSoapMessageFactory;
-
-import java.util.List;
 
 @EnableWs
 @Configuration
@@ -35,7 +31,6 @@ public class WsConfiguration {
         client.setDefaultUri("http://wsstandardsimatcert.mineducacion.gov.co:80/wsstandardsimat/Estudiante");
         client.setMarshaller(marshallerSimatEstudiante);
         client.setUnmarshaller(marshallerSimatEstudiante);
-        //client.setInterceptors(new ClientInterceptor[]{new SimatEstudianteInterceptor()});
         return client;
     }
 
