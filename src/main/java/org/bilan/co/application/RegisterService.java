@@ -5,6 +5,7 @@
  */
 package org.bilan.co.application;
 
+import jdk.internal.joptsimple.internal.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.RegisterUserDto;
@@ -15,6 +16,7 @@ import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.domain.entities.builders.StudentsBuilder;
 import org.bilan.co.domain.enums.UserState;
+import org.bilan.co.domain.utils.Tuple;
 import org.bilan.co.infraestructure.persistance.StatsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
@@ -28,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -115,43 +118,61 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> checkStudent(AuthDto authDto) {
-        Students student = studentsRepository.findByDocument(authDto.getDocument());
+        Students student = Optional.ofNullable(studentsRepository.findByDocument(authDto.getDocument()))
+                .orElseGet(() -> createNewStudent(authDto));
 
-        if (student == null) {
-            Optional<Estudiante> optionalEstudiante = this.simatEstudianteClient.getStudent(authDto.getDocument());
-
-            if (!optionalEstudiante.isPresent()) {
-
-                return new ResponseDtoBuilder<UserState>()
-                        .setDescription("Student does not exist")
-                        .setCode(404)
-                        .setResult(UserState.UserNotFound).createResponseDto();
-            }
-            Estudiante estudiante = optionalEstudiante.get();
-            log.error("Estudente Simat {}", estudiante.getIdentificacion());
-
-            //add new student with estudianteSimat data
-            Students newStudent = new StudentsBuilder()
-                    .setDocument(authDto.getDocument())
-                    .setDocumentType(authDto.getDocumentType())
-                    .setName(estudiante.getPrimerNombre() + " " + estudiante.getSegundoNombre())
-                    .setLastName(estudiante.getPrimerApellido() + " " + estudiante.getSegundoApellido())
-                    .createStudents();
-
-            //TODO: create Students Classrooms
-            Optional<Matricula> optionalMatricula = this.simatMatriculaClient.getMatricula(authDto.getDocument());
-            optionalMatricula.ifPresent(matricula -> log.debug(matricula.getNomGrupo() + matricula.getCodGradoEducativo()));
-            student = studentsRepository.save(newStudent);
+        if (Objects.isNull(student)) {
+            return userDoesNotExists();
         }
 
-        if (student.getPassword() == null || student.getPassword().equals("")) {
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Student is not registered")
-                    .setCode(200)
-                    .setResult(UserState.UserWithoutPassword)
-                    .createResponseDto();
+        if (Strings.isNullOrEmpty(student.getPassword())) {
+            return userNoPassword();
         }
 
+        return userAlreadyExists();
+    }
+
+    private Students createNewStudent(AuthDto authDto) {
+        return this.simatEstudianteClient.getStudent(authDto.getDocument())
+                .map(student -> studentWithEnrollment(student, authDto.getDocument()))
+                .map(tuple -> newStudent(authDto, tuple.getValue1(), tuple.getValue2()))
+                .map(newStudent -> studentsRepository.save(newStudent))
+                .orElse(null);
+    }
+
+    private Tuple<Estudiante, Matricula> studentWithEnrollment(Estudiante estudiante, String document) {
+        return this.simatMatriculaClient.getMatricula(document)
+                .map(enrollment -> new Tuple<>(estudiante, enrollment))
+                .orElseGet(() -> new Tuple<>(estudiante, new Matricula()));
+    }
+
+    private Students newStudent(AuthDto authDto, Estudiante estudiante, Matricula matricula) {
+        return new StudentsBuilder()
+                .setDocument(authDto.getDocument())
+                .setDocumentType(authDto.getDocumentType())
+                .setName(estudiante.getPrimerNombre() + " " + estudiante.getSegundoNombre())
+                .setLastName(estudiante.getPrimerApellido() + " " + estudiante.getSegundoApellido())
+                .setGrade(matricula.getCodGradoEducativo())
+                .createStudents();
+    }
+
+    private ResponseDto<UserState> userDoesNotExists() {
+        return new ResponseDtoBuilder<UserState>()
+                .setDescription("Student does not exist")
+                .setCode(404)
+                .setResult(UserState.UserNotFound)
+                .createResponseDto();
+    }
+
+    private ResponseDto<UserState> userNoPassword() {
+        return new ResponseDtoBuilder<UserState>()
+                .setDescription("Student is not registered")
+                .setCode(200)
+                .setResult(UserState.UserWithoutPassword)
+                .createResponseDto();
+    }
+
+    private ResponseDto<UserState> userAlreadyExists() {
         return new ResponseDtoBuilder<UserState>()
                 .setDescription("Student already exist")
                 .setCode(500)
@@ -201,8 +222,6 @@ public class RegisterService implements IRegisterService {
 
         String encryptedPassword = passwordEncoder.encode(regUserDto.getPassword());
         student.setPassword(encryptedPassword);
-
-        //TODO: add classRoom
 
         try {
             StudentStats studentStats = new StudentStats();

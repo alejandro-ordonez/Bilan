@@ -12,7 +12,6 @@ public class RegisterUserDto extends AuthDto {
     @NotNull
     private String lastName;
     private String email;
-
     private String grade;
     private String course;
 
