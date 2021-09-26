@@ -5,13 +5,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.io.Serializable;
-import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Manuel Alejandro
@@ -34,7 +33,7 @@ public class Answers implements Serializable {
 
     @Lob
     @Size(max = 65535)
-    private String statments;
+    private String statement;
 
     @Column(name = "is_correct")
     private Boolean isCorrect;

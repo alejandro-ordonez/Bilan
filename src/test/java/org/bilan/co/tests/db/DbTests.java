@@ -1,21 +1,17 @@
 package org.bilan.co.tests.db;
 
 import io.jsonwebtoken.lang.Assert;
-import org.bilan.co.domain.entities.*;
-import org.bilan.co.domain.entities.builders.StudentStatsBuilder;
+import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.builders.StudentsBuilder;
+import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.infraestructure.persistance.ActionsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
-import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.infraestructure.persistance.TribesRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Random;
 
 @SpringBootTest
 public class DbTests {
@@ -35,6 +31,7 @@ public class DbTests {
             student.setDocument(String.format(baseId, i));
             student.setCreatedAt(new Date());
             student.setModifiedAt(new Date());
+            student.setGrade("10");
             //TestPassword
             student.setPassword("$2y$10$TsLKZtRXkymAbDNQ.YZUke0y0CQqBo05ltziqR8LJIvv6jj0DGROi");
             student.setDocumentType(DocumentType.CC);
