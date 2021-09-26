@@ -53,8 +53,6 @@ public class Students implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
-    private String grade;
-
     @Lob
     @Column(name = "last_state")
     private String lastState;
