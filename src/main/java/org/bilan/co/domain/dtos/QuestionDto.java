@@ -22,5 +22,4 @@ public class QuestionDto {
 
     private List<AnswerDto> answers;
 
-
 }

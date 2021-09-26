@@ -3,9 +3,9 @@ package org.bilan.co.api;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.IQuestionsService;
 import org.bilan.co.domain.dtos.ContextsQuestionsDto;
-import org.bilan.co.domain.dtos.QuestionDto;
 import org.bilan.co.domain.dtos.QuestionRequestDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.ValidateQuestionDto;
 import org.bilan.co.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +28,13 @@ public class QuestionController {
         return ResponseEntity.ok(questionsService.getQuestions(questionRequestDto, jwt));
     }
 
-    @PostMapping
-    public ResponseEntity<ResponseDto<Boolean>> validateAnswer(QuestionDto questionDto){
+    @GetMapping("all")
+    public ResponseEntity<ResponseDto<List<ContextsQuestionsDto>>> getQuestions(@RequestHeader(Constants.AUTHORIZATION) String jwt){
+        return ResponseEntity.ok(questionsService.getQuestions(jwt));
+    }
+
+    @PostMapping("validate")
+    public ResponseEntity<ResponseDto<Boolean>> validateAnswer(@RequestBody ValidateQuestionDto questionDto){
         return ResponseEntity.ok(questionsService.validateAnswer(questionDto));
     }
 }
