@@ -45,7 +45,6 @@ public class Students implements Serializable {
     private String name;
 
     @Pattern(regexp = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message = "Invalid email")
-//if the field contains email address consider using this annotation to enforce field validation
     @Size(max = 255)
     private String email;
 
@@ -64,13 +63,17 @@ public class Students implements Serializable {
     @NotNull
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt = new Date();
+    private Date createdAt;
 
     @Basic(optional = false)
     @NotNull
     @Column(name = "modified_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date modifiedAt = new Date();
+    private Date modifiedAt;
+
+    @NotNull
+    @Column(name = "cod_grade")
+    private String grade;
 
     @JsonIgnore
     @OneToMany(mappedBy = "idStudent")

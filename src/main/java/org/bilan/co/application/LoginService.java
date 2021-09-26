@@ -24,11 +24,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginService implements ILoginService {
 
-    @Autowired
     private AuthenticationManager authenticationManager;
-
-    @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    public LoginService(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
 
     @Override
     public ResponseEntity<ResponseDto<String>> doLogin(AuthDto loginInfo) {
@@ -44,7 +46,6 @@ public class LoginService implements ILoginService {
                             .createResponseDto());
         }
         String jwt = jwtTokenUtil.generateToken(loginInfo);
-
         return ResponseEntity.ok(
                 new ResponseDtoBuilder<String>()
                         .setDescription("Authentication Successful")

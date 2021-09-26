@@ -7,6 +7,7 @@ import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 
 import java.util.List;
+import java.util.Objects;
 
 public class StudentsBuilder {
     private String document;
@@ -15,6 +16,7 @@ public class StudentsBuilder {
     private String email;
     private String lastName;
     private String password;
+    private String grade;
     private List<ResolvedAnswerBy> resolvedAnswerByList;
     private StudentStats studentStats;
     private List<Evidences> evidencesList;
@@ -65,8 +67,17 @@ public class StudentsBuilder {
         return this;
     }
 
+    public StudentsBuilder setGrade(String grade) {
+        if (Objects.nonNull(grade)) {
+            this.grade = grade;
+        }
+        return this;
+    }
+
     public Students createStudents() {
-        return new Students(name, lastName, document, documentType, email, password, resolvedAnswerByList,
+        Students students = new Students(name, lastName, document, documentType, email, password, resolvedAnswerByList,
                 studentStats, evidencesList);
+        students.setGrade(grade);
+        return students;
     }
 }
