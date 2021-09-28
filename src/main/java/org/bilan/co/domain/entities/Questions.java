@@ -40,16 +40,33 @@ public class Questions implements Serializable {
 
     @Lob
     @Size(max = 65535)
-    @Column(name = "short_statements")
+    @Column(name = "short_statement")
     private String shortStatement;
 
+    @Column
     private Integer difficulty;
 
     @Size(max = 255)
     @Column(name = "clue_chaman")
     private String clueChaman;
 
+    @Column
     private String grade;
+
+    @Lob
+    @Column
+    private String justification;
+
+    @Lob
+    @Column
+    private String statements;
+
+    @Lob
+    @Column(name = "error_message")
+    private String errorMessage;
+
+    @Column(name = "is_multi")
+    private Boolean isMulti;
 
     @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Answers> answersList;
@@ -64,6 +81,4 @@ public class Questions implements Serializable {
 
     @OneToMany(mappedBy = "idQuestion", fetch = FetchType.LAZY)
     private List<ResolvedAnswerBy> resolvedAnswerByList;
-
-
 }
