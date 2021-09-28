@@ -8,14 +8,16 @@ import java.util.List;
 @Entity
 @Data
 public class Contexts {
+
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue
     private Integer id;
 
-    private String Content;
+    @Lob
+    @Column(name = "content")
+    private String content;
 
     @OneToMany(mappedBy = "contexts")
     private List<Questions> questions;
-
 }
