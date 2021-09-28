@@ -40,7 +40,7 @@ public class Questions implements Serializable {
 
     @Lob
     @Size(max = 65535)
-    @Column(name = "short_statements")
+    @Column(name = "short_statement")
     private String shortStatement;
 
     @Column
