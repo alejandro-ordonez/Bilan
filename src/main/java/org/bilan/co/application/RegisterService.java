@@ -18,6 +18,7 @@ import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.bilan.co.ws.simat.client.SimatMatriculaClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
 import org.bilan.co.ws.simat.matricula.Matricula;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -198,26 +199,36 @@ public class RegisterService implements IRegisterService {
     }
 
     public ResponseDto<UserState> createUser(RegisterUserDto regUserDto) {
-        Students student = new Students();
+
+        Students student = studentsRepository.findByDocument(regUserDto.getDocument());
+        if (Objects.nonNull(student)) {
+            return new ResponseDto<>("Student already exists",
+                    HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
+        }
+
+
+        student = new Students();
         student.setName(regUserDto.getName());
+        student.setGrade(regUserDto.getGrade());
         student.setDocument(regUserDto.getDocument());
         student.setLastName(regUserDto.getLastname());
         student.setEmail(regUserDto.getEmail());
         student.setDocumentType(regUserDto.getDocumentType());
         student.setCreatedAt(new Date());
         student.setModifiedAt(new Date());
-
-        String encryptedPassword = passwordEncoder.encode(regUserDto.getPassword());
-        student.setPassword(encryptedPassword);
+        student.setPassword(passwordEncoder.encode(regUserDto.getPassword()));
 
         try {
             StudentStats studentStats = new StudentStats();
             student.setStudentStats(studentStats);
             studentStats.setIdStudent(student);
             studentsRepository.save(student);
-            return new ResponseDto<>("Student registered successfully", 200, UserState.UserRegistered);
+            return new ResponseDto<>("Student registered successfully", HttpStatus.OK.value(),
+                    UserState.UserRegistered);
         } catch (Exception e) {
-            return new ResponseDto<>("Student already exists", 500, UserState.UserExists);
+            log.error("Something was wrong saving the user info", e);
+            return new ResponseDto<>("Something was wrong", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    UserState.UserNotRegistered);
         }
     }
 
