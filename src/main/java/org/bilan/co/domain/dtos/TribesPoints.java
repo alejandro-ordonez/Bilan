@@ -10,5 +10,5 @@ import java.util.List;
 public class TribesPoints{
     private Integer id;
     private Long score;
-    private List<ActionsPoints> actions;
+    private List<ActionsPoints> actionsPoints;
 }
