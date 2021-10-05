@@ -38,11 +38,6 @@ public class Questions implements Serializable {
     @Size(max = 65535)
     private String statement;
 
-    @Lob
-    @Size(max = 65535)
-    @Column(name = "short_statement")
-    private String shortStatement;
-
     @Column
     private Integer difficulty;
 
