@@ -199,7 +199,47 @@ public class RegisterService implements IRegisterService {
     }
 
     public ResponseDto<UserState> createUser(RegisterUserDto regUserDto) {
+        switch (regUserDto.getUserType()) {
+            case Teacher:
+                return this.createTeacher(regUserDto);
+            case Student:
+                return this.createStudent(regUserDto);
+            default:
+                return new ResponseDtoBuilder<UserState>()
+                        .setDescription("UserType does not exist")
+                        .setCode(HttpStatus.BAD_REQUEST.value())
+                        .setResult(UserState.UnknownUserType)
+                        .createResponseDto();
+        }
+    }
 
+    private ResponseDto<UserState> createTeacher(RegisterUserDto regUserDto) {
+        Teachers teacher = teachersRepository.findByDocument(regUserDto.getDocument());
+        if (Objects.nonNull(teacher)) {
+            return new ResponseDto<>("Teacher already exists",
+                    HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
+        }
+
+        teacher = new Teachers();
+        teacher.setName(regUserDto.getName());
+        teacher.setLastName(regUserDto.getLastname());
+        teacher.setEmail(regUserDto.getEmail());
+        teacher.setCreatedAt(new Date());
+        teacher.setPassword(regUserDto.getPassword());
+        teacher.setDocumentType(regUserDto.getDocumentType());
+
+        try {
+            teachersRepository.save(teacher);
+            return new ResponseDto<>("Teacher registered successfully", HttpStatus.OK.value(),
+                    UserState.UserRegistered);
+        } catch (Exception e) {
+            log.error("Something was wrong saving the user info", e);
+            return new ResponseDto<>("Something was wrong", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    UserState.UserNotRegistered);
+        }
+    }
+
+    private ResponseDto<UserState> createStudent(RegisterUserDto regUserDto) {
         Students student = studentsRepository.findByDocument(regUserDto.getDocument());
         if (Objects.nonNull(student)) {
             return new ResponseDto<>("Student already exists",
