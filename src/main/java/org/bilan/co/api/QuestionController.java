@@ -21,7 +21,7 @@ public class QuestionController {
     @Autowired
     private IQuestionsService questionsService;
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<ResponseDto<List<ContextsQuestionsDto>>> getQuestions(@RequestBody QuestionRequestDto questionRequestDto,
                                                                                 @RequestHeader(Constants.AUTHORIZATION) String jwt) {
 
