@@ -15,7 +15,6 @@ public class QuestionDto {
     private Integer id;
     private String title;
     private String statement;
-    private String shortStatement;
     private String errorMessage;
 
     @JsonIgnore

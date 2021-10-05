@@ -69,7 +69,6 @@ public class QuestionsService implements IQuestionsService{
             List<QuestionDto> questionsDto = qs.stream().map(q -> new QuestionDto(q.getId(),
                             q.getTitle(),
                             q.getStatement(),
-                            q.getShortStatement(),
                             q.getErrorMessage(),
                             0,
                             q.getAnswersList().stream().map(a -> mapper.map(a, AnswerDto.class)).collect(Collectors.toList())))
