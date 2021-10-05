@@ -58,7 +58,6 @@ public class DatabaseSeeder {
             question.setClueChaman("ClueChaman "+i);
             question.setDifficulty(i);
             question.setStatement("Statementttt");
-            question.setShortStatement("asdfasdf");
             question.setTitle("Question Title");
             question.setGrade("10");
             question.setIdTribe(tribes);
