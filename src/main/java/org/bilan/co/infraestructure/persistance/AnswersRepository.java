@@ -10,9 +10,9 @@ import java.util.List;
 @Repository
 public interface AnswersRepository extends JpaRepository<Answers, Integer> {
 
-    @Query("SELECT answer FROM Answers answer " +
+    @Query("SELECT answer.id FROM Answers answer " +
             "WHERE answer.idQuestion.id = :questionId " +
             "AND answer.isCorrect = true")
-    List<Answers> getAnswersByQuestion(int questionId);
+    List<Integer> getAnswersByQuestion(int questionId);
 
 }

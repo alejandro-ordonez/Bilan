@@ -2,7 +2,6 @@ package org.bilan.co.application;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.*;
-import org.bilan.co.domain.entities.Answers;
 import org.bilan.co.domain.entities.Questions;
 import org.bilan.co.infraestructure.persistance.AnswersRepository;
 import org.bilan.co.infraestructure.persistance.QuestionsRepository;
@@ -86,16 +85,10 @@ public class QuestionsService implements IQuestionsService{
 
     @Override
     public ResponseDto<Boolean> validateAnswer(ValidateQuestionDto questionDto) {
-
         //Brings just the right answers according to the questions
-        List<Answers> answers = answersRepository.getAnswersByQuestion(questionDto.getQuestionId());
-
-        if(answers.size() != questionDto.getAnswers().size())
-            return new ResponseDto<>("The number of answers don't match the expected", 400, false);
-
+        List<Integer> answers = answersRepository.getAnswersByQuestion(questionDto.getQuestionId());
         //Validates that all the given answers match the right answers
-        boolean result = questionDto.getAnswers()
-                .containsAll(answers.stream().map(Answers::getId).collect(Collectors.toList()));
+        boolean result = answers.contains(questionDto.getAnswer());
 
         return new ResponseDto<>("Answers validated", 200, result);
     }
