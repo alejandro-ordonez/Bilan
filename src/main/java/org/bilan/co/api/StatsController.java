@@ -2,7 +2,7 @@ package org.bilan.co.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.IStudentStatsService;
-import org.bilan.co.domain.dtos.BaseSatsDto;
+import org.bilan.co.domain.dtos.GameStatsDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.UpdateStatsDto;
 import org.bilan.co.utils.Constants;
@@ -19,7 +19,7 @@ public class StatsController {
     private IStudentStatsService statsService;
 
     @GetMapping
-    public ResponseEntity<ResponseDto<BaseSatsDto>> getStats(@RequestHeader(Constants.AUTHORIZATION) String jwt){
+    public ResponseEntity<ResponseDto<GameStatsDto>> getStats(@RequestHeader(Constants.AUTHORIZATION) String jwt){
         return  ResponseEntity.ok(statsService.getUserStats(jwt));
     }
 

@@ -16,10 +16,10 @@ public class QuestionDto {
     private String title;
     private String statement;
     private String shortStatement;
+    private String errorMessage;
 
     @JsonIgnore
     private Integer contextId;
 
     private List<AnswerDto> answers;
-
 }

@@ -51,6 +51,8 @@ public class Questions implements Serializable {
 
     private String grade;
 
+    private String errorMessage;
+
     @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Answers> answersList;
 

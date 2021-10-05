@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.*;
 import org.bilan.co.domain.entities.*;
-import org.bilan.co.domain.utils.Tuple;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,7 @@ public class StudentStatsService implements IStudentStatsService{
 
 
     @Override
-    public ResponseDto<BaseSatsDto> getUserStats(String token) {
+    public ResponseDto<GameStatsDto> getUserStats(String token) {
 
         AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
 
