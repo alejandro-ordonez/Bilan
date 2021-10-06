@@ -16,6 +16,7 @@ public class QuestionDto {
     private String title;
     private String statement;
     private String errorMessage;
+    private String justification;
 
     @JsonIgnore
     private Integer contextId;

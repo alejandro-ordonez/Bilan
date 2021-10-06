@@ -17,20 +17,20 @@ DROP DATABASE IF EXISTS `bilan`;
 CREATE DATABASE IF NOT EXISTS `bilan` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `bilan`;
 
+
+-- ############# ACTIONS ###################
+
 -- Volcando estructura para tabla bilan.actions
-DROP TABLE IF EXISTS `actions`;
 CREATE TABLE IF NOT EXISTS `actions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `description` varchar(255) DEFAULT NULL,
+  `id` int NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `representative` varchar(255) DEFAULT NULL,
-  `id_tribe` int(11) DEFAULT NULL,
+  `id_tribe` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK77acqinjdqd14rygajy248pbe` (`id_tribe`),
   CONSTRAINT `FK77acqinjdqd14rygajy248pbe` FOREIGN KEY (`id_tribe`) REFERENCES `tribes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- La exportación de datos fue deseleccionada.
+
 
 -- Volcando estructura para tabla bilan.activities
 DROP TABLE IF EXISTS `activities`;
@@ -244,21 +244,44 @@ CREATE TABLE IF NOT EXISTS `teachers` (
 
 -- La exportación de datos fue deseleccionada.
 
+-- Volcando estructura para tabla bilan.
+
+-- --------------------------------------------------------
+-- Host:                         bilan.cywmzmdgkgnz.us-east-2.rds.amazonaws.com
+-- Versión del servidor:         8.0.23 - Source distribution
+-- SO del servidor:              Linux
+-- HeidiSQL Versión:             11.3.0.6295
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
 -- Volcando estructura para tabla bilan.tribes
-DROP TABLE IF EXISTS `tribes`;
+-- ############ TRIBES ############
+
+-- Volcando estructura para tabla bilan.tribes
 CREATE TABLE IF NOT EXISTS `tribes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL,
   `culture` varchar(255) DEFAULT NULL,
   `element` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `adjacent_tribe_id` int(11) DEFAULT NULL,
-  `opposite_tribe_id` int(11) DEFAULT NULL,
+  `adjacent_tribe_id` int DEFAULT NULL,
+  `opposite_tribe_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKgq0yenh1ngfyylawjil0mluln` (`adjacent_tribe_id`),
   KEY `FKcn8t956y25jux9jrwcys6s5kq` (`opposite_tribe_id`),
   CONSTRAINT `FKcn8t956y25jux9jrwcys6s5kq` FOREIGN KEY (`opposite_tribe_id`) REFERENCES `tribes` (`id`),
   CONSTRAINT `FKgq0yenh1ngfyylawjil0mluln` FOREIGN KEY (`adjacent_tribe_id`) REFERENCES `tribes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- La exportación de datos fue deseleccionada.
+
+---------------
+
 
 
 LOAD DATA LOCAL INFILE '/home/Anexo3.csv'

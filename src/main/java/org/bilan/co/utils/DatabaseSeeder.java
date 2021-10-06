@@ -80,6 +80,9 @@ public class DatabaseSeeder {
 
     public void seedActions(Tribes tribe) {
 
+        if(tribesRepository.count()>0)
+            return;
+
         Actions spiritualAction = new Actions();
         spiritualAction.setTribe(tribe);
         spiritualAction.setName("Espiritual");

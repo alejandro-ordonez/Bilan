@@ -16,6 +16,7 @@ public class BaseSatsDto {
     private Integer criticalTotems = 0;
     private Integer currentCycle = 1;
     private Integer currentSpirits = 3;
+    private String tribesBalance;
 
 
 }

@@ -70,6 +70,7 @@ public class QuestionsService implements IQuestionsService{
                             q.getTitle(),
                             q.getStatement(),
                             q.getErrorMessage(),
+                            q.getJustification(),
                             0,
                             q.getAnswersList().stream().map(a -> mapper.map(a, AnswerDto.class)).collect(Collectors.toList())))
                     .collect(Collectors.toList());

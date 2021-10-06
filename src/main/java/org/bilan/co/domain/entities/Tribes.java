@@ -11,12 +11,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.io.Serializable;
-import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Manuel Alejandro
@@ -45,9 +44,6 @@ public class Tribes implements Serializable {
     @Size(max = 255)
     private String element;
 
-    @Size(max = 255)
-    private String imagePath;
-
     @JoinColumn(name = "opposite_tribe_id", referencedColumnName = "id")
     @ManyToOne
     private Tribes oppositeTribeId;
@@ -55,9 +51,6 @@ public class Tribes implements Serializable {
     @JoinColumn(name = "adjacent_tribe_id", referencedColumnName = "id")
     @ManyToOne
     private Tribes adjacentTribeId;
-
-    @OneToMany(mappedBy = "tribe", cascade = CascadeType.ALL)
-    private List<Classrooms> classrooms;
 
     @OneToMany(mappedBy = "tribe", cascade = CascadeType.ALL)
     private List<Actions> actions;

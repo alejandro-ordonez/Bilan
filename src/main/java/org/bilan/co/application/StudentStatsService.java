@@ -84,17 +84,17 @@ public class StudentStatsService implements IStudentStatsService{
         studentStats.setCurrentSpirits(updateStats.getCurrentSpirits());
         studentStats.setAnalyticalTotems(updateStats.getAnalyticalTotems());
         studentStats.setCriticalTotems(updateStats.getCriticalTotems());
+        studentStats.setTribesBalance(updateStats.getTribesBalance());
 
         statsRepository.save(studentStats);
 
-        List<Sessions> sessions = updateStats.getActionsPoints().stream().map(update -> getSession(userAuthenticated.getDocument(), update))
-                .collect(Collectors.toList());
+        updateStats.getActionsPoints().forEach(update -> getSession(userAuthenticated.getDocument(), update));
 
         return new ResponseDto<>("The update was applied successfully", 200, "Ok");
     }
 
 
-    private Sessions getSession(String document, UpdateActionsPointsDto update){
+    private void getSession(String document, UpdateActionsPointsDto update){
 
         Students students = new Students();
         students.setDocument(document);
@@ -116,8 +116,6 @@ public class StudentStatsService implements IStudentStatsService{
         sessions.setResolvedAnswerBy(results);
 
         resolvedAnswerByRepository.saveAll(results);
-
-        return sessions;
     }
 
     private List<ResolvedAnswerBy> getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions

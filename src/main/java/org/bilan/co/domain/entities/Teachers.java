@@ -1,6 +1,5 @@
 package org.bilan.co.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,10 +11,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Manuel Alejandro
@@ -76,10 +73,6 @@ public class Teachers implements Serializable {
     @Column(name = "modified_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedAt;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "idTeacher")
-    private List<Classrooms> classroomsList;
 
     @Transient
     private UserType userType = UserType.Teacher;

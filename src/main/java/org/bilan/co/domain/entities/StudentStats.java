@@ -8,12 +8,9 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Manuel Alejandro
@@ -48,6 +45,9 @@ public class StudentStats implements Serializable {
 
     @Column(name = "current_spirits")
     private Integer currentSpirits = 3;
+
+    @Column(name = "tribes_balance")
+    private String tribesBalance;
 
     @Basic(optional = false)
     @NotNull
