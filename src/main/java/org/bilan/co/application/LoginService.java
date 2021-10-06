@@ -42,7 +42,7 @@ public class LoginService implements ILoginService {
                     new ResponseDtoBuilder<String>()
                             .setDescription("Authentication Failed")
                             .setCode(400)
-                            .setResult(null)
+                            .setResult("")
                             .createResponseDto());
         }
         String jwt = jwtTokenUtil.generateToken(loginInfo);
