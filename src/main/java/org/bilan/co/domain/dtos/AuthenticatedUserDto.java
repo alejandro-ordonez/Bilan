@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 public class AuthenticatedUserDto {
-    @Pattern(regexp = "[1-9][0-9]{8,12}")
+    @Pattern(regexp = "[1-9][0-9]{6,12}")
     private String document;
     @NotNull
     private DocumentType documentType;
