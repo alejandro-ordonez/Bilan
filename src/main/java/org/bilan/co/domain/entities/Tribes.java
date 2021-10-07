@@ -6,6 +6,7 @@
 
 package org.bilan.co.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -52,9 +53,11 @@ public class Tribes implements Serializable {
     @ManyToOne
     private Tribes adjacentTribeId;
 
-    @OneToMany(mappedBy = "tribe", cascade = CascadeType.ALL)
-    private List<Actions> actions;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "idTribe", cascade = CascadeType.ALL)
     private List<Questions> questions;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "tribeId", cascade = CascadeType.ALL)
+    private List<ResolvedAnswerBy> resolvedAnswerByList;
 }

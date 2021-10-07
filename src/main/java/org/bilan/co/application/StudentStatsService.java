@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,6 +27,8 @@ public class StudentStatsService implements IStudentStatsService{
     private StudentsRepository studentsRepository;
     @Autowired
     private SessionsRepository sessionsRepository;
+    @Autowired
+    private TribesRepository tribesRepository;
     @Autowired
     private ResolvedAnswerByRepository resolvedAnswerByRepository;
     @Autowired
@@ -88,57 +93,61 @@ public class StudentStatsService implements IStudentStatsService{
 
         statsRepository.save(studentStats);
 
-        updateStats.getActionsPoints().forEach(update -> getSession(userAuthenticated.getDocument(), update));
+        updateStats.getActionsPoints().forEach(update -> saveSessions(userAuthenticated.getDocument(), update));
 
         return new ResponseDto<>("The update was applied successfully", 200, "Ok");
     }
 
 
-    private void getSession(String document, UpdateActionsPointsDto update){
+    private void saveSessions(String document, UpdateActionsPointsDto update){
 
         Students students = new Students();
         students.setDocument(document);
 
-        Actions actions = new Actions();
-        actions.setId(update.getId());
-
         Sessions sessions = new Sessions();
         sessions.setScore(update.getScore());
         sessions.setStudents(students);
+
+        Challenges challenges = new Challenges();
+        challenges.setId(update.getChallengeId());
+        sessions.setChallenges(challenges);
+
+        Tribes tribes = new Tribes();
+        tribes.setId(update.getTribeId());
+        sessions.setTribeId(tribes);
+
+        Actions actions = new Actions();
+        actions.setId(update.getId());
         sessions.setActions(actions);
 
         sessionsRepository.save(sessions);
 
         List<ResolvedAnswerBy> results= update.getAnswerRecords().stream().map(answerRecord ->  getResolvedAnswerBy(students, answerRecord, actions, sessions))
-                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         sessions.setResolvedAnswerBy(results);
+        sessionsRepository.save(sessions);
 
         resolvedAnswerByRepository.saveAll(results);
     }
 
-    private List<ResolvedAnswerBy> getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions
+    private ResolvedAnswerBy getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions
             , Sessions sessions){
 
-    return answers.getAnswers().stream().map(answer -> {
-            ResolvedAnswerBy resolvedAnswerBy = new ResolvedAnswerBy();
+        ResolvedAnswerBy resolvedAnswerBy = new ResolvedAnswerBy();
 
-            Challenges challenges = challengesRepository.getById(answers.getChallengeId());
+        resolvedAnswerBy.setCreatedAt(new Date());
+        resolvedAnswerBy.setSessions(sessions);
 
-            resolvedAnswerBy.setIdChallenge(challenges);
-            resolvedAnswerBy.setIdStudent(students);
-            resolvedAnswerBy.setActions(actions);
-            resolvedAnswerBy.setCreatedAt(new Date());
-            resolvedAnswerBy.setSessions(sessions);
+        Questions questions = new Questions();
+        questions.setId(answers.getQuestionId());
 
-            Questions questions = questionsRepository.getById(answer.getQuestionId());
+        Answers answerEntity = new Answers();
+        answerEntity.setId(answers.getAnswerId());
 
-            Answers answerEntity = answersRepository.getById(answer.getAnswerId());
+        resolvedAnswerBy.setIdAnswer(answerEntity);
+        resolvedAnswerBy.setIdQuestion(questions);
 
-            resolvedAnswerBy.setIdAnswer(answerEntity);
-            resolvedAnswerBy.setIdQuestion(questions);
-            return resolvedAnswerBy;
-        }).collect(Collectors.toList());
+        return resolvedAnswerBy;
     }
 }

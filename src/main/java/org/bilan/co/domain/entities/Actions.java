@@ -5,11 +5,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @author Manuel Alejandro
@@ -41,10 +43,4 @@ public class Actions implements Serializable {
     @Size(max = 255)
     private String imagePath;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tribe", referencedColumnName = "id")
-    private Tribes tribe;
-
-    @OneToMany(mappedBy = "action", cascade = CascadeType.ALL)
-    private List<Challenges> challenges;
 }

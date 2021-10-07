@@ -6,11 +6,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @author Manuel Alejandro
@@ -37,11 +39,6 @@ public class Challenges implements Serializable {
     @Size(max = 255)
     private String type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_action", referencedColumnName = "id")
-    private Actions action;
-
     private Integer cost;
     private Integer timer;
-    private Integer reward;
 }

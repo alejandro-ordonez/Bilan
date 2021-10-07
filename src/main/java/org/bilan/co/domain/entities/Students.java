@@ -74,7 +74,7 @@ public class Students implements Serializable {
     private String grade;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "idStudent")
+    @OneToMany(mappedBy = "studentId")
     private List<ResolvedAnswerBy> resolvedAnswerByList;
 
     @JsonIgnore

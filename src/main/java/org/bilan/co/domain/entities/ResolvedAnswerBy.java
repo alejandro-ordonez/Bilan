@@ -11,12 +11,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author Manuel Alejandro
@@ -37,7 +36,6 @@ public class ResolvedAnswerBy implements Serializable {
     @Basic(optional = false)
     private Integer id;
 
-
     @ManyToOne
     @JoinColumn(name = "sessions_id")
     private Sessions sessions;
@@ -48,14 +46,6 @@ public class ResolvedAnswerBy implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
-    @JoinColumn(name = "id_challenge", referencedColumnName = "id")
-    @ManyToOne
-    private Challenges idChallenge;
-
-    @JoinColumn(name = "id_student", referencedColumnName = "document")
-    @ManyToOne
-    private Students idStudent;
-
     @JoinColumn(name = "id_question", referencedColumnName = "id")
     @ManyToOne
     private Questions idQuestion;
@@ -64,7 +54,11 @@ public class ResolvedAnswerBy implements Serializable {
     @ManyToOne
     private Answers idAnswer;
 
+
     @OneToOne
-    @JoinColumn(name = "actions_id")
-    private Actions actions;
+    @JoinColumn(name = "tribe_id_id")
+    private Tribes tribeId;
+    @ManyToOne
+    @JoinColumn(name = "student_id_document")
+    private Students studentId;
 }
