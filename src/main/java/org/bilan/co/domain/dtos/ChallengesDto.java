@@ -8,4 +8,5 @@ import lombok.EqualsAndHashCode;
 public class ChallengesDto {
     private Integer id;
     private String name;
+    private Integer cost;
 }
