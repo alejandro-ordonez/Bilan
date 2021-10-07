@@ -93,6 +93,10 @@ public class StudentStatsService implements IStudentStatsService{
 
         statsRepository.save(studentStats);
 
+        if(updateStats.getActionsPoints() == null){
+            updateStats.setActionsPoints(new ArrayList<>());
+        }
+
         updateStats.getActionsPoints().forEach(update -> saveSessions(userAuthenticated.getDocument(), update));
 
         return new ResponseDto<>("The update was applied successfully", 200, "Ok");
