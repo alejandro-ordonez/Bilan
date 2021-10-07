@@ -246,7 +246,6 @@ public class RegisterService implements IRegisterService {
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
         }
 
-
         student = new Students();
         student.setName(regUserDto.getName());
         student.setGrade(regUserDto.getGrade());
