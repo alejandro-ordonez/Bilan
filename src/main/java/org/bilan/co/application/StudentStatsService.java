@@ -89,6 +89,7 @@ public class StudentStatsService implements IStudentStatsService{
         studentStats.setCurrentSpirits(updateStats.getCurrentSpirits());
         studentStats.setAnalyticalTotems(updateStats.getAnalyticalTotems());
         studentStats.setCriticalTotems(updateStats.getCriticalTotems());
+        studentStats.setGeneralTotems(updateStats.getGeneralTotems());
         studentStats.setTribesBalance(updateStats.getTribesBalance());
 
         statsRepository.save(studentStats);
