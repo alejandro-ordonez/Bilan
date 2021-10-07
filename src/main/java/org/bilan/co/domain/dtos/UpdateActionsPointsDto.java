@@ -7,7 +7,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-public class UpdateActionsPointsDto extends ActionsPoints{
+public class UpdateActionsPointsDto{
     private Integer actionId;
     private Integer tribeId;
     private Integer challengeId;

@@ -117,7 +117,7 @@ public class StudentStatsService implements IStudentStatsService{
         sessions.setTribeId(tribes);
 
         Actions actions = new Actions();
-        actions.setId(update.getId());
+        actions.setId(update.getActionId());
         sessions.setActions(actions);
 
         sessionsRepository.save(sessions);

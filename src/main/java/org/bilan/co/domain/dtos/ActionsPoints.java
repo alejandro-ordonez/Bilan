@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ActionsPoints{
-    private Integer id;
+    private Integer actionId;
     private Long score;
     @JsonIgnore
     private Integer tribeId;
