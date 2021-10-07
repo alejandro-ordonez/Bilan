@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 @Data
 public class ChallengesDto {
-
+    private Integer id;
     private String name;
-
 }

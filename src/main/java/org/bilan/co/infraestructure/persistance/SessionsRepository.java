@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface SessionsRepository extends JpaRepository<Sessions, Integer> {
 
-    @Query("SELECT new org.bilan.co.domain.dtos.ActionsPoints(session.actions.id, SUM(session.score), session.actions.tribe.id) " +
+    @Query("SELECT new org.bilan.co.domain.dtos.ActionsPoints(session.actions.id, SUM(session.score), session.tribeId.id) " +
             "FROM Sessions session WHERE session.students.document = ?1 " +
             "GROUP BY session.actions")
     List<ActionsPoints> getActionsPoints(String document);

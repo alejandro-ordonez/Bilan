@@ -25,12 +25,4 @@ public class ActionsService implements IActionsService{
                 .map(action -> mapper.map(action, ActionDto.class))
                 .collect(Collectors.toList());
     }
-
-    @Override
-    public List<ActionDto> getAllByTribe(Integer tribeId) {
-        return actionsRepository.findAllByTribe(tribeId)
-                .stream()
-                .map(action -> mapper.map(action, ActionDto.class))
-                .collect(Collectors.toList());
-    }
 }

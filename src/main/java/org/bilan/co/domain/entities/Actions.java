@@ -34,13 +34,4 @@ public class Actions implements Serializable {
     @Size(max = 255)
     private String name;
 
-    @Size(max = 255)
-    private String description;
-
-    @Size(max = 255)
-    private String representative;
-
-    @Size(max = 255)
-    private String imagePath;
-
 }
