@@ -33,7 +33,7 @@ public class QuestionsService implements IQuestionsService{
     private Mapper mapper;
 
     @Override
-    public ResponseDto<List<ContextsQuestionsDto>> getQuestions(String token) {
+    public ResponseDto<List<QuestionDto>> getQuestions(String token) {
 
         AuthenticatedUserDto authenticatedUser = jwtTokenUtil.getInfoFromToken(token);
 
@@ -45,7 +45,7 @@ public class QuestionsService implements IQuestionsService{
     }
 
     @Override
-    public ResponseDto<List<ContextsQuestionsDto>> getQuestions(QuestionRequestDto questionRequestDto, String token) {
+    public ResponseDto<List<QuestionDto>> getQuestions(QuestionRequestDto questionRequestDto, String token) {
         AuthenticatedUserDto authenticatedUser = jwtTokenUtil.getInfoFromToken(token);
 
         String grade = studentsRepository.getGrade(authenticatedUser.getDocument());
@@ -59,28 +59,24 @@ public class QuestionsService implements IQuestionsService{
         return  buildQuestionsResponse(questions);
     }
 
-    private ResponseDto<List<ContextsQuestionsDto>> buildQuestionsResponse(List<List<Questions>> questions){
-        List<ContextsQuestionsDto> contextQuestions = new ArrayList<>();
+    private ResponseDto<List<QuestionDto>> buildQuestionsResponse(List<List<Questions>> questions){
+        final List<QuestionDto> questionsDto = new ArrayList<>();
 
         questions.forEach(qs -> {
-            ContextsQuestionsDto contextQuestion = new ContextsQuestionsDto();
-            contextQuestion.setContent(qs.get(0).getContexts().getContent());
+            String context = qs.get(0).getContexts().getContent();
 
-            List<QuestionDto> questionsDto = qs.stream().map(q -> new QuestionDto(q.getId(),
+            qs.forEach(q -> questionsDto.add(new QuestionDto(q.getId(),
                             q.getTitle(),
+                            context,
                             q.getStatement(),
                             q.getErrorMessage(),
                             q.getJustification(),
                             0,
-                            q.getAnswersList().stream().map(a -> mapper.map(a, AnswerDto.class)).collect(Collectors.toList())))
-                    .collect(Collectors.toList());
+                            q.getAnswersList().stream().map(a -> mapper.map(a, AnswerDto.class)).collect(Collectors.toList()))));
 
-            contextQuestion.setQuestionList(questionsDto);
-
-            contextQuestions.add(contextQuestion);
         });
 
-        return new ResponseDto<>("", 200, contextQuestions);
+        return new ResponseDto<>("", 200, questionsDto);
     }
 
     @Override

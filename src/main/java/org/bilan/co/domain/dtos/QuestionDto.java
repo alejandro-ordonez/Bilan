@@ -14,6 +14,7 @@ public class QuestionDto {
 
     private Integer id;
     private String title;
+    private String context;
     private String statement;
     private String errorMessage;
     private String justification;
