@@ -12,8 +12,8 @@ public class Classroom {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "groups")
-    private String groups;
+    @Column(name = "id_teacher")
+    private Teachers idTeacher;
 
     @Column(name = "grade")
     private String grade;
