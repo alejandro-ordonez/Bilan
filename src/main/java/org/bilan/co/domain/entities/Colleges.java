@@ -18,7 +18,10 @@ public class Colleges {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "idCollege")
+    @Column(name = "state")
+    private String state;
+
+    @OneToMany(mappedBy = "college")
     private List<Classroom> classrooms;
 
 }
