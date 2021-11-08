@@ -1,7 +1,8 @@
-package org.bilan.co.application;
+package org.bilan.co.application.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.bilan.co.application.IActionsService;
 import org.bilan.co.domain.dtos.*;
 import org.bilan.co.domain.entities.*;
 import org.bilan.co.infraestructure.persistance.*;

@@ -1,4 +1,4 @@
-package org.bilan.co.application;
+package org.bilan.co.application.game;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ActionDto;

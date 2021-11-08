@@ -13,13 +13,16 @@ import java.util.List;
 public class Colleges {
 
     @Id
-    private String id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
 
     @Column(name = "state")
     private String state;
+
+    @Column(name = "cod_dane")
+    private String codDane;
 
     @OneToMany(mappedBy = "college")
     private List<Classroom> classrooms;

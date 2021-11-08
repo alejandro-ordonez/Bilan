@@ -1,4 +1,4 @@
-package org.bilan.co.application;
+package org.bilan.co.application.game;
 
 import org.bilan.co.domain.dtos.GameStatsDto;
 import org.bilan.co.domain.dtos.ResponseDto;
