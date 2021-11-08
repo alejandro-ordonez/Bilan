@@ -60,4 +60,8 @@ public class Tribes implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "tribeId", cascade = CascadeType.ALL)
     private List<ResolvedAnswerBy> resolvedAnswerByList;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "tribe", cascade = CascadeType.ALL)
+    private List<Classroom> classrooms;
 }

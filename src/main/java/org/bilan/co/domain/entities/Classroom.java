@@ -12,13 +12,23 @@ public class Classroom {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "id_teacher")
-    private Teachers idTeacher;
+    @ManyToOne
+    @JoinColumn(name = "teacher_id")
+    private Teachers teacher;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Courses course;
+
+    @ManyToOne
+    @JoinColumn(name = "tribe_id")
+    private Tribes tribe;
+
+    @ManyToOne
+    @JoinColumn(name = "college_id")
+    private Colleges college;
+
 
     @Column(name = "grade")
     private String grade;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id_college", nullable = false)
-    private Colleges idCollege;
 }

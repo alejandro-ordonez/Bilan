@@ -1,13 +1,13 @@
-package org.bilan.co.application;
+package org.bilan.co.application.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.infraestructure.persistance.StatsRepository;
-import org.bilan.co.infraestructure.persistance.StudentsRepository;
-import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.domain.dtos.*;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
+import org.bilan.co.infraestructure.persistance.StatsRepository;
+import org.bilan.co.infraestructure.persistance.StudentsRepository;
+import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;

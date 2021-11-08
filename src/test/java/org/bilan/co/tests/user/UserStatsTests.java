@@ -1,17 +1,13 @@
 package org.bilan.co.tests.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.application.IStudentStatsService;
-import org.bilan.co.application.IUserService;
+import org.bilan.co.application.game.IStudentStatsService;
+import org.bilan.co.application.user.IUserService;
 import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.UserStatsDto;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.utils.JwtTokenUtil;
-import org.eclipse.persistence.jpa.jpql.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
