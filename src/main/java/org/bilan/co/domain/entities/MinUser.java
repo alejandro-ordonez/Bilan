@@ -1,36 +1,16 @@
 package org.bilan.co.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.bilan.co.domain.enums.DocumentType;
-import org.bilan.co.domain.enums.UserType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
-/**
- * @author Manuel Alejandro
- */
 @Entity
-@XmlRootElement
-@NoArgsConstructor
-@Data
-@EqualsAndHashCode
-@ToString
-public class Teachers implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
+public class MinUser {
     @Id
     @Basic(optional = false)
     @NotNull
@@ -62,13 +42,4 @@ public class Teachers implements Serializable {
     @Column(name = "modified_at")
     @LastModifiedDate
     protected Date modifiedAt;
-
-
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
-    private List<Classroom> classrooms;
-
-    @Transient
-    private UserType userType = UserType.Teacher;
 }

@@ -6,7 +6,7 @@
 
 package org.bilan.co.api;
 
-import org.bilan.co.application.IRegisterService;
+import org.bilan.co.application.user.IRegisterService;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;

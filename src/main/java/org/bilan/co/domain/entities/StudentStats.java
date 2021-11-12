@@ -32,7 +32,7 @@ public class StudentStats implements Serializable {
     private Integer id;
 
     @Column(name = "general_totems")
-    private Integer generalTotems = 4;
+    private Integer generalTotems = 10;
 
     @Column(name = "analytical_totems")
     private Integer analyticalTotems = 0;
@@ -48,6 +48,10 @@ public class StudentStats implements Serializable {
 
     @Column(name = "tribes_balance")
     private String tribesBalance;
+
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
     @Basic(optional = false)
     @NotNull

@@ -1,4 +1,4 @@
-package org.bilan.co.application;
+package org.bilan.co.application.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -30,11 +30,11 @@ import java.util.Optional;
 @Service
 public class RegisterService implements IRegisterService {
 
-    private TeachersRepository teachersRepository;
-    private StudentsRepository studentsRepository;
-    private SimatEstudianteClient simatEstudianteClient;
-    private SimatMatriculaClient simatMatriculaClient;
-    private PasswordEncoder passwordEncoder;
+    private final TeachersRepository teachersRepository;
+    private final StudentsRepository studentsRepository;
+    private final SimatEstudianteClient simatEstudianteClient;
+    private final SimatMatriculaClient simatMatriculaClient;
+    private final PasswordEncoder passwordEncoder;
 
     public RegisterService(TeachersRepository teachersRepository, StudentsRepository studentsRepository,
                            SimatEstudianteClient simatEstudianteClient, SimatMatriculaClient simatMatriculaClient,
