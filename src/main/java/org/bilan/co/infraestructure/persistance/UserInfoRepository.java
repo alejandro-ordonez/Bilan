@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserInfoRepository<T extends UserInfo> extends JpaRepository<T, String> {
+public interface UserInfoRepository extends JpaRepository<UserInfo, String> {
 
     @Query("UPDATE UserInfo u SET u.isEnabled = :enabled " +
             "WHERE u.document = :document")

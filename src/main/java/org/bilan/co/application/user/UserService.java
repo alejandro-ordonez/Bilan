@@ -36,6 +36,8 @@ public class UserService implements IUserService {
     @Autowired
     private RolesRepository rolesRepository;
     @Autowired
+    private UserInfoRepository userInfoRepository;
+    @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
     public AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken) {
@@ -69,21 +71,8 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto<Boolean> enableUser(EnableUser user) {
-
-        switch (user.getUserType()){
-            case Teacher:
-                teachersRepository.updateState(user.getDocument(), user.getEnabled());
-                break;
-            case Student:
-                studentsRepository.updateState(user.getDocument(), user.getEnabled());
-                break;
-            case Min:
-                minUserRepository.updateState(user.getDocument(), user.getEnabled());
-                break;
-            case Admin:
-                break;
-        }
-        return null;
+       return new ResponseDto<>("User state changed", 200,
+               userInfoRepository.updateState(user.getDocument(), user.getEnabled()));
     }
 
 
