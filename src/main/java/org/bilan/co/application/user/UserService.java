@@ -2,11 +2,10 @@ package org.bilan.co.application.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.ResponseDtoBuilder;
-import org.bilan.co.domain.dtos.UserInfoDto;
-import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.dtos.*;
+import org.bilan.co.domain.entities.Privileges;
+import org.bilan.co.domain.entities.Roles;
+import org.bilan.co.domain.entities.UserInfo;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,24 +40,12 @@ public class UserService implements IUserService {
 
     public AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken) {
 
-        Object user = getUser(dataToken);
+        UserInfo user = getUser(dataToken);
 
         if (user == null)
             return new AuthenticatedUserDto();
 
-        switch (dataToken.getUserType()) {
-
-            case Student:
-                Students students = (Students) user;
-                return new AuthenticatedUserDto(students.getDocument(), dataToken.getUserType(), students.getDocumentType());
-
-            case Teacher:
-                Teachers teachers = (Teachers) user;
-                return new AuthenticatedUserDto(teachers.getDocument(), dataToken.getUserType(), teachers.getDocumentType());
-
-            default:
-                return new AuthenticatedUserDto();
-        }
+        return new AuthenticatedUserDto(user.getDocument(), dataToken.getUserType(), user.getDocumentType());
     }
 
 
@@ -80,6 +67,24 @@ public class UserService implements IUserService {
         return null;
     }
 
+    @Override
+    public ResponseDto<Boolean> enableUser(EnableUser user) {
+
+        switch (user.getUserType()){
+            case Teacher:
+                teachersRepository.updateState(user.getDocument(), user.getEnabled());
+                break;
+            case Student:
+                studentsRepository.updateState(user.getDocument(), user.getEnabled());
+                break;
+            case Min:
+                minUserRepository.updateState(user.getDocument(), user.getEnabled());
+                break;
+            case Admin:
+                break;
+        }
+        return null;
+    }
 
 
     private UserInfo getUser(AuthenticatedUserDto authDto) {

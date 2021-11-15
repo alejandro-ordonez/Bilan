@@ -7,13 +7,12 @@
 package org.bilan.co.infraestructure.persistance;
 
 import org.bilan.co.domain.entities.Students;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface StudentsRepository extends JpaRepository<Students, String>{
+public interface StudentsRepository extends UserInfoRepository<Students> {
 
     @Query(value = "SELECT student.grade FROM Students student WHERE student.document = ?1")
     String getGrade(String document);

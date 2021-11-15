@@ -30,7 +30,6 @@ public class Teachers extends UserInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-
     @JsonIgnore
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
     private List<Classroom> classrooms;

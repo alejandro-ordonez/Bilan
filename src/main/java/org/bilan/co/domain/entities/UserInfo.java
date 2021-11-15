@@ -10,9 +10,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import java.util.List;
 
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @EnableJpaAuditing
 public abstract class UserInfo {
@@ -24,6 +25,7 @@ public abstract class UserInfo {
     @Column(unique = true)
     protected String document;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "document_type")
     protected DocumentType documentType;
@@ -32,14 +34,18 @@ public abstract class UserInfo {
     protected String name;
 
     @Size(max = 255)
+    @Column(name = "last_name")
+    protected String lastName;
+
+    @Size(max = 255)
     protected String email;
+
+
+    @Column(name = "is_enabled")
+    private Boolean isEnabled;
 
     @Size(max = 255)
     protected String password;
-
-    @Size(max = 255)
-    @Column(name = "last_name")
-    protected String lastName;
 
     @Column(name = "created_at")
     @CreatedDate
@@ -52,4 +58,8 @@ public abstract class UserInfo {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Roles role;
+
+    @OneToMany(mappedBy = "author")
+    private List<Post> posts;
+
 }

@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Data
@@ -22,4 +23,7 @@ public class Roles {
             inverseJoinColumns = @JoinColumn(
                     name = "privilege_id", referencedColumnName = "id"))
     private Collection<Privileges> privileges;
+
+    @OneToMany(mappedBy = "role")
+    private List<UserInfo> users;
 }
