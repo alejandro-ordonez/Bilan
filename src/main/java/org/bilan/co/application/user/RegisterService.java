@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -81,7 +80,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> checkTeacher(AuthDto authDto) {
-        Teachers teacher = teachersRepository.findByDocument(authDto.getDocument());
+        Teachers teacher = teachersRepository.findById(authDto.getDocument()).orElse(null);
 
         if (teacher == null) {
             // validate from SIMAT
@@ -108,7 +107,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> checkStudent(AuthDto authDto) {
-        Students student = Optional.ofNullable(studentsRepository.findByDocument(authDto.getDocument()))
+        Students student = studentsRepository.findById(authDto.getDocument())
                 .orElseGet(() -> createNewStudent(authDto));
 
         if (Objects.isNull(student)) {
@@ -171,7 +170,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> updateStudent(AuthDto authDto) {
-        Students student = studentsRepository.findByDocument(authDto.getDocument());
+        Students student = studentsRepository.findById(authDto.getDocument()).orElse(null);
 
         if (student == null || student.getPassword() != null) {
             return userAlreadyExists();
@@ -214,7 +213,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> createTeacher(RegisterUserDto regUserDto) {
-        Teachers teacher = teachersRepository.findByDocument(regUserDto.getDocument());
+        Teachers teacher = teachersRepository.findById(regUserDto.getDocument()).orElse(null);
         if (Objects.nonNull(teacher)) {
             return new ResponseDto<>("Teacher already exists",
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
@@ -241,7 +240,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> createStudent(RegisterUserDto regUserDto) {
-        Students student = studentsRepository.findByDocument(regUserDto.getDocument());
+        Students student = studentsRepository.findById(regUserDto.getDocument()).orElse(null);
         if (Objects.nonNull(student)) {
             return new ResponseDto<>("Student already exists",
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
@@ -273,7 +272,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> updateTeacher(String document, String password) {
-        Teachers teacher = teachersRepository.findByDocument((document));
+        Teachers teacher = teachersRepository.findById((document)).orElse(null);
 
         if (teacher == null || teacher.getPassword() != null) {
             return new ResponseDtoBuilder<UserState>()

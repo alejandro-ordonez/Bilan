@@ -13,10 +13,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface StudentsRepository extends JpaRepository<Students, Integer>{
-
-    @Query(value="SELECT s FROM Students s WHERE s.document = ?1")
-    Students findByDocument(String document);
+public interface StudentsRepository extends JpaRepository<Students, String>{
 
     @Query(value = "SELECT student.grade FROM Students student WHERE student.document = ?1")
     String getGrade(String document);
