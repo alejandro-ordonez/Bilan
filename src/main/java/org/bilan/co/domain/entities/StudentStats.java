@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,6 +25,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode
 @ToString
+@EnableJpaAuditing
 public class StudentStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,9 +53,11 @@ public class StudentStats implements Serializable {
     @Column(name = "tribes_balance")
     private String tribesBalance;
 
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
     private Date createdAt;
+
+    @LastModifiedDate
+    private Date lastPlayed;
 
     @Basic(optional = false)
     @NotNull

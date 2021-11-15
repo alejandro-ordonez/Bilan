@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -39,9 +40,7 @@ public class ResolvedAnswerBy implements Serializable {
     @JoinColumn(name = "sessions_id")
     private Sessions sessions;
 
-    @Basic(optional = false)
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
     private Date createdAt;
 
     @JoinColumn(name = "id_question", referencedColumnName = "id")

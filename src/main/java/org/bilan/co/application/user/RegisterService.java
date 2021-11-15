@@ -221,11 +221,12 @@ public class RegisterService implements IRegisterService {
         }
 
         teacher = new Teachers();
+        teacher.setDocument(regUserDto.getDocument());
         teacher.setName(regUserDto.getName());
         teacher.setLastName(regUserDto.getLastname());
         teacher.setEmail(regUserDto.getEmail());
         teacher.setCreatedAt(new Date());
-        teacher.setPassword(regUserDto.getPassword());
+        teacher.setPassword(this.passwordEncoder.encode(regUserDto.getPassword()));
         teacher.setDocumentType(regUserDto.getDocumentType());
 
         try {

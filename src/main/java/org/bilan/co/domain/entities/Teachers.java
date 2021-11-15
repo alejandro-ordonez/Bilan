@@ -5,17 +5,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,42 +25,10 @@ import java.util.List;
 @Data
 @EqualsAndHashCode
 @ToString
-public class Teachers implements Serializable {
+@EnableJpaAuditing
+public class Teachers extends UserInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    @Id
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 255)
-    @Column(unique = true)
-    protected String document;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "document_type")
-    protected DocumentType documentType;
-
-    @Size(max = 255)
-    protected String name;
-
-    @Size(max = 255)
-    protected String email;
-
-    @Size(max = 255)
-    protected String password;
-
-    @Size(max = 255)
-    @Column(name = "last_name")
-    protected String lastName;
-
-    @Column(name = "created_at")
-    @CreatedDate
-    protected Date createdAt;
-
-    @Column(name = "modified_at")
-    @LastModifiedDate
-    protected Date modifiedAt;
-
 
 
     @JsonIgnore
