@@ -3,8 +3,8 @@ package org.bilan.co.domain.entities;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Collection;
 
-@Table(name = "privileges")
 @Entity
 @Data
 public class Privileges {
@@ -13,7 +13,8 @@ public class Privileges {
     @GeneratedValue
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "roles_id")
-    private Roles roles;
+    private String name;
+
+    @ManyToMany(mappedBy = "privileges")
+    private Collection<Roles> roles;
 }
