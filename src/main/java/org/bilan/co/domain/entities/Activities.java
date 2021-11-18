@@ -35,7 +35,4 @@ public class Activities implements Serializable {
     @Lob
     @Size(max = 65535)
     private String description;
-
-    @OneToMany(mappedBy = "idActivity")
-    private List<Evidences> evidencesList;
 }

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class StudentStatsService implements IStudentStatsService{
+public class StudentStatsService implements IStudentStatsService {
 
 
     @Autowired
@@ -51,7 +51,7 @@ public class StudentStatsService implements IStudentStatsService{
 
         StudentStats studentStats = statsRepository.findByDocument(userAuthenticated.getDocument());
 
-        if(studentStats == null){
+        if (studentStats == null) {
             log.warn("The record wasn't found a new one will be created");
 
             Students student = studentsRepository.findByDocument(userAuthenticated.getDocument());
@@ -69,11 +69,11 @@ public class StudentStatsService implements IStudentStatsService{
 
         List<ActionsPoints> actionsPoints = sessionsRepository.getActionsPoints(userAuthenticated.getDocument());
 
-        Map<Integer, List<ActionsPoints>> tribesPointMap =  actionsPoints.stream().collect(Collectors.groupingBy(ActionsPoints::getTribeId));
+        Map<Integer, List<ActionsPoints>> tribesPointMap = actionsPoints.stream().collect(Collectors.groupingBy(ActionsPoints::getTribeId));
 
         tribesPointMap.forEach((key, value) ->
                 gameStatsDto.getTribesPoints()
-                .add(new TribesPoints(key, value.stream().map(ActionsPoints::getScore).reduce(Long::sum).orElse(0L), value)));
+                        .add(new TribesPoints(key, value.stream().map(ActionsPoints::getScore).reduce(Long::sum).orElse(0L), value)));
 
         return new ResponseDto<>("Stats returned successfully", 200, gameStatsDto);
     }
@@ -95,7 +95,7 @@ public class StudentStatsService implements IStudentStatsService{
 
         statsRepository.save(studentStats);
 
-        if(updateStats.getActionsPoints() == null){
+        if (updateStats.getActionsPoints() == null) {
             updateStats.setActionsPoints(new ArrayList<>());
         }
 
@@ -105,7 +105,7 @@ public class StudentStatsService implements IStudentStatsService{
     }
 
 
-    private void saveSessions(String document, UpdateActionsPointsDto update){
+    private void saveSessions(String document, UpdateActionsPointsDto update) {
 
         Students students = new Students();
         students.setDocument(document);
@@ -128,7 +128,8 @@ public class StudentStatsService implements IStudentStatsService{
 
         sessionsRepository.save(sessions);
 
-        List<ResolvedAnswerBy> results= update.getAnswerRecords().stream().map(answerRecord ->  getResolvedAnswerBy(students, answerRecord, actions, sessions))
+        List<ResolvedAnswerBy> results = update.getAnswerRecords().stream()
+                .map(answerRecord -> getResolvedAnswerBy(students, answerRecord, actions, sessions))
                 .collect(Collectors.toList());
 
         sessions.setResolvedAnswerBy(results);
@@ -137,9 +138,7 @@ public class StudentStatsService implements IStudentStatsService{
         resolvedAnswerByRepository.saveAll(results);
     }
 
-    private ResolvedAnswerBy getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions
-            , Sessions sessions){
-
+    private ResolvedAnswerBy getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions, Sessions sessions) {
         ResolvedAnswerBy resolvedAnswerBy = new ResolvedAnswerBy();
 
         resolvedAnswerBy.setCreatedAt(new Date());

@@ -28,7 +28,6 @@ public class Classroom {
     @JoinColumn(name = "college_id")
     private Colleges college;
 
-
     @Column(name = "grade")
     private String grade;
 }
