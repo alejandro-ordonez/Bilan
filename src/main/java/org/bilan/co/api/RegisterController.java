@@ -7,9 +7,9 @@
 package org.bilan.co.api;
 
 import org.bilan.co.application.user.IRegisterService;
-import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.user.AuthDto;
+import org.bilan.co.domain.dtos.user.RegisterUserDto;
 import org.bilan.co.domain.enums.UserState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,9 +1,9 @@
 package org.bilan.co.application.user;
 
-import org.bilan.co.domain.dtos.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.EnableUser;
 import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.UserInfoDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.domain.dtos.user.EnableUser;
+import org.bilan.co.domain.dtos.user.UserInfoDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface IUserService extends UserDetailsService {

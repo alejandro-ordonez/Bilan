@@ -2,10 +2,10 @@ package org.bilan.co.application.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
+import org.bilan.co.domain.dtos.user.AuthDto;
+import org.bilan.co.domain.dtos.user.RegisterUserDto;
 import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;

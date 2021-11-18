@@ -5,8 +5,8 @@
  */
 package org.bilan.co.application.user;
 
-import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.user.AuthDto;
 import org.springframework.http.ResponseEntity;
 
 public interface ILoginService {

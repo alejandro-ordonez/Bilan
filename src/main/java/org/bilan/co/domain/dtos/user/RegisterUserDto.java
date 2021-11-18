@@ -1,4 +1,4 @@
-package org.bilan.co.domain.dtos;
+package org.bilan.co.domain.dtos.user;
 
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;

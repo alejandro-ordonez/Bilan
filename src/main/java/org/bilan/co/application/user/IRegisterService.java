@@ -5,9 +5,9 @@
  */
 package org.bilan.co.application.user;
 
-import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.user.AuthDto;
+import org.bilan.co.domain.dtos.user.RegisterUserDto;
 import org.bilan.co.domain.enums.UserState;
 
 /**

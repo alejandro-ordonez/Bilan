@@ -3,7 +3,7 @@ package org.bilan.co.domain.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bilan.co.domain.enums.UserType;
+import org.bilan.co.domain.enums.DocumentType;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -17,5 +17,5 @@ public class BasicInfo {
     protected String document;
 
     @NotNull
-    protected UserType userType;
+    protected DocumentType documentType;
 }

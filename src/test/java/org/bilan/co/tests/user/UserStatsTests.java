@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.game.IStudentStatsService;
 import org.bilan.co.application.user.IUserService;
-import org.bilan.co.domain.dtos.AuthDto;
+import org.bilan.co.domain.dtos.user.AuthDto;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.utils.JwtTokenUtil;

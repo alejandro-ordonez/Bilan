@@ -8,9 +8,9 @@ package org.bilan.co.application.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
+import org.bilan.co.domain.dtos.user.AuthDto;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

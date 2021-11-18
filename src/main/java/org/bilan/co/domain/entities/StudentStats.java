@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
@@ -35,18 +36,23 @@ public class StudentStats implements Serializable {
     @Basic(optional = false)
     private Integer id;
 
+    @Max(15)
     @Column(name = "general_totems")
     private Integer generalTotems = 10;
 
+    @Max(3)
     @Column(name = "analytical_totems")
     private Integer analyticalTotems = 0;
 
+    @Max(3)
     @Column(name = "critical_totems")
     private Integer criticalTotems = 0;
 
+    @Max(5)
     @Column(name = "current_cycle")
     private Integer currentCycle = 1;
 
+    @Max(3)
     @Column(name = "current_spirits")
     private Integer currentSpirits = 3;
 

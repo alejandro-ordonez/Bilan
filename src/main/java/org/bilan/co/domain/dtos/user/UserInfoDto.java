@@ -1,4 +1,4 @@
-package org.bilan.co.domain.dtos;
+package org.bilan.co.domain.dtos.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
