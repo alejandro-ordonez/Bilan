@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @Slf4j
 @RestController
 @RequestMapping("/stats")
@@ -24,7 +25,8 @@ public class StatsController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto<String>> updateStats(@RequestBody UpdateStatsDto updateStats, @RequestHeader(Constants.AUTHORIZATION) String jwt){
+    public ResponseEntity<ResponseDto<String>> updateStats(@RequestBody UpdateStatsDto updateStats,
+                                                           @RequestHeader(Constants.AUTHORIZATION) String jwt){
         return ResponseEntity.ok(statsService.updateUserStats(updateStats, jwt));
     }
 }
