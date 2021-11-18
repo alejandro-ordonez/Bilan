@@ -61,13 +61,14 @@ public class StudentStatsService implements IStudentStatsService{
         if(studentStats == null){
             log.warn("The record wasn't found a new one will be created");
 
-            Students student = studentsRepository.findById(userAuthenticated.getDocument()).orElse(null);
-
-            studentStats = new StudentStats();
-            studentStats.setIdStudent(student);
-            assert student != null;
-            student.setStudentStats(studentStats);
-            studentsRepository.save(student);
+            studentsRepository.findById(userAuthenticated.getDocument())
+                    .map(s -> {
+                        StudentStats studentStat = new StudentStats();
+                        studentStat.setIdStudent(s);
+                        s.setStudentStats(studentStat);
+                        studentsRepository.save(s);
+                        return null;
+                    });
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
