@@ -4,8 +4,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -13,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
+@EnableJpaAuditing
 public class Sessions {
 
     @Id
@@ -37,6 +42,12 @@ public class Sessions {
     private Challenges challenges;
 
     private Long score;
+
+    @CreatedDate
+    private Date createdAt;
+
+    @LastModifiedDate
+    private Date modifiedAt;
 
     @OneToMany(mappedBy = "sessions")
     private List<ResolvedAnswerBy> resolvedAnswerBy;

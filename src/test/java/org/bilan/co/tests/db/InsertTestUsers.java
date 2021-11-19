@@ -7,6 +7,7 @@ import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.BufferedReader;
@@ -18,6 +19,7 @@ import java.util.Date;
 
 @Slf4j
 @SpringBootTest
+@EnableJpaAuditing
 public class InsertTestUsers {
 
     @Autowired
@@ -27,7 +29,7 @@ public class InsertTestUsers {
 
     @Test
     public void insertTestStudents() throws IOException {
-        File csv = new File("D:\\ESTUDIANTES PRUEBA ING2.csv");
+        File csv = new File("D:\\19-11-2021.csv");
 
         // Note:  Double backquote is to avoid compiler
         // interpret words
@@ -52,14 +54,14 @@ public class InsertTestUsers {
             student = new Students();
             String document = studentString[0];
 
-            if(!document.isEmpty()){
+            if(!document.isEmpty() && !document.equals("sininformacion") && !document.equals("sininformación")){
                 student.setDocument(studentString[0]);
 
-                student.setEmail(studentString[2]);
-                student.setLastName(studentString[3]);
-                student.setName(studentString[4]);
+                student.setEmail("");
+                student.setLastName(studentString[2]);
+                student.setName(studentString[3]);
                 student.setPassword(passwordEncoder.encode(studentString[0]));
-                student.setGrade(studentString[6]);
+                student.setGrade(studentString[4]);
                 student.setCreatedAt(new Date());
                 try{
                     student.setDocumentType(DocumentType.valueOf(studentString[1]));
@@ -76,6 +78,23 @@ public class InsertTestUsers {
         }
         studentsRepository.saveAll(studentsArrayList);
 
+
+
+    }
+
+    @Test
+    public void insertUsers()
+    {
+
+        Students s = new Students();
+        s.setDocumentType(DocumentType.TI);
+        s.setGrade("10");
+        s.setCreatedAt(new Date());
+
+        s.setName("William");
+        s.setLastName("Faram");
+        s.setDocument("80179301");
+        s.setPassword(passwordEncoder.encode("80179301"));
 
 
     }

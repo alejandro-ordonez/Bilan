@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,6 +25,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode
 @ToString
+@EnableJpaAuditing
 public class StudentStats implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -54,6 +58,12 @@ public class StudentStats implements Serializable {
     @Column(name = "current_cycle_end")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastTotemUpdate = new Date();
+
+    @CreatedDate
+    private Date createdAt;
+
+    @LastModifiedDate
+    private Date modifiedAt;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_student", referencedColumnName = "document")
