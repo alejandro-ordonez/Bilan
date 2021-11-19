@@ -1,6 +1,6 @@
 package org.bilan.co.tests.db;
 
-import org.bilan.co.application.IStudentStatsService;
+import org.bilan.co.application.game.IStudentStatsService;
 import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.StudentChallengesDto;
 import org.bilan.co.domain.dtos.UserStatsDto;

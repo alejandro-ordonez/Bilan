@@ -7,16 +7,15 @@
 package org.bilan.co.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Manuel Alejandro
@@ -24,8 +23,8 @@ import java.util.List;
 @Entity
 @XmlRootElement
 @NoArgsConstructor
-@Data
-@EqualsAndHashCode
+@Getter
+@Setter
 @ToString
 public class Tribes implements Serializable {
 
@@ -55,9 +54,34 @@ public class Tribes implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "idTribe", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Questions> questions;
 
     @JsonIgnore
     @OneToMany(mappedBy = "tribeId", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<ResolvedAnswerBy> resolvedAnswerByList;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "tribe", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Classroom> classrooms;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "tribe", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Evidences> evidences;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Tribes tribes = (Tribes) o;
+        return id != null && Objects.equals(id, tribes.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

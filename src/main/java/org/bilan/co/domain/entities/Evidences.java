@@ -1,9 +1,9 @@
 package org.bilan.co.domain.entities;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.bilan.co.domain.enums.Phase;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,7 +19,6 @@ import java.util.Date;
 @XmlRootElement
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode
 @ToString
 public class Evidences implements Serializable {
 
@@ -30,21 +29,32 @@ public class Evidences implements Serializable {
     @Basic(optional = false)
     private Integer id;
 
-    @Size(max = 255)
-    @Column(name = "url_file")
-    private String urlFile;
-
     @Basic(optional = false)
     @NotNull
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "phase", nullable = false)
+    private Phase phase;
+
+    @NotNull
+    @Size(max = 255)
+    @Column(name = "path", nullable = false)
+    private String path;
+
+    @NotNull
+    @Size(max = 255)
+    @Column(name = "file_name", nullable = false)
+    private String fileName;
 
     @JoinColumn(name = "id_student", referencedColumnName = "document")
     @ManyToOne
     private Students idStudent;
 
-    @JoinColumn(name = "id_activiy", referencedColumnName = "id")
+    @JoinColumn(name = "id_tribe")
     @ManyToOne
-    private Activities idActivity;
+    private Tribes tribe;
 }
