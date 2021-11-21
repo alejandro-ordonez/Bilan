@@ -1,8 +1,8 @@
 package org.bilan.co.application;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.entities.Evidences;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Tribes;
@@ -13,7 +13,6 @@ import org.bilan.co.utils.S3FileStore;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;

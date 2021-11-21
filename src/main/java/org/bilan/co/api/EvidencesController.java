@@ -1,8 +1,8 @@
 package org.bilan.co.api;
 
 import org.bilan.co.application.IEvidenceService;
-import org.bilan.co.domain.dtos.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.enums.Phase;
 import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
