@@ -85,7 +85,6 @@ public class UserService implements IUserService {
     private UserInfo getUser(AuthenticatedUserDto authDto) {
         log.info("Getting userInfo");
 
-
         switch (authDto.getUserType()) {
 
             case Teacher:

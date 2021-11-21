@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +69,9 @@ public class JwtTokenUtil {
         claims.put(DOCUMENT_TYPE, userDetails.getDocumentType());
         claims.put(USER_TYPE , userDetails.getUserType());
         claims.put(DOCUMENT, userDetails.getDocument());
+
+        if(userDetails.getGrantedAuthorities()==null)
+            userDetails.setGrantedAuthorities(new ArrayList<>());
 
         final String authorities = userDetails.getGrantedAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
