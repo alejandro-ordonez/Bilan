@@ -5,12 +5,10 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnrollmentDto;
-import org.bilan.co.domain.entities.Classroom;
-import org.bilan.co.domain.entities.Colleges;
-import org.bilan.co.domain.entities.Teachers;
-import org.bilan.co.domain.entities.Tribes;
+import org.bilan.co.domain.entities.*;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.utils.JwtTokenUtil;
+import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +24,9 @@ public class TeacherService implements ITeacherService{
     private TeachersRepository teachersRepository;
     @Autowired
     private JwtTokenUtil jwtUtils;
+
+    @Autowired
+    private Mapper mapper;
 
     @Override
     public ResponseDto<String> enroll(EnrollmentDto enrollmentDto) {
@@ -51,8 +52,12 @@ public class TeacherService implements ITeacherService{
                     Colleges colleges = new Colleges();
                     colleges.setId(cr.getCollegeId());
 
+                    Courses course = new Courses();
+                    course.setId(cr.getCourseId());
+
                     classroom.setTribe(tribe);
                     classroom.setCollege(colleges);
+                    classroom.setCourse(course);
 
                     return classroom;
                 }).collect(Collectors.toList());
@@ -68,7 +73,23 @@ public class TeacherService implements ITeacherService{
 
         AuthenticatedUserDto user = jwtUtils.getInfoFromToken(jwt);
 
+        Optional<Teachers> teachers = teachersRepository.findById(user.getDocument());
 
-        return null;
+        if(!teachers.isPresent())
+            return new ResponseDto<>("The teacher was not found", 404, null);
+
+        List<ClassRoomDto> classRoomDtos = teachers.get().getClassrooms()
+                .stream()
+                .map(c -> {
+                    ClassRoomDto classRoomDto = new ClassRoomDto();
+                    classRoomDto.setCollegeId(c.getCollege().getId());
+                    classRoomDto.setCourseId(c.getCourse().getId());
+                    classRoomDto.setGrade(c.getGrade());
+                    classRoomDto.setTribeId(c.getTribe().getId());
+                    return classRoomDto;
+                })
+                .collect(Collectors.toList());
+
+        return new ResponseDto<>("Classrooms retrieved", 200, classRoomDtos);
     }
 }

@@ -10,6 +10,7 @@ import javax.persistence.*;
 public class Classroom {
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue
     private Integer id;
 
     @ManyToOne

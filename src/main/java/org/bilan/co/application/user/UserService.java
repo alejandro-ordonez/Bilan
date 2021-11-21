@@ -7,7 +7,6 @@ import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnableUser;
 import org.bilan.co.domain.dtos.user.UserInfoDto;
-import org.bilan.co.domain.entities.Privileges;
 import org.bilan.co.domain.entities.Roles;
 import org.bilan.co.domain.entities.UserInfo;
 import org.bilan.co.infraestructure.persistance.*;
@@ -49,9 +48,12 @@ public class UserService implements IUserService {
         UserInfo user = getUser(dataToken);
 
         if (user == null)
-            return new AuthenticatedUserDto();
+            return new UserInfoDto();
 
-        return new AuthenticatedUserDto(user.getDocument(), dataToken.getUserType(), user.getDocumentType());
+        return new AuthenticatedUserDto(user.getDocument(),
+                dataToken.getUserType(),
+                user.getDocumentType(),
+                getAuthorities((user.getRole())));
     }
 
 
@@ -125,30 +127,15 @@ public class UserService implements IUserService {
 
     private Collection<? extends GrantedAuthority> getAuthorities(
             Roles role) {
-
-        return getGrantedAuthorities(getPrivileges(role));
-    }
-
-    private List<String> getPrivileges(Roles role) {
-
-        List<String> privileges = new ArrayList<>();
-
-        privileges.add(role.getName());
-        List<Privileges> collection = new ArrayList<>(role.getPrivileges());
-
-        for (Privileges item : collection) {
-            privileges.add(item.getName());
-        }
-
-        return privileges;
-    }
-
-    private List<GrantedAuthority> getGrantedAuthorities(List<String> privileges) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String privilege : privileges) {
-            authorities.add(new SimpleGrantedAuthority(privilege));
-        }
-        return authorities;
-    }
 
+        authorities.add(new SimpleGrantedAuthority(role.getName()));
+
+        role.getPrivileges()
+                .stream()
+                .map(p -> new SimpleGrantedAuthority(p.getName()))
+                .forEach(authorities::add);
+
+            return authorities;
+    }
 }

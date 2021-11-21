@@ -8,6 +8,7 @@ import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +24,9 @@ public class EvidencesController {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @PostMapping(
+            path = "/upload",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -33,5 +36,10 @@ public class EvidencesController {
                                                                @RequestHeader(Constants.AUTHORIZATION) String token) {
         AuthenticatedUserDto authenticatedUser = jwtTokenUtil.getInfoFromToken(token);
         return ResponseEntity.ok(evidenceService.uploadEvidence(phase, tribeId, file, authenticatedUser));
+    }
+
+    @PostMapping("/evaluate")
+    private ResponseEntity<ResponseDto<String>> evaluateEvidence(){
+        return null;
     }
 }

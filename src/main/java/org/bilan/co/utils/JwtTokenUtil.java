@@ -8,12 +8,14 @@ import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil {
@@ -23,6 +25,7 @@ public class JwtTokenUtil {
     public static final String DOCUMENT = "Document";
     public static final String DOCUMENT_TYPE = "DocumentType";
     public static final String USER_TYPE = "UserType";
+    public static final String AUTHORITIES = "AUTHORITIES";
 
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
@@ -65,12 +68,22 @@ public class JwtTokenUtil {
         claims.put(DOCUMENT_TYPE, userDetails.getDocumentType());
         claims.put(USER_TYPE , userDetails.getUserType());
         claims.put(DOCUMENT, userDetails.getDocument());
+
+        final String authorities = userDetails.getGrantedAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        claims.put(AUTHORITIES, authorities);
+
         return doGenerateToken(claims,
                 userDetails.getDocument());
     }
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
