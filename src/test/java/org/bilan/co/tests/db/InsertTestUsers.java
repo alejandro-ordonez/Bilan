@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
+import org.bilan.co.infraestructure.persistance.TeachersRepository;
+import org.bilan.co.infraestructure.persistance.UserInfoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,17 +27,16 @@ public class InsertTestUsers {
     @Autowired
     private StudentsRepository studentsRepository;
     @Autowired
+    private TeachersRepository teachersRepository;
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Test
     public void insertTestStudents() throws IOException {
         File csv = new File("D:\\19-11-2021.csv");
 
-        // Note:  Double backquote is to avoid compiler
-        // interpret words
-        // like \test as \t (ie. as a escape sequence)
-
-        // Creating an object of BuffferedReader class
         BufferedReader br
                 = new BufferedReader(new FileReader(csv));
 
@@ -63,6 +64,7 @@ public class InsertTestUsers {
                 student.setPassword(passwordEncoder.encode(studentString[0]));
                 student.setGrade(studentString[4]);
                 student.setCreatedAt(new Date());
+                student.setEnabled(true);
                 try{
                     student.setDocumentType(DocumentType.valueOf(studentString[1]));
                 }
@@ -96,6 +98,6 @@ public class InsertTestUsers {
         s.setDocument("80179301");
         s.setPassword(passwordEncoder.encode("80179301"));
 
-
     }
+
 }

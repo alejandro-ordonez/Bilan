@@ -3,16 +3,15 @@ package org.bilan.co.domain.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,53 +22,18 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 @Data
-public class Students implements Serializable {
+@NoArgsConstructor
+public class Students extends UserInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    @Id
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 255)
-    @Column(unique = true)
-    private String document;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "document_type")
-    private DocumentType documentType;
-
-    @Size(max = 255)
-    private String name;
-
-    @Size(max = 255)
-    private String email;
-
-    @Size(max = 255)
-    private String password;
-
-    @Size(max = 255)
-    @Column(name = "last_name")
-    private String lastName;
-
-    @Lob
-    @Column(name = "last_state")
-    private String lastState;
-
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "modified_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modifiedAt;
 
     @NotNull
     @Column(name = "cod_grade")
     private String grade;
+
+    @NotNull
+    @Column(name = "enabled")
+    private Boolean enabled;
 
     @JsonIgnore
     @OneToMany(mappedBy = "studentId")
@@ -90,21 +54,8 @@ public class Students implements Serializable {
     @Transient
     private UserType userType = UserType.Student;
 
-    public Students() {
-        createdAt = new Date();
-        modifiedAt = new Date();
-    }
-
-    public Students(String document, Date createdAt, Date modifiedAt) {
-        this();
-        this.document = document;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
-    }
-
     public Students(String name, String lastName, String document, DocumentType documentType, String email, String password,
                     List<ResolvedAnswerBy> resolvedAnswerByList, StudentStats studentStats, List<Evidences> evidencesList) {
-        this();
         this.document = document;
         this.documentType = documentType;
         this.name = name;

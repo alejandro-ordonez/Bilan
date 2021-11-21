@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.bilan.co.application;
+package org.bilan.co.application.user;
 
-import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.user.AuthDto;
+import org.bilan.co.domain.dtos.user.RegisterUserDto;
 import org.bilan.co.domain.enums.UserState;
 
 /**

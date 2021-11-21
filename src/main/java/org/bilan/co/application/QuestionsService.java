@@ -1,7 +1,12 @@
 package org.bilan.co.application;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.*;
+import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.game.AnswerDto;
+import org.bilan.co.domain.dtos.game.QuestionDto;
+import org.bilan.co.domain.dtos.game.QuestionRequestDto;
+import org.bilan.co.domain.dtos.game.ValidateQuestionDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.entities.Questions;
 import org.bilan.co.infraestructure.persistance.AnswersRepository;
 import org.bilan.co.infraestructure.persistance.QuestionsRepository;

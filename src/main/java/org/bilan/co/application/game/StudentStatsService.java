@@ -3,7 +3,14 @@ package org.bilan.co.application.game;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.IActionsService;
-import org.bilan.co.domain.dtos.*;
+import org.bilan.co.domain.dtos.ActionsPoints;
+import org.bilan.co.domain.dtos.AnswerRecordDto;
+import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.TribesPoints;
+import org.bilan.co.domain.dtos.game.GameStatsDto;
+import org.bilan.co.domain.dtos.game.UpdateActionsPointsDto;
+import org.bilan.co.domain.dtos.game.UpdateStatsDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.entities.*;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.JwtTokenUtil;
@@ -54,12 +61,14 @@ public class StudentStatsService implements IStudentStatsService {
         if (studentStats == null) {
             log.warn("The record wasn't found a new one will be created");
 
-            Students student = studentsRepository.findByDocument(userAuthenticated.getDocument());
-
-            studentStats = new StudentStats();
-            studentStats.setIdStudent(student);
-            student.setStudentStats(studentStats);
-            studentsRepository.save(student);
+            studentsRepository.findById(userAuthenticated.getDocument())
+                    .map(s -> {
+                        StudentStats studentStat = new StudentStats();
+                        studentStat.setIdStudent(s);
+                        s.setStudentStats(studentStat);
+                        studentsRepository.save(s);
+                        return null;
+                    });
         }
 
         ObjectMapper objectMapper = new ObjectMapper();

@@ -1,7 +1,8 @@
-package org.bilan.co.domain.dtos;
+package org.bilan.co.domain.dtos.game;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.bilan.co.domain.dtos.AnswerRecordDto;
 
 import java.util.List;
 

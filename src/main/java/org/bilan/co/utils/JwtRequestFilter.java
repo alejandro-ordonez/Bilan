@@ -3,7 +3,7 @@ package org.bilan.co.utils;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.user.IUserService;
-import org.bilan.co.domain.dtos.AuthenticatedUserDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -2,14 +2,19 @@ package org.bilan.co.application.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.*;
-import org.bilan.co.domain.entities.Students;
-import org.bilan.co.domain.entities.Teachers;
-import org.bilan.co.infraestructure.persistance.StatsRepository;
-import org.bilan.co.infraestructure.persistance.StudentsRepository;
-import org.bilan.co.infraestructure.persistance.TeachersRepository;
+import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.ResponseDtoBuilder;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.domain.dtos.user.EnableUser;
+import org.bilan.co.domain.dtos.user.UserInfoDto;
+import org.bilan.co.domain.entities.Privileges;
+import org.bilan.co.domain.entities.Roles;
+import org.bilan.co.domain.entities.UserInfo;
+import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,98 +22,133 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
 public class UserService implements IUserService {
 
-  @Autowired
-  private StudentsRepository studentsRepository;
-  @Autowired
-  private TeachersRepository teachersRepository;
-  @Autowired
-  private StatsRepository statsRepository;
-  @Autowired
-  private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private StudentsRepository studentsRepository;
+    @Autowired
+    private TeachersRepository teachersRepository;
+    @Autowired
+    private MinUserRepository minUserRepository;
+    @Autowired
+    private StatsRepository statsRepository;
+    @Autowired
+    private RolesRepository rolesRepository;
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
-  public AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken) {
+    public AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken) {
 
-    Object user = getUser(dataToken);
+        UserInfo user = getUser(dataToken);
 
-    if (user == null)
-      return new AuthenticatedUserDto();
+        if (user == null)
+            return new AuthenticatedUserDto();
 
-    switch (dataToken.getUserType()) {
-
-      case Student:
-        Students students = (Students) user;
-        return new AuthenticatedUserDto(students.getDocument(), dataToken.getUserType(), students.getDocumentType());
-
-      case Teacher:
-        Teachers teachers = (Teachers) user;
-        return new AuthenticatedUserDto(teachers.getDocument(), dataToken.getUserType(), teachers.getDocumentType());
-
-      default:
-        return new AuthenticatedUserDto();
+        return new AuthenticatedUserDto(user.getDocument(), dataToken.getUserType(), user.getDocumentType());
     }
-  }
 
-  private Object getUser(AuthenticatedUserDto userDto) {
-    switch (userDto.getUserType()) {
 
-      case Student:
-        return studentsRepository.findByDocument(userDto.getDocument());
+    @Override
+    public ResponseDto<UserInfoDto> getUserInfo(String token) {
 
-      case Teacher:
-        return teachersRepository.findByDocument(userDto.getDocument());
+        AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
+        Object user = getUser(userAuthenticated);
 
-      default:
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserInfoDto result = objectMapper.convertValue(user, UserInfoDto.class);
+
+        return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
+                .createResponseDto();
+    }
+
+    @Override
+    public ResponseDto<String> updateUserInfo(UserInfoDto userInfoDto, String token) {
         return null;
     }
-  }
 
-  @Override
-  public ResponseDto<UserInfoDto> getUserInfo(String token) {
-
-    AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
-    Object user = getUser(userAuthenticated);
-
-    ObjectMapper objectMapper = new ObjectMapper();
-    UserInfoDto result = objectMapper.convertValue(user, UserInfoDto.class);
-
-    return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
-        .createResponseDto();
-  }
-
-  @Override
-  public ResponseDto<String> updateUserInfo(UserInfoDto userInfoDto, String token) {
-    return null;
-  }
-
-  private String getCredentials(String data) throws IOException {
-    log.info("Getting credentials");
-    AuthDto authDto = new ObjectMapper().readValue(data, AuthDto.class);
-    switch (authDto.getUserType()) {
-      case Teacher:
-        Teachers teachers = teachersRepository.findByDocument(authDto.getDocument());
-        return teachers.getPassword();
-      case Student:
-        Students students = studentsRepository.findByDocument(authDto.getDocument());
-        return students.getPassword();
-      default:
-        return "";
+    @Override
+    public ResponseDto<Boolean> enableUser(EnableUser user) {
+       return new ResponseDto<>("User state changed", 200,
+               userInfoRepository.updateState(user.getDocument(), user.getEnabled()));
     }
-  }
 
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    try {
-      log.info(username);
-      String password = getCredentials(username);
-      return new User(username, password, new ArrayList<>());
-    } catch (IOException e) {
-      log.error("Failed to deserialize", e);
-      return new User("", "", new ArrayList<>());
+
+    private UserInfo getUser(AuthenticatedUserDto authDto) {
+        log.info("Getting userInfo");
+
+
+        switch (authDto.getUserType()) {
+
+            case Teacher:
+                return teachersRepository.findById(authDto.getDocument()).orElse(null);
+
+            case Student:
+                return studentsRepository.findById(authDto.getDocument()).orElse(null);
+
+            case Min:
+                return minUserRepository.findById(authDto.getDocument()).orElse(null);
+
+            default:
+                return null;
+        }
+
+
     }
-  }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        try {
+            log.info(username);
+            AuthenticatedUserDto authDto = new ObjectMapper().readValue(username, AuthenticatedUserDto.class);
+            UserInfo user = getUser(authDto);
+
+            if(user == null){
+                log.error("User couldn't be loaded");
+                return new User("", "", new ArrayList<>());
+            }
+
+            return new User(user.getDocument(), user.getPassword(),
+                    getAuthorities(user.getRole()));
+        } catch (IOException e) {
+            log.error("Failed to deserialize", e);
+            return new User("", "", new ArrayList<>());
+        }
+    }
+
+
+    private Collection<? extends GrantedAuthority> getAuthorities(
+            Roles role) {
+
+        return getGrantedAuthorities(getPrivileges(role));
+    }
+
+    private List<String> getPrivileges(Roles role) {
+
+        List<String> privileges = new ArrayList<>();
+
+        privileges.add(role.getName());
+        List<Privileges> collection = new ArrayList<>(role.getPrivileges());
+
+        for (Privileges item : collection) {
+            privileges.add(item.getName());
+        }
+
+        return privileges;
+    }
+
+    private List<GrantedAuthority> getGrantedAuthorities(List<String> privileges) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (String privilege : privileges) {
+            authorities.add(new SimpleGrantedAuthority(privilege));
+        }
+        return authorities;
+    }
+
 }

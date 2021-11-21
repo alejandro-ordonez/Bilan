@@ -1,8 +1,10 @@
-package org.bilan.co.domain.dtos;
+package org.bilan.co.domain.dtos.game;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bilan.co.domain.dtos.ActionDto;
+import org.bilan.co.domain.dtos.TribeDto;
 
 import java.util.List;
 

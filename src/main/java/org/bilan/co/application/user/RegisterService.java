@@ -1,11 +1,11 @@
-package org.bilan.co.application;
+package org.bilan.co.application.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.bilan.co.domain.dtos.AuthDto;
-import org.bilan.co.domain.dtos.RegisterUserDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
+import org.bilan.co.domain.dtos.user.AuthDto;
+import org.bilan.co.domain.dtos.user.RegisterUserDto;
 import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
@@ -24,17 +24,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Service
 public class RegisterService implements IRegisterService {
 
-    private TeachersRepository teachersRepository;
-    private StudentsRepository studentsRepository;
-    private SimatEstudianteClient simatEstudianteClient;
-    private SimatMatriculaClient simatMatriculaClient;
-    private PasswordEncoder passwordEncoder;
+    private final TeachersRepository teachersRepository;
+    private final StudentsRepository studentsRepository;
+    private final SimatEstudianteClient simatEstudianteClient;
+    private final SimatMatriculaClient simatMatriculaClient;
+    private final PasswordEncoder passwordEncoder;
 
     public RegisterService(TeachersRepository teachersRepository, StudentsRepository studentsRepository,
                            SimatEstudianteClient simatEstudianteClient, SimatMatriculaClient simatMatriculaClient,
@@ -81,7 +80,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> checkTeacher(AuthDto authDto) {
-        Teachers teacher = teachersRepository.findByDocument(authDto.getDocument());
+        Teachers teacher = teachersRepository.findById(authDto.getDocument()).orElse(null);
 
         if (teacher == null) {
             // validate from SIMAT
@@ -108,7 +107,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> checkStudent(AuthDto authDto) {
-        Students student = Optional.ofNullable(studentsRepository.findByDocument(authDto.getDocument()))
+        Students student = studentsRepository.findById(authDto.getDocument())
                 .orElseGet(() -> createNewStudent(authDto));
 
         if (Objects.isNull(student)) {
@@ -171,7 +170,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> updateStudent(AuthDto authDto) {
-        Students student = studentsRepository.findByDocument(authDto.getDocument());
+        Students student = studentsRepository.findById(authDto.getDocument()).orElse(null);
 
         if (student == null || student.getPassword() != null) {
             return userAlreadyExists();
@@ -214,18 +213,19 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> createTeacher(RegisterUserDto regUserDto) {
-        Teachers teacher = teachersRepository.findByDocument(regUserDto.getDocument());
+        Teachers teacher = teachersRepository.findById(regUserDto.getDocument()).orElse(null);
         if (Objects.nonNull(teacher)) {
             return new ResponseDto<>("Teacher already exists",
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
         }
 
         teacher = new Teachers();
+        teacher.setDocument(regUserDto.getDocument());
         teacher.setName(regUserDto.getName());
         teacher.setLastName(regUserDto.getLastname());
         teacher.setEmail(regUserDto.getEmail());
         teacher.setCreatedAt(new Date());
-        teacher.setPassword(regUserDto.getPassword());
+        teacher.setPassword(this.passwordEncoder.encode(regUserDto.getPassword()));
         teacher.setDocumentType(regUserDto.getDocumentType());
 
         try {
@@ -240,7 +240,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> createStudent(RegisterUserDto regUserDto) {
-        Students student = studentsRepository.findByDocument(regUserDto.getDocument());
+        Students student = studentsRepository.findById(regUserDto.getDocument()).orElse(null);
         if (Objects.nonNull(student)) {
             return new ResponseDto<>("Student already exists",
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
@@ -272,7 +272,7 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> updateTeacher(String document, String password) {
-        Teachers teacher = teachersRepository.findByDocument((document));
+        Teachers teacher = teachersRepository.findById((document)).orElse(null);
 
         if (teacher == null || teacher.getPassword() != null) {
             return new ResponseDtoBuilder<UserState>()

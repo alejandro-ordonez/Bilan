@@ -1,8 +1,8 @@
 package org.bilan.co.api;
 
 import org.bilan.co.application.user.ILoginService;
-import org.bilan.co.domain.dtos.AuthDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.user.AuthDto;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

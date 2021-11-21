@@ -1,10 +1,10 @@
 package org.bilan.co.application;
 
 
-import org.bilan.co.domain.dtos.QuestionDto;
-import org.bilan.co.domain.dtos.QuestionRequestDto;
 import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.ValidateQuestionDto;
+import org.bilan.co.domain.dtos.game.QuestionDto;
+import org.bilan.co.domain.dtos.game.QuestionRequestDto;
+import org.bilan.co.domain.dtos.game.ValidateQuestionDto;
 
 import java.util.List;
 
