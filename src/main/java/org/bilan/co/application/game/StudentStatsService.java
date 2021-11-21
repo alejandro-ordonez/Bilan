@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -61,14 +58,14 @@ public class StudentStatsService implements IStudentStatsService {
         if (studentStats == null) {
             log.warn("The record wasn't found a new one will be created");
 
-            studentsRepository.findById(userAuthenticated.getDocument())
-                    .map(s -> {
-                        StudentStats studentStat = new StudentStats();
-                        studentStat.setIdStudent(s);
-                        s.setStudentStats(studentStat);
-                        studentsRepository.save(s);
-                        return null;
-                    });
+            Optional<Students> studentsQuery = studentsRepository.findById(userAuthenticated.getDocument());
+            if(studentsQuery.isPresent()){
+                Students s = studentsQuery.get();
+                studentStats = new StudentStats();
+                studentStats.setIdStudent(s);
+                s.setStudentStats(studentStats);
+                studentsRepository.save(s);
+            }
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
