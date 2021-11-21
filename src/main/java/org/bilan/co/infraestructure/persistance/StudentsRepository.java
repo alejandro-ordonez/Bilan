@@ -21,7 +21,7 @@ public interface StudentsRepository extends JpaRepository<Students, String> {
     String getGrade(String document);
 
     @Query("SELECT student FROM Students student " +
-            "WHERE student.college.id=:collegeId AND " +
+            "WHERE student.colleges.id=:collegeId AND " +
             "student.grade=:grade AND " +
             "student.courses.id=:courseId")
     List<Students> findStudentsByCollegeAndGrade(Integer collegeId, String grade, Integer courseId);

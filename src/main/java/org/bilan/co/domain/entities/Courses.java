@@ -22,5 +22,8 @@ public class Courses {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Classroom> classRooms;
 
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "courses")
+    private List<Students> students;
 
 }

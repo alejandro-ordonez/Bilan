@@ -64,7 +64,7 @@ public class InsertTestUsers {
                 student.setPassword(passwordEncoder.encode(studentString[0]));
                 student.setGrade(studentString[4]);
                 student.setCreatedAt(new Date());
-                student.setEnabled(true);
+                student.setIsEnabled(true);
                 try{
                     student.setDocumentType(DocumentType.valueOf(studentString[1]));
                 }

@@ -27,4 +27,6 @@ public class Colleges {
     @OneToMany(mappedBy = "college")
     private List<Classroom> classrooms;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "colleges")
+    private List<Students> students;
 }
