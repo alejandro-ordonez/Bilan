@@ -16,7 +16,7 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @EnableJpaAuditing
-public abstract class UserInfo {
+public class UserInfo {
 
     @Id
     @Basic(optional = false)
@@ -36,6 +36,9 @@ public abstract class UserInfo {
     @Size(max = 255)
     @Column(name = "last_name")
     protected String lastName;
+
+    @Column(name = "position_name")
+    private String positionName;
 
     @Size(max = 255)
     protected String email;
@@ -61,5 +64,7 @@ public abstract class UserInfo {
 
     @OneToMany(mappedBy = "author")
     private List<Post> posts;
+
+
 
 }
