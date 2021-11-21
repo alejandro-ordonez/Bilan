@@ -4,7 +4,7 @@ import lombok.Data;
 import org.bilan.co.domain.enums.DocumentType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@EnableJpaAuditing
+@EntityListeners(AuditingEntityListener.class)
 public class UserInfo {
 
     @Id
@@ -50,13 +50,15 @@ public class UserInfo {
     @Size(max = 255)
     protected String password;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
     @CreatedDate
-    protected Date createdAt;
+    protected Date createdAt = new Date();
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "modified_at")
     @LastModifiedDate
-    protected Date modifiedAt;
+    protected Date modifiedAt = new Date();
 
     @ManyToOne
     @JoinColumn(name = "role_id")

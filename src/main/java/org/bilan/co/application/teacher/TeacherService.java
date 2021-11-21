@@ -2,12 +2,15 @@ package org.bilan.co.application.teacher;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.college.ClassRoomDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnrollmentDto;
 import org.bilan.co.domain.entities.Classroom;
 import org.bilan.co.domain.entities.Colleges;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.domain.entities.Tribes;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
+import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +24,8 @@ public class TeacherService implements ITeacherService{
 
     @Autowired
     private TeachersRepository teachersRepository;
+    @Autowired
+    private JwtTokenUtil jwtUtils;
 
     @Override
     public ResponseDto<String> enroll(EnrollmentDto enrollmentDto) {
@@ -56,5 +61,14 @@ public class TeacherService implements ITeacherService{
         teachersRepository.save(teacher);
 
         return new ResponseDto<>("Teacher enrolled to courses", 200, "Ok");
+    }
+
+    @Override
+    public ResponseDto<List<ClassRoomDto>> getClassrooms(String jwt) {
+
+        AuthenticatedUserDto user = jwtUtils.getInfoFromToken(jwt);
+
+
+        return null;
     }
 }

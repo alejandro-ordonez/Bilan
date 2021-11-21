@@ -125,7 +125,7 @@ public class RegisterService implements IRegisterService {
         return this.simatEstudianteClient.getStudent(authDto.getDocument())
                 .map(student -> studentWithEnrollment(student, authDto.getDocument()))
                 .map(tuple -> newStudent(authDto, tuple.getValue1(), tuple.getValue2()))
-                .map(newStudent -> studentsRepository.save(newStudent))
+                .map(studentsRepository::save)
                 .orElse(null);
     }
 
@@ -284,6 +284,10 @@ public class RegisterService implements IRegisterService {
 
         String encryptedPassword = passwordEncoder.encode(password);
         teacher.setPassword(encryptedPassword);
+
+        if(teacher.getCreatedAt()==null){
+            teacher.setCreatedAt(new Date());
+        }
 
         try {
             teachersRepository.save(teacher);

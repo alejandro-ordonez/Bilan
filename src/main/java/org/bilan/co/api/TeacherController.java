@@ -28,7 +28,7 @@ public class TeacherController {
 
     @GetMapping("/class-rooms")
     public ResponseEntity<ResponseDto<List<ClassRoomDto>>> getClassRooms(@RequestHeader(Constants.AUTHORIZATION) String jwt){
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(teacherService.getClassrooms(jwt));
     }
 
     @GetMapping("/class-rooms/info")
