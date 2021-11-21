@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.bilan.co.domain.enums.Phase;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -29,10 +30,7 @@ public class Evidences implements Serializable {
     @Basic(optional = false)
     private Integer id;
 
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "created_at", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
     private Date createdAt;
 
     @NotNull
