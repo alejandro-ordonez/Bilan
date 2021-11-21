@@ -3,9 +3,12 @@ package org.bilan.co.application.teacher;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
+import org.bilan.co.domain.dtos.college.ClassRoomStats;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnrollmentDto;
 import org.bilan.co.domain.entities.*;
+import org.bilan.co.infraestructure.persistance.ClassroomRepository;
+import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.dozer.Mapper;
@@ -22,6 +25,10 @@ public class TeacherService implements ITeacherService{
 
     @Autowired
     private TeachersRepository teachersRepository;
+    @Autowired
+    private StudentsRepository studentsRepository;
+    @Autowired
+    private ClassroomRepository classroomRepository;
     @Autowired
     private JwtTokenUtil jwtUtils;
 
@@ -91,5 +98,21 @@ public class TeacherService implements ITeacherService{
                 .collect(Collectors.toList());
 
         return new ResponseDto<>("Classrooms retrieved", 200, classRoomDtos);
+    }
+
+    @Override
+    public ResponseDto<ClassRoomStats> getClassroomStats(Integer classRoomId) {
+
+        Optional<Classroom> classroomQuery = classroomRepository.findById(classRoomId);
+        if(!classroomQuery.isPresent())
+            return new ResponseDto<>("The classroom couldn't be found", 404, null);
+
+        Classroom classroom = classroomQuery.get();
+        List<Students> students = studentsRepository.findStudentsByCollegeAndGrade(classroom.getCollege().getId(),
+                classroom.getGrade(), classroom.getCourse().getId());
+
+
+
+        return null;
     }
 }

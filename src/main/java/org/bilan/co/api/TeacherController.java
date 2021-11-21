@@ -37,6 +37,6 @@ public class TeacherController {
     public ResponseEntity<ResponseDto<ClassRoomStats>> getClassRoomStats(
             @RequestParam("classRoomId") Integer classRoomId){
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(teacherService.getClassroomStats(classRoomId));
     }
 }

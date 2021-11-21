@@ -31,9 +31,13 @@ public class Students extends UserInfo implements Serializable {
     @Column(name = "cod_grade")
     private String grade;
 
-    @NotNull
-    @Column(name = "enabled")
-    private Boolean enabled;
+    @ManyToOne
+    @JoinColumn(name = "course_id", referencedColumnName = "id")
+    private Courses courses;
+
+    @ManyToOne
+    @JoinColumn(name = "college_id",referencedColumnName = "id")
+    private Colleges colleges;
 
     @JsonIgnore
     @OneToMany(mappedBy = "studentId")
