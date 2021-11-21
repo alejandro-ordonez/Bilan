@@ -71,9 +71,6 @@ public class StudentStats implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastTotemUpdate = new Date();
 
-    @CreatedDate
-    private Date createdAt;
-
     @LastModifiedDate
     private Date modifiedAt;
 

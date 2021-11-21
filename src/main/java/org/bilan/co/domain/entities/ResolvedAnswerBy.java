@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -27,6 +28,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode
 @ToString
+@EnableJpaAuditing
 public class ResolvedAnswerBy implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,7 +52,6 @@ public class ResolvedAnswerBy implements Serializable {
     @JoinColumn(name = "id_answer", referencedColumnName = "id")
     @ManyToOne
     private Answers idAnswer;
-
 
     @OneToOne
     @JoinColumn(name = "tribe_id_id")
