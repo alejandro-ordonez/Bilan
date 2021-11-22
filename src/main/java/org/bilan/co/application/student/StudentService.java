@@ -5,17 +5,12 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.student.StudentDashboardDto;
 import org.bilan.co.domain.entities.Evaluation;
 import org.bilan.co.domain.entities.Evidences;
-import org.bilan.co.infraestructure.persistance.EvidenceRepository;
-import org.bilan.co.infraestructure.persistance.QuestionsRepository;
-import org.bilan.co.infraestructure.persistance.ResolvedAnswerByRepository;
-import org.bilan.co.infraestructure.persistance.TribesRepository;
+import org.bilan.co.domain.entities.Students;
+import org.bilan.co.infraestructure.persistance.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,6 +22,8 @@ public class StudentService implements IStudentService{
     @Autowired
     private QuestionsRepository questionsRepository;
     @Autowired
+    private StudentsRepository studentsRepository;
+    @Autowired
     private ResolvedAnswerByRepository resolvedAnswerByRepository;
     @Autowired
     private TribesRepository tribesRepository;
@@ -36,6 +33,13 @@ public class StudentService implements IStudentService{
 
         StudentDashboardDto studentStatsRecord = new StudentDashboardDto();
         studentStatsRecord.setDocument(document);
+
+        Optional<Students> studentQuery = studentsRepository.findById(document);
+        if(!studentQuery.isPresent())
+            return new StudentDashboardDto();
+
+        studentStatsRecord.setName(studentQuery.get().getName());
+        studentStatsRecord.setLastName(studentQuery.get().getLastName());
 
         long totalQuestions = questionsRepository.count();
         Integer totalCheckedQuestions = resolvedAnswerByRepository.getQuestionsCompleted(document);

@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface EvidenceRepository extends JpaRepository<Evidences, Integer> {
 
-    @Query("SELECT COUNT(e) FROM Evidences e WHERE e.idStudent=:document AND COUNT(e.evaluations) > 1")
+    @Query("SELECT COUNT(e) FROM Evidences e WHERE e.idStudent.document=:document AND COUNT(e.evaluations) > 1")
     Integer findUploadedAndEvaluated(String document);
 
     @Query("SELECT e FROM Evidences e " +
