@@ -61,10 +61,18 @@ public class UserService implements IUserService {
     public ResponseDto<UserInfoDto> getUserInfo(String token) {
 
         AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
-        Object user = getUser(userAuthenticated);
+        UserInfo user = getUser(userAuthenticated);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserInfoDto result = objectMapper.convertValue(user, UserInfoDto.class);
+        if(user==null){
+            return new ResponseDto<>("The user info couldn't be found", 404, null);
+        }
+
+        UserInfoDto result = new UserInfoDto();
+        result.setEmail(user.getEmail());
+        result.setName(user.getName());
+        result.setDocument(user.getDocument());
+        result.setLastName(user.getLastName());
+        result.setDocumentType(user.getDocumentType());
 
         return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
                 .createResponseDto();
