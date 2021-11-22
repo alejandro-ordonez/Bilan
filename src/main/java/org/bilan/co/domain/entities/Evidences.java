@@ -29,7 +29,7 @@ public class Evidences implements Serializable {
     @Id
     @GeneratedValue
     @Basic(optional = false)
-    private Integer id;
+    private Long id;
 
     @CreatedDate
     private Date createdAt;

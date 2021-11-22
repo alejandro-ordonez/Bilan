@@ -2,7 +2,7 @@ package org.bilan.co.application.student;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.student.StudentStatsRecord;
-import org.bilan.co.infraestructure.persistance.EvidenceRepository;
+import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
