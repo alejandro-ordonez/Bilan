@@ -1,6 +1,7 @@
 package org.bilan.co.application.teacher;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bilan.co.application.student.StudentService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
 import org.bilan.co.domain.dtos.college.ClassRoomStats;
@@ -29,6 +30,10 @@ public class TeacherService implements ITeacherService{
     private StudentsRepository studentsRepository;
     @Autowired
     private ClassroomRepository classroomRepository;
+
+    @Autowired
+    private StudentService studentService;
+
     @Autowired
     private JwtTokenUtil jwtUtils;
 
@@ -102,7 +107,7 @@ public class TeacherService implements ITeacherService{
 
     @Override
     public ResponseDto<ClassRoomStats> getClassroomStats(Integer classRoomId) {
-
+        studentService.getStudentStatsRecord("52054963");
         Optional<Classroom> classroomQuery = classroomRepository.findById(classRoomId);
         if(!classroomQuery.isPresent())
             return new ResponseDto<>("The classroom couldn't be found", 404, null);
