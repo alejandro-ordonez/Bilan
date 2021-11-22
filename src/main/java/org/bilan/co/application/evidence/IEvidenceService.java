@@ -17,5 +17,5 @@ public interface IEvidenceService {
 
     ResponseDto<List<EvidencesDto>> filter(EvidenceService.FilterEvidence filter, AuthenticatedUserDto user);
 
-    ResponseDto<byte[]> download(Long evidenceId);
+    byte[] download(Long evidenceId);
 }

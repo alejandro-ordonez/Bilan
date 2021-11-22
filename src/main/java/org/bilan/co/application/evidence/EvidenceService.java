@@ -81,12 +81,11 @@ public class EvidenceService implements IEvidenceService {
     }
 
     @Override
-    public ResponseDto<byte[]> download(Long evidenceId) {
+    public byte[] download(Long evidenceId) {
         return this.evidenceRepository
                 .findById(evidenceId)
                 .map(evidences1 -> fileStore.download(evidences1.getPath(), evidences1.getFileName()))
-                .map(file -> new ResponseDto<>("", HttpStatus.OK.value(), file))
-                .orElse(new ResponseDto<>("File not found", HttpStatus.NOT_FOUND.value(), "".getBytes()));
+                .orElse("".getBytes());
     }
 
     @Data
