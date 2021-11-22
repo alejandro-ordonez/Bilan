@@ -42,4 +42,13 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
                                         @Param("phase") String phase,
                                         @Param("teacherId") String teacherId);
 
+    @Query("SELECT COUNT(e) FROM Evidences e " +
+            "WHERE e.idStudent.document=:document AND " +
+            "e.evaluations.size>=1")
+    Integer findUploadedAndEvaluated(String document);
+
+    @Query("SELECT e FROM Evidences e " +
+            "WHERE e.idStudent.document=:document AND " +
+            "e.evaluations.size>=1")
+    List<Evidences> getEvidencesEvaluated(String document);
 }

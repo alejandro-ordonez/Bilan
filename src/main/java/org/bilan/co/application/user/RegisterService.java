@@ -93,11 +93,7 @@ public class RegisterService implements IRegisterService {
         }
 
         if (teacher.getPassword() == null || teacher.getPassword().equals("")) {
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Teacher is not registered")
-                    .setCode(200)
-                    .setResult(UserState.UserWithoutPassword)
-                    .createResponseDto();
+            return userNoPassword();
         }
 
         return new ResponseDtoBuilder<UserState>()
@@ -157,7 +153,7 @@ public class RegisterService implements IRegisterService {
     private ResponseDto<UserState> userNoPassword() {
         return new ResponseDtoBuilder<UserState>()
                 .setDescription("Student is not registered")
-                .setCode(200)
+                .setCode(417)
                 .setResult(UserState.UserWithoutPassword)
                 .createResponseDto();
     }
