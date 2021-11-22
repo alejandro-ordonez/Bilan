@@ -35,7 +35,7 @@ public class StudentController {
     public ResponseEntity<ResponseDto<StudentDashboardDto>> getDashBoardInfoSingle(@RequestParam("document") String document){
 
         ResponseDto<StudentDashboardDto> result = studentService.getStudentStatsDashboard(document);
-        
+
         return ResponseEntity.status(result.getCode()).body(result);
     }
 
