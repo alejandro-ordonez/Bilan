@@ -3,12 +3,20 @@ package org.bilan.co.application.student;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.student.StudentDashboardDto;
+import org.bilan.co.domain.entities.Evaluation;
+import org.bilan.co.domain.entities.Evidences;
 import org.bilan.co.infraestructure.persistance.EvidenceRepository;
 import org.bilan.co.infraestructure.persistance.QuestionsRepository;
 import org.bilan.co.infraestructure.persistance.ResolvedAnswerByRepository;
 import org.bilan.co.infraestructure.persistance.TribesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -38,8 +46,55 @@ public class StudentService implements IStudentService{
         float progress = (float)(totalCheckedQuestions+resolved)/(float) (totalQuestions+totalActivities);
         studentStatsRecord.setProgressActivities(progress);
 
+        studentStatsRecord.setTimeInApp(new Random().nextFloat());
+
+
+
+        List<Evidences> evidences = evidenceRepository.getEvidencesEvaluated(document);
+
+        Map<Integer, List<Evidences>> evidencesMap = evidences.stream()
+                .collect(Collectors.groupingBy(e->e.getTribe().getId()));
+
+        HashMap<String, Integer> activityScores = getActivityScores(evidences);
+        //HashMap<String, Integer> gameScore = getGameScore();
+
+        studentStatsRecord.setActivityScore(activityScores);
+        //studentStatsRecord.setGameScore(gameScore);
+
         return studentStatsRecord;
     }
+
+
+    private HashMap<String, Integer> getActivityScores(List<Evidences> evidences){
+
+        HashMap<String, Integer> activityScores = new HashMap<>();
+
+        Integer cbScore = 0;
+        Integer ccScore = 0;
+        Integer csScore = 0;
+        Integer tribeScore = 0;
+        Integer l, m, cn = 0;
+
+        int counter=0;
+
+        for(Evidences evidence : evidences){
+            for(Evaluation evaluation : evidence.getEvaluations()){
+                ccScore+=evaluation.getCcScore();
+                cbScore+=evaluation.getCbScore();
+                csScore+=evaluation.getCsScore();
+                tribeScore+=evaluation.getTribeScore();
+                counter++;
+            }
+        }
+
+        activityScores.put("CC", ccScore/counter);
+        activityScores.put("CP", cbScore/counter);
+        activityScores.put("CS", csScore/counter);
+        activityScores.put("CE", tribeScore/counter);
+
+        return activityScores;
+    }
+
 
     @Override
     public ResponseDto<StudentDashboardDto> getStudentStatsDashboard(String document) {

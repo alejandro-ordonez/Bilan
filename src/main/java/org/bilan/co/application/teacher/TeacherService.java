@@ -94,6 +94,7 @@ public class TeacherService implements ITeacherService{
                 .stream()
                 .map(c -> {
                     ClassRoomDto classRoomDto = new ClassRoomDto();
+                    classRoomDto.setClassroomId(c.getId());
                     classRoomDto.setCollegeId(c.getCollege().getId());
                     classRoomDto.setCourseId(c.getCourse().getId());
                     classRoomDto.setGrade(c.getGrade());
