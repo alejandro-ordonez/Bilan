@@ -157,7 +157,7 @@ public class RegisterService implements IRegisterService {
     private ResponseDto<UserState> userNoPassword() {
         return new ResponseDtoBuilder<UserState>()
                 .setDescription("Student is not registered")
-                .setCode(200)
+                .setCode(417)
                 .setResult(UserState.UserWithoutPassword)
                 .createResponseDto();
     }

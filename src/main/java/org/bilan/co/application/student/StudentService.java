@@ -43,9 +43,11 @@ public class StudentService implements IStudentService{
 
         long totalQuestions = questionsRepository.count();
         Integer totalCheckedQuestions = resolvedAnswerByRepository.getQuestionsCompleted(document);
+        totalCheckedQuestions = totalCheckedQuestions == null? 0: totalCheckedQuestions;
 
         long totalActivities = tribesRepository.count()*3;
         Integer resolved = evidenceRepository.findUploadedAndEvaluated(document);
+        resolved = resolved == null?0 : resolved;
 
         float progress = (float)(totalCheckedQuestions+resolved)/(float) (totalQuestions+totalActivities);
         studentStatsRecord.setProgressActivities(progress);
@@ -90,6 +92,9 @@ public class StudentService implements IStudentService{
                 counter++;
             }
         }
+
+        if(counter==0)
+            return new HashMap<>();
 
         activityScores.put("CC", ccScore/counter);
         activityScores.put("CP", cbScore/counter);

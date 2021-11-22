@@ -5,6 +5,7 @@ import org.bilan.co.application.student.StudentService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
 import org.bilan.co.domain.dtos.college.ClassRoomStats;
+import org.bilan.co.domain.dtos.student.StudentStatsRecord;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnrollmentDto;
 import org.bilan.co.domain.entities.*;
@@ -16,6 +17,7 @@ import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,7 +110,7 @@ public class TeacherService implements ITeacherService{
 
     @Override
     public ResponseDto<ClassRoomStats> getClassroomStats(Integer classRoomId) {
-        studentService.getStudentStatsRecord("52054963");
+
         Optional<Classroom> classroomQuery = classroomRepository.findById(classRoomId);
         if(!classroomQuery.isPresent())
             return new ResponseDto<>("The classroom couldn't be found", 404, null);
@@ -117,8 +119,14 @@ public class TeacherService implements ITeacherService{
         List<Students> students = studentsRepository.findStudentsByCollegeAndGrade(classroom.getCollege().getId(),
                 classroom.getGrade(), classroom.getCourse().getId());
 
+        List<StudentStatsRecord> studentStatsRecords = new ArrayList<>();
 
+        students.forEach(s -> studentStatsRecords.add(studentService.getStudentStatsRecord(s.getDocument())));
 
-        return null;
+        ClassRoomStats classRoomStats = new ClassRoomStats();
+        classRoomStats.setStudentStatsRecords(studentStatsRecords);
+        classRoomStats.setStudents(students.size());
+
+        return new ResponseDto<>("Classroom stats retrieved", 200, classRoomStats);
     }
 }
