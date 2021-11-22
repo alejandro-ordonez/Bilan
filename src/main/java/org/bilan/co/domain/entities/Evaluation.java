@@ -20,7 +20,9 @@ public class Evaluation {
     @JoinColumn(name = "teacher_document")
     private Teachers teacher;
 
-
-
+    private Integer cbScore;
+    private Integer ccScore;
+    private Integer csScore;
+    private Integer tribeScore;
 
 }

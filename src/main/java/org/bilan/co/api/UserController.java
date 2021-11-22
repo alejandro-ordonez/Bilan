@@ -23,7 +23,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserInfo(jwt));
     }
 
-    @PutMapping("/info")
+    @PostMapping("/info")
     public ResponseEntity<ResponseDto<String>> updateUserInfo(@RequestBody UserInfoDto userInfoDto, @RequestHeader(Constants.AUTHORIZATION) String jwt){
         return ResponseEntity.ok(userService.updateUserInfo(userInfoDto, jwt));
     }

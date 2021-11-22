@@ -9,7 +9,6 @@ import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.List;
@@ -27,7 +26,6 @@ public class Students extends UserInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull
     @Column(name = "cod_grade")
     private String grade;
 

@@ -12,6 +12,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Manuel Alejandro
@@ -55,4 +56,7 @@ public class Evidences implements Serializable {
     @JoinColumn(name = "id_tribe")
     @ManyToOne
     private Tribes tribe;
+
+    @OneToMany(mappedBy = "evidence")
+    private List<Evaluation> evaluations;
 }

@@ -6,6 +6,7 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.user.AuthDto;
 import org.bilan.co.domain.dtos.user.RegisterUserDto;
+import org.bilan.co.domain.entities.Courses;
 import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
@@ -136,12 +137,12 @@ public class RegisterService implements IRegisterService {
     }
 
     private Students newStudent(AuthDto authDto, Estudiante estudiante, Matricula matricula) {
+
         return new StudentsBuilder()
                 .setDocument(authDto.getDocument())
                 .setDocumentType(authDto.getDocumentType())
                 .setName(estudiante.getPrimerNombre() + " " + estudiante.getSegundoNombre())
                 .setLastName(estudiante.getPrimerApellido() + " " + estudiante.getSegundoApellido())
-                .setGrade(matricula.getCodGradoEducativo())
                 .createStudents();
     }
 
@@ -179,6 +180,11 @@ public class RegisterService implements IRegisterService {
         String encryptedPassword = passwordEncoder.encode(authDto.getPassword());
         student.setPassword(encryptedPassword);
         student.setGrade(authDto.getGrade());
+
+        Courses course = new Courses();
+        course.setId(authDto.getCourse());
+
+        student.setCourses(course);
 
         try {
             studentsRepository.save(student);
@@ -222,7 +228,7 @@ public class RegisterService implements IRegisterService {
         teacher = new Teachers();
         teacher.setDocument(regUserDto.getDocument());
         teacher.setName(regUserDto.getName());
-        teacher.setLastName(regUserDto.getLastname());
+        teacher.setLastName(regUserDto.getLastName());
         teacher.setEmail(regUserDto.getEmail());
         teacher.setCreatedAt(new Date());
         teacher.setPassword(this.passwordEncoder.encode(regUserDto.getPassword()));
@@ -250,7 +256,7 @@ public class RegisterService implements IRegisterService {
         student.setName(regUserDto.getName());
         student.setGrade(regUserDto.getGrade());
         student.setDocument(regUserDto.getDocument());
-        student.setLastName(regUserDto.getLastname());
+        student.setLastName(regUserDto.getLastName());
         student.setEmail(regUserDto.getEmail());
         student.setDocumentType(regUserDto.getDocumentType());
         student.setCreatedAt(new Date());

@@ -15,6 +15,7 @@ public class AuthDto extends AuthenticatedUserDto {
 
     private String password;
     private String grade;
+    protected Integer course;
 
     public AuthDto(String document, DocumentType documentType, UserType userType, String password) {
         super(document, userType, documentType);

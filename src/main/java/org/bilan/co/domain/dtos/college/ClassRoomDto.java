@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ClassRoomDto {
+    private Integer classroomId;
     private String grade;
     private Integer courseId;
     private Integer tribeId;
