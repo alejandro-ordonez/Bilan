@@ -62,7 +62,7 @@ public class EvidencesController {
         return ResponseEntity.ok(this.evidenceService.filter(filter, user));
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/download/{id}")
     public ResponseEntity<ResponseDto<byte[]>> download(@PathVariable("id") Long id,
                                                         @RequestHeader(Constants.AUTHORIZATION) String token) {
