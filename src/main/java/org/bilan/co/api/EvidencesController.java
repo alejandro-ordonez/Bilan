@@ -1,6 +1,7 @@
 package org.bilan.co.api;
 
-import org.bilan.co.application.IEvidenceService;
+import org.bilan.co.application.evidence.EvidenceService;
+import org.bilan.co.application.evidence.IEvidenceService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.teacher.EvaluationDto;
 import org.bilan.co.domain.dtos.teacher.EvidencesDto;
@@ -28,32 +29,43 @@ public class EvidencesController {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
-    @PostMapping(
-            path = "/upload",
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @PostMapping(path = "/upload",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    private ResponseEntity<ResponseDto<String>> uploadEvidence(@RequestParam("phase") Phase phase,
-                                                               @RequestParam("tribeId") Long tribeId,
-                                                               @RequestPart("file") MultipartFile file,
-                                                               @RequestHeader(Constants.AUTHORIZATION) String token) {
-        AuthenticatedUserDto authenticatedUser = jwtTokenUtil.getInfoFromToken(token);
-        return ResponseEntity.ok(evidenceService.uploadEvidence(phase, tribeId, file, authenticatedUser));
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDto<String>> upload(@RequestParam("phase") Phase phase,
+                                                      @RequestParam("tribeId") Long tribeId,
+                                                      @RequestPart("file") MultipartFile file,
+                                                      @RequestHeader(Constants.AUTHORIZATION) String token) {
+        AuthenticatedUserDto user = jwtTokenUtil.getInfoFromToken(token);
+        return ResponseEntity.ok(evidenceService.upload(phase, tribeId, file, user));
     }
 
+    @PreAuthorize("hasAuthority('TEACHER')")
     @PostMapping("/evaluate")
-    public ResponseEntity<ResponseDto<String>> evaluateEvidence(@RequestBody EvaluationDto evaluationDto){
-        return null;
+    public ResponseEntity<ResponseDto<String>> evaluate(@RequestBody EvaluationDto evaluationDto,
+                                                        @RequestHeader(Constants.AUTHORIZATION) String token) {
+        AuthenticatedUserDto user = jwtTokenUtil.getInfoFromToken(token);
+        return ResponseEntity.ok(this.evidenceService.evaluate(user, evaluationDto));
     }
 
+    @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping
-    public ResponseEntity<ResponseDto<List<EvidencesDto>>> getEvidences(
+    public ResponseEntity<ResponseDto<List<EvidencesDto>>> filter(
             @RequestParam("grade") String grade,
             @RequestParam("tribeId") Integer tribeId,
             @RequestParam("courseId") Integer courseId,
-            @RequestParam("phase") Phase phase){
+            @RequestParam("phase") Phase phase,
+            @RequestHeader(Constants.AUTHORIZATION) String token) {
+        AuthenticatedUserDto user = jwtTokenUtil.getInfoFromToken(token);
+        EvidenceService.FilterEvidence filter = new EvidenceService.FilterEvidence(grade, tribeId, courseId, phase);
+        return ResponseEntity.ok(this.evidenceService.filter(filter, user));
+    }
 
-        return null;
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/download/{id}")
+    public byte[] download(@PathVariable("id") Long id,
+                           @RequestHeader(Constants.AUTHORIZATION) String token) {
+        return this.evidenceService.download(id);
     }
 }
