@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.bilan.co.domain.enums.Phase;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,6 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @ToString
+@EntityListeners(AuditingEntityListener.class)
 public class Evidences implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -26,7 +26,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode
 @ToString
-@EnableJpaAuditing
+@EntityListeners(AuditingEntityListener.class)
 public class StudentStats implements Serializable {
 
     private static final long serialVersionUID = 1L;

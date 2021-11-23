@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,7 +28,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode
 @ToString
-@EnableJpaAuditing
+@EntityListeners(AuditingEntityListener.class)
 public class ResolvedAnswerBy implements Serializable {
 
     private static final long serialVersionUID = 1L;
