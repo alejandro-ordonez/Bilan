@@ -9,7 +9,6 @@ import org.bilan.co.domain.dtos.user.EnrollmentDto;
 import org.bilan.co.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +21,6 @@ public class TeacherController {
     @Autowired
     private ITeacherService teacherService;
 
-    @PreAuthorize("hasAuthority('TEACHER')")
     @PostMapping("/enroll")
     public ResponseEntity<ResponseDto<String>> enrollTeacher(@RequestBody EnrollmentDto enrollmentDto){
         return ResponseEntity.ok(teacherService.enroll(enrollmentDto));
