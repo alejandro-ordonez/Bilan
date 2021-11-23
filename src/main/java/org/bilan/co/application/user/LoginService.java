@@ -39,7 +39,7 @@ public class LoginService implements ILoginService {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
                     new ResponseDtoBuilder<String>()
-                            .setDescription("Authentication Failed")
+                            .setDescription("Authentication Failed, the user couldn't be determined")
                             .setCode(400)
                             .setResult("")
                             .createResponseDto());

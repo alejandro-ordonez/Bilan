@@ -59,9 +59,13 @@ public class StudentStats implements Serializable {
     @Column(name = "tribes_balance")
     private String tribesBalance;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at")
     @CreatedDate
     private Date createdAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "last_played")
     @LastModifiedDate
     private Date lastPlayed;
 
@@ -70,9 +74,6 @@ public class StudentStats implements Serializable {
     @Column(name = "current_cycle_end")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastTotemUpdate = new Date();
-
-    @LastModifiedDate
-    private Date modifiedAt;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_student", referencedColumnName = "document")

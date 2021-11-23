@@ -9,7 +9,6 @@ import org.bilan.co.infraestructure.persistance.UserInfoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.BufferedReader;
@@ -21,7 +20,6 @@ import java.util.Date;
 
 @Slf4j
 @SpringBootTest
-@EnableJpaAuditing
 public class InsertTestUsers {
 
     @Autowired
@@ -35,7 +33,7 @@ public class InsertTestUsers {
 
     @Test
     public void insertTestStudents() throws IOException {
-        File csv = new File("D:\\19-11-2021.csv");
+        File csv = new File("D:\\23-11-2021.csv");
 
         BufferedReader br
                 = new BufferedReader(new FileReader(csv));
