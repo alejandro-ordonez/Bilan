@@ -23,7 +23,7 @@ public class TeacherController {
 
     @PostMapping("/enroll")
     public ResponseEntity<ResponseDto<String>> enrollTeacher(@RequestBody EnrollmentDto enrollmentDto){
-        return ResponseEntity.ok(teacherService.enroll(enrollmentDto));
+            return ResponseEntity.ok(teacherService.enroll(enrollmentDto));
     }
 
     @GetMapping("/class-rooms")

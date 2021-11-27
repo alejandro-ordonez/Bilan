@@ -8,4 +8,7 @@ import lombok.Data;
 public class CollegeDto {
     private Integer id;
     private String name;
+    private String campus;
+    private String campusCode;
 }
+

@@ -11,7 +11,8 @@ import java.util.List;
 @Repository
 public interface CollegesRepository extends JpaRepository<Colleges, String> {
 
-    @Query("SELECT new org.bilan.co.domain.dtos.CollegeDto(c.id, c.name) FROM Colleges c")
-    List<CollegeDto> getColleges();
-
+    @Query("SELECT new org.bilan.co.domain.dtos.CollegeDto(c.id, c.name, c.campusName, c.campusCodeDane) " +
+            " FROM Colleges c " +
+            "WHERE c.stateMunicipality.id = ?1")
+    List<CollegeDto> getColleges(Integer stateMunId);
 }
