@@ -8,7 +8,7 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.infraestructure.persistance.CollegesRepository;
 import org.bilan.co.infraestructure.persistance.CoursesRepository;
 import org.dozer.Mapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,19 +17,25 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class CollegeService implements ICollegeService{
+public class CollegeService implements ICollegeService {
 
-    @Autowired
-    private CollegesRepository collegesRepository;
-    @Autowired
-    private CoursesRepository coursesRepository;
-    @Autowired
-    private Mapper mapper;
+    private final CollegesRepository collegesRepository;
+    private final CoursesRepository coursesRepository;
+    private final Mapper mapper;
+
+    public CollegeService(CollegesRepository collegesRepository, CoursesRepository coursesRepository, Mapper mapper) {
+        this.collegesRepository = collegesRepository;
+        this.coursesRepository = coursesRepository;
+        this.mapper = mapper;
+    }
 
     @Override
-    public ResponseDto<List<CollegeDto>> getColleges() {
-        log.info("Colleges requested");
-        List<CollegeDto> colleges = collegesRepository.getColleges();
+    @Cacheable(value = "colleges")
+    public ResponseDto<List<CollegeDto>> findCollegesByState(Integer stateMunId) {
+        List<CollegeDto> colleges = collegesRepository.getColleges(stateMunId);
+        if (colleges.isEmpty()) {
+            return new ResponseDto<>("Resource not found", 404, colleges);
+        }
         return new ResponseDto<>("Colleges retrieved successfully", 200, colleges);
     }
 

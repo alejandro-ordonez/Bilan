@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,15 +21,12 @@ public class CollegeController {
     private ICollegeService collegeService;
 
     @GetMapping
-    public ResponseEntity<ResponseDto<List<CollegeDto>>> getColleges() {
-        return ResponseEntity.ok(collegeService.getColleges());
+    public ResponseEntity<ResponseDto<List<CollegeDto>>> findCollegesByState(@RequestParam Integer stateMunId) {
+        return ResponseEntity.ok(collegeService.findCollegesByState(stateMunId));
     }
 
     @GetMapping("/grades-courses")
-    public ResponseEntity<ResponseDto<GradeCoursesDto>> getGradesAndCourses(){
+    public ResponseEntity<ResponseDto<GradeCoursesDto>> getGradesAndCourses() {
         return ResponseEntity.ok(collegeService.getGradesAndCourses());
     }
-
-
-
 }

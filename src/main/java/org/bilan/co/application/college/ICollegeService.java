@@ -8,8 +8,7 @@ import java.util.List;
 
 public interface ICollegeService {
 
-    ResponseDto<List<CollegeDto>> getColleges();
+    ResponseDto<List<CollegeDto>> findCollegesByState(Integer stateMun);
+
     ResponseDto<GradeCoursesDto> getGradesAndCourses();
-
-
 }

@@ -25,10 +25,10 @@ public class Colleges {
     private String name;
 
     @Column(name = "codigo_dane_sede")
-    private String codDaneSede;
+    private String campusCodeDane;
 
     @Column(name = "nombre_sede")
-    private String nameSede;
+    private String campusName;
 
     @ManyToOne()
     @JoinColumn(name = "dep_mun_id")

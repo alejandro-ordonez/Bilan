@@ -9,5 +9,4 @@ import java.util.List;
 @Data
 public class EnrollmentDto extends BasicInfo {
     private List<ClassRoomDto> coursesToEnroll;
-
 }
