@@ -43,9 +43,11 @@ public class UserInfo {
     @Size(max = 255)
     protected String email;
 
-
     @Column(name = "is_enabled")
     private Boolean isEnabled;
+
+    @Column(name = "confirmed")
+    private Boolean confirmed;
 
     @Size(max = 255)
     protected String password;
@@ -66,7 +68,6 @@ public class UserInfo {
 
     @OneToMany(mappedBy = "author")
     private List<Post> posts;
-
 
 
 }
