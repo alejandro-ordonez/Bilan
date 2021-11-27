@@ -15,14 +15,24 @@ public class Colleges {
     @Id
     private Integer id;
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "state")
-    private String state;
+    @Column(name = "secretaria")
+    private String secretaria;
 
     @Column(name = "cod_dane")
     private String codDane;
+
+    @Column(name = "nombre_establecimiento")
+    private String name;
+
+    @Column(name = "codigo_dane_sede")
+    private String codDaneSede;
+
+    @Column(name = "nombre_sede")
+    private String nameSede;
+
+    @ManyToOne()
+    @JoinColumn(name = "dep_mun_id")
+    private StateMunicipality stateMunicipality;
 
     @OneToMany(mappedBy = "college")
     private List<Classroom> classrooms;

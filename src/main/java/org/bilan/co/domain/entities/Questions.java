@@ -60,6 +60,12 @@ public class Questions implements Serializable {
     @Column(name = "error_message")
     private String errorMessage;
 
+    @Column(name = "p_strategic")
+    private Float strategicPoints;
+
+    @Column(name = "p_analytic")
+    private Float analyticPoints;
+
     @OneToMany(mappedBy = "idQuestion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Answers> answersList;
 
