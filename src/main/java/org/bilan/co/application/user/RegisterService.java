@@ -92,8 +92,8 @@ public class RegisterService implements IRegisterService {
                     .createResponseDto();
         }
 
-        if (teacher.getPassword() == null || teacher.getPassword().equals("")) {
-            return userNoPassword();
+        if (!teacher.getConfirmed()) {
+            return userRequireUpdate();
         }
 
         return new ResponseDtoBuilder<UserState>()
@@ -111,8 +111,8 @@ public class RegisterService implements IRegisterService {
             return userDoesNotExists();
         }
 
-        if (Strings.isBlank(student.getPassword())) {
-            return userNoPassword();
+        if (!student.getConfirmed()) {
+            return userRequireUpdate();
         }
 
         return userAlreadyExists();
@@ -150,11 +150,11 @@ public class RegisterService implements IRegisterService {
                 .createResponseDto();
     }
 
-    private ResponseDto<UserState> userNoPassword() {
+    private ResponseDto<UserState> userRequireUpdate() {
         return new ResponseDtoBuilder<UserState>()
-                .setDescription("Student is not registered")
+                .setDescription("User requires to update its info")
                 .setCode(417)
-                .setResult(UserState.UserWithoutPassword)
+                .setResult(UserState.UserRequireUpdate)
                 .createResponseDto();
     }
 
@@ -287,7 +287,7 @@ public class RegisterService implements IRegisterService {
         String encryptedPassword = passwordEncoder.encode(password);
         teacher.setPassword(encryptedPassword);
 
-        if(teacher.getCreatedAt()==null){
+        if (teacher.getCreatedAt() == null) {
             teacher.setCreatedAt(new Date());
         }
 
