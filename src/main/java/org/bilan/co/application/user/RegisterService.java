@@ -1,15 +1,11 @@
 package org.bilan.co.application.user;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.user.AuthDto;
 import org.bilan.co.domain.dtos.user.RegisterUserDto;
-import org.bilan.co.domain.entities.Courses;
-import org.bilan.co.domain.entities.StudentStats;
-import org.bilan.co.domain.entities.Students;
-import org.bilan.co.domain.entities.Teachers;
+import org.bilan.co.domain.entities.*;
 import org.bilan.co.domain.entities.builders.StudentsBuilder;
 import org.bilan.co.domain.enums.UserState;
 import org.bilan.co.domain.utils.Tuple;
@@ -19,6 +15,7 @@ import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.bilan.co.ws.simat.client.SimatMatriculaClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
 import org.bilan.co.ws.simat.matricula.Matricula;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -64,11 +61,31 @@ public class RegisterService implements IRegisterService {
         }
     }
 
+    private ResponseDto<UserState> checkTeacher(AuthDto authDto) {
+        return teachersRepository.findById(authDto.getDocument())
+                .map(teacher -> !teacher.getConfirmed() ? userRequireUpdate() : userAlreadyExists())
+                .orElse(userNotFound());
+    }
+
+    private ResponseDto<UserState> checkStudent(AuthDto authDto) {
+        Students student = studentsRepository.findById(authDto.getDocument())
+                .orElseGet(() -> createNewStudent(authDto));
+
+        if (Objects.isNull(student)) {
+            return userNotFound();
+        } else if (!student.getConfirmed()) {
+            return userRequireUpdate();
+        }
+
+        return userAlreadyExists();
+    }
+
     @Override
     public ResponseDto<UserState> updateUser(AuthDto authDto) {
+        authDto.checkPasswords();
         switch (authDto.getUserType()) {
             case Teacher:
-                return this.updateTeacher(authDto.getDocument(), authDto.getPassword());
+                return this.updateTeacher(authDto);
             case Student:
                 return this.updateStudent(authDto);
             default:
@@ -80,48 +97,10 @@ public class RegisterService implements IRegisterService {
         }
     }
 
-    private ResponseDto<UserState> checkTeacher(AuthDto authDto) {
-        Teachers teacher = teachersRepository.findById(authDto.getDocument()).orElse(null);
-
-        if (teacher == null) {
-            // validate from SIMAT
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Teacher does not exist")
-                    .setCode(404)
-                    .setResult(UserState.UserNotFound)
-                    .createResponseDto();
-        }
-
-        if (!teacher.getConfirmed()) {
-            return userRequireUpdate();
-        }
-
-        return new ResponseDtoBuilder<UserState>()
-                .setDescription("Teacher already exist")
-                .setCode(500)
-                .setResult(UserState.UserExists)
-                .createResponseDto();
-    }
-
-    private ResponseDto<UserState> checkStudent(AuthDto authDto) {
-        Students student = studentsRepository.findById(authDto.getDocument())
-                .orElseGet(() -> createNewStudent(authDto));
-
-        if (Objects.isNull(student)) {
-            return userDoesNotExists();
-        }
-
-        if (!student.getConfirmed()) {
-            return userRequireUpdate();
-        }
-
-        return userAlreadyExists();
-    }
-
     private Students createNewStudent(AuthDto authDto) {
         return this.simatEstudianteClient.getStudent(authDto.getDocument())
                 .map(student -> studentWithEnrollment(student, authDto.getDocument()))
-                .map(tuple -> newStudent(authDto, tuple.getValue1(), tuple.getValue2()))
+                .map(tuple -> newStudent(authDto, tuple.getValue1()))
                 .map(studentsRepository::save)
                 .orElse(null);
     }
@@ -132,8 +111,7 @@ public class RegisterService implements IRegisterService {
                 .orElseGet(() -> new Tuple<>(estudiante, new Matricula()));
     }
 
-    private Students newStudent(AuthDto authDto, Estudiante estudiante, Matricula matricula) {
-
+    private Students newStudent(AuthDto authDto, Estudiante estudiante) {
         return new StudentsBuilder()
                 .setDocument(authDto.getDocument())
                 .setDocumentType(authDto.getDocumentType())
@@ -142,9 +120,9 @@ public class RegisterService implements IRegisterService {
                 .createStudents();
     }
 
-    private ResponseDto<UserState> userDoesNotExists() {
+    private ResponseDto<UserState> userNotFound() {
         return new ResponseDtoBuilder<UserState>()
-                .setDescription("Student does not exist")
+                .setDescription("User not found")
                 .setCode(404)
                 .setResult(UserState.UserNotFound)
                 .createResponseDto();
@@ -160,43 +138,85 @@ public class RegisterService implements IRegisterService {
 
     private ResponseDto<UserState> userAlreadyExists() {
         return new ResponseDtoBuilder<UserState>()
-                .setDescription("Student already exist")
+                .setDescription("User already exist")
                 .setCode(500)
                 .setResult(UserState.UserExists)
                 .createResponseDto();
     }
 
-    private ResponseDto<UserState> updateStudent(AuthDto authDto) {
-        Students student = studentsRepository.findById(authDto.getDocument()).orElse(null);
+    private ResponseDto<UserState> userUpdated() {
+        return new ResponseDtoBuilder<UserState>()
+                .setDescription("User updated successfully")
+                .setCode(200)
+                .setResult(UserState.UserUpdated)
+                .createResponseDto();
+    }
 
-        if (student == null || student.getPassword() != null) {
-            return userAlreadyExists();
+    private ResponseDto<UserState> userNotRegistered() {
+        return new ResponseDtoBuilder<UserState>()
+                .setDescription("Error saving teacher")
+                .setCode(500)
+                .setResult(UserState.UserRegistered)
+                .createResponseDto();
+    }
+
+    private ResponseDto<UserState> updateTeacher(AuthDto authDto) {
+        return teachersRepository.findById(authDto.getDocument())
+                .filter(teachers -> !teachers.getConfirmed())
+                .map(teachers -> updateFieldsTeacher(authDto, teachers))
+                .map(this::saveTeacher)
+                .orElse(userNotFound());
+    }
+
+    private ResponseDto<UserState> saveTeacher(Teachers teacher) {
+        try {
+            teachersRepository.save(teacher);
+            return userUpdated();
+        } catch (Exception e) {
+            return userNotRegistered();
         }
+    }
 
+    @NotNull
+    private Teachers updateFieldsTeacher(AuthDto authDto, Teachers teachers) {
+        teachers.setPassword(passwordEncoder.encode(authDto.getPassword()));
+        teachers.setEmail(authDto.getEmail());
+        teachers.setModifiedAt(new Date());
+        teachers.setConfirmed(true);
+        return teachers;
+    }
+
+    private ResponseDto<UserState> updateStudent(AuthDto authDto) {
+        return studentsRepository.findById(authDto.getDocument())
+                .map(student -> updateFieldsStudent(authDto, student))
+                .map(this::saveStudent)
+                .orElse(userNotFound());
+    }
+
+    private ResponseDto<UserState> saveStudent(Students student) {
+        try {
+            studentsRepository.save(student);
+            return userUpdated();
+        } catch (Exception e) {
+            return userNotRegistered();
+        }
+    }
+
+    @NotNull
+    private Students updateFieldsStudent(AuthDto authDto, Students student) {
         String encryptedPassword = passwordEncoder.encode(authDto.getPassword());
         student.setPassword(encryptedPassword);
         student.setGrade(authDto.getGrade());
-
         Courses course = new Courses();
-        course.setId(authDto.getCourse());
-
+        course.setId(authDto.getCourseId());
         student.setCourses(course);
-
-        try {
-            studentsRepository.save(student);
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Student updated successfully")
-                    .setCode(200)
-                    .setResult(UserState.UserUpdated)
-                    .createResponseDto();
-
-        } catch (Exception e) {
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Error saving student")
-                    .setCode(500)
-                    .setResult(UserState.UserRegistered)
-                    .createResponseDto();
-        }
+        student.setConfirmed(true);
+        student.setModifiedAt(new Date());
+        student.setEmail(authDto.getEmail());
+        Colleges colleges = new Colleges();
+        colleges.setId(authDto.getCollegeId());
+        student.setColleges(colleges);
+        return student;
     }
 
     public ResponseDto<UserState> createUser(RegisterUserDto regUserDto) {
@@ -270,40 +290,6 @@ public class RegisterService implements IRegisterService {
             log.error("Something was wrong saving the user info", e);
             return new ResponseDto<>("Something was wrong", HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     UserState.UserNotRegistered);
-        }
-    }
-
-    private ResponseDto<UserState> updateTeacher(String document, String password) {
-        Teachers teacher = teachersRepository.findById((document)).orElse(null);
-
-        if (teacher == null || teacher.getPassword() != null) {
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Teacher already exist")
-                    .setCode(500)
-                    .setResult(UserState.UserExists)
-                    .createResponseDto();
-        }
-
-        String encryptedPassword = passwordEncoder.encode(password);
-        teacher.setPassword(encryptedPassword);
-
-        if (teacher.getCreatedAt() == null) {
-            teacher.setCreatedAt(new Date());
-        }
-
-        try {
-            teachersRepository.save(teacher);
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Teacher updated successfully")
-                    .setCode(200).setResult(UserState.UserUpdated)
-                    .createResponseDto();
-
-        } catch (Exception e) {
-            return new ResponseDtoBuilder<UserState>()
-                    .setDescription("Error saving teacher")
-                    .setCode(500)
-                    .setResult(UserState.UserRegistered)
-                    .createResponseDto();
         }
     }
 }

@@ -17,6 +17,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthenticatedUserDto extends BasicInfo {
+
     @NotNull
     private UserType userType;
     private Collection<? extends GrantedAuthority> GrantedAuthorities;
@@ -29,6 +30,6 @@ public class AuthenticatedUserDto extends BasicInfo {
 
     public AuthenticatedUserDto(String document, UserType userType, DocumentType documentType, Collection<? extends GrantedAuthority> grantedAuthorities) {
         this(document, userType, documentType);
-        this.GrantedAuthorities=grantedAuthorities;
+        this.GrantedAuthorities = grantedAuthorities;
     }
 }
