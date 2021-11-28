@@ -14,11 +14,22 @@ import org.bilan.co.domain.enums.UserType;
 public class AuthDto extends AuthenticatedUserDto {
 
     private String password;
+    private String confirmPassword;
+    private String email;
+
+    //Student params
     private String grade;
-    protected Integer course;
+    protected Integer courseId;
+    private Integer collegeId;
 
     public AuthDto(String document, DocumentType documentType, UserType userType, String password) {
         super(document, userType, documentType);
         this.password = password;
+    }
+
+    public void checkPasswords() {
+        if (!this.password.equals(this.confirmPassword)) {
+            throw new IllegalStateException("Passwords are not the same");
+        }
     }
 }

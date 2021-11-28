@@ -23,7 +23,6 @@ public class RegisterUserDto extends AuthDto {
         this.lastName = lastName;
         this.email = email;
         this.grade = grade;
-        this.course = course;
-
+        this.courseId = course;
     }
 }
