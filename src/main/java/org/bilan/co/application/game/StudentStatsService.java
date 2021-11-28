@@ -135,17 +135,17 @@ public class StudentStatsService implements IStudentStatsService {
         sessionsRepository.save(sessions);
 
         List<ResolvedAnswerBy> results = update.getAnswerRecords().stream()
-                .map(answerRecord -> getResolvedAnswerBy(students, answerRecord, actions, sessions))
+                .map(answerRecord -> getResolvedAnswerBy(students, answerRecord, sessions))
                 .collect(Collectors.toList());
 
         sessions.setResolvedAnswerBy(results);
         sessionsRepository.save(sessions);
-
-        resolvedAnswerByRepository.saveAll(results);
     }
 
-    private ResolvedAnswerBy getResolvedAnswerBy(Students students, AnswerRecordDto answers, Actions actions, Sessions sessions) {
+    private ResolvedAnswerBy getResolvedAnswerBy(Students students, AnswerRecordDto answers, Sessions sessions) {
         ResolvedAnswerBy resolvedAnswerBy = new ResolvedAnswerBy();
+
+        resolvedAnswerBy.setStudentId(students);
 
         resolvedAnswerBy.setCreatedAt(new Date());
         resolvedAnswerBy.setSessions(sessions);
@@ -158,6 +158,8 @@ public class StudentStatsService implements IStudentStatsService {
 
         resolvedAnswerBy.setIdAnswer(answerEntity);
         resolvedAnswerBy.setIdQuestion(questions);
+
+        resolvedAnswerBy.setTribeId(sessions.getTribeId());
 
         return resolvedAnswerBy;
     }

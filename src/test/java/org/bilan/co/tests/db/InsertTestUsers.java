@@ -2,6 +2,7 @@ package org.bilan.co.tests.db;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.entities.Students;
+import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
@@ -96,6 +97,17 @@ public class InsertTestUsers {
         s.setDocument("80179301");
         s.setPassword(passwordEncoder.encode("80179301"));
 
+    }
+
+    @Test
+    public void updatePassword(){
+        Teachers teachers = teachersRepository.findById("10000409").get();
+        teachers.setPassword(passwordEncoder.encode(teachers.getDocument()));
+    }
+
+    @Test
+    public void generatePassword(){
+        log.info("Password: "+ passwordEncoder.encode("123456789"));
     }
 
 }

@@ -49,6 +49,6 @@ public class Sessions {
     @LastModifiedDate
     private Date modifiedAt;
 
-    @OneToMany(mappedBy = "sessions")
+    @OneToMany(mappedBy = "sessions", cascade = CascadeType.ALL)
     private List<ResolvedAnswerBy> resolvedAnswerBy;
 }

@@ -18,9 +18,6 @@ public class Colleges {
     @Column(name = "secretaria")
     private String secretaria;
 
-    @Column(name = "cod_dane")
-    private String codDane;
-
     @Column(name = "nombre_establecimiento")
     private String name;
 
