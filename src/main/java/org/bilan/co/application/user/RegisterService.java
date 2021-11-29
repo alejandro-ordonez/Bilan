@@ -82,7 +82,6 @@ public class RegisterService implements IRegisterService {
 
     @Override
     public ResponseDto<UserState> updateUser(AuthDto authDto) {
-        authDto.checkPasswords();
         switch (authDto.getUserType()) {
             case Teacher:
                 return this.updateTeacher(authDto);
