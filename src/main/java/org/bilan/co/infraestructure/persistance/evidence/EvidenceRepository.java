@@ -26,7 +26,7 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
             "  JOIN user_info ui " +
             "    ON s.document = ui.document " +
             "  JOIN classrooms c " +
-            "    ON s.course_id = c.course_id AND s.cod_grade = c.grade " +
+            "    ON s.course_id = c.course_id AND s.cod_grade = c.grade AND e.id_tribe = c.tribe_id  " +
             "  JOIN teachers t " +
             "    ON t.document = c.teacher_id " +
             " LEFT JOIN evaluation ev " +
