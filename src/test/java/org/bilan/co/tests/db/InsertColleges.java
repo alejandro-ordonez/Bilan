@@ -38,7 +38,6 @@ public class InsertColleges {
             college = new Colleges();
             college.setId(id);
             college.setName(collegeString[0]);
-            college.setCodDane(collegeString[1]);
 
             colleges.add(college);
             id++;

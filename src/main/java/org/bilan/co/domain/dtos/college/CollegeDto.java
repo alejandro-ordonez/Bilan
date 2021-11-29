@@ -1,4 +1,4 @@
-package org.bilan.co.domain.dtos;
+package org.bilan.co.domain.dtos.college;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

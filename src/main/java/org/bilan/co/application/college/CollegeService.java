@@ -1,12 +1,15 @@
 package org.bilan.co.application.college;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.CollegeDto;
+import org.bilan.co.domain.dtos.college.CollegeDto;
 import org.bilan.co.domain.dtos.CourseDto;
 import org.bilan.co.domain.dtos.GradeCoursesDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.college.CollegeDashboardDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.infraestructure.persistance.CollegesRepository;
 import org.bilan.co.infraestructure.persistance.CoursesRepository;
+import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.dozer.Mapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -21,11 +24,14 @@ public class CollegeService implements ICollegeService {
 
     private final CollegesRepository collegesRepository;
     private final CoursesRepository coursesRepository;
+    private final TeachersRepository teachersRepository;
     private final Mapper mapper;
 
-    public CollegeService(CollegesRepository collegesRepository, CoursesRepository coursesRepository, Mapper mapper) {
+    public CollegeService(CollegesRepository collegesRepository, CoursesRepository coursesRepository,
+                          TeachersRepository teachersRepository, Mapper mapper) {
         this.collegesRepository = collegesRepository;
         this.coursesRepository = coursesRepository;
+        this.teachersRepository = teachersRepository;
         this.mapper = mapper;
     }
 
@@ -37,6 +43,16 @@ public class CollegeService implements ICollegeService {
             return new ResponseDto<>("Resource not found", 404, colleges);
         }
         return new ResponseDto<>("Colleges retrieved successfully", 200, colleges);
+    }
+
+    @Override
+    public ResponseDto<CollegeDashboardDto> statistics(AuthenticatedUserDto user) {
+        return this.teachersRepository.findById(user.getDocument())
+                .map(teachers -> this.collegesRepository.collegeByCampusCodeDane(teachers.getCodDaneSede()))
+                .map(colleges -> collegesRepository.statistics(colleges.getId()))
+                .map(Factories::newCollegeDashboard)
+                .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
+                .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
     }
 
     @Override
