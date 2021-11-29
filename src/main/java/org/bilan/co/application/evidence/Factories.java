@@ -1,14 +1,15 @@
 package org.bilan.co.application.evidence;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.bilan.co.domain.dtos.teacher.EvaluationDto;
 import org.bilan.co.domain.entities.*;
 import org.bilan.co.domain.enums.Phase;
 
 import java.util.Date;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class Factories {
-    private Factories() {
-    }
 
     public static Evaluation newEvaluation(Teachers teachers, EvaluationDto evaluationDto) {
         Evidences evidences = new Evidences();
