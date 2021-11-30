@@ -2,7 +2,7 @@ package org.bilan.co.api;
 
 import org.bilan.co.application.college.ICollegeService;
 import org.bilan.co.domain.dtos.college.CollegeDto;
-import org.bilan.co.domain.dtos.GradeCoursesDto;
+import org.bilan.co.domain.dtos.course.GradeCoursesDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.CollegeDashboardDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
@@ -39,8 +39,9 @@ public class CollegeController {
         return ResponseEntity.ok(collegeService.statistics(user));
     }
 
+    @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/grades-courses")
-    public ResponseEntity<ResponseDto<GradeCoursesDto>> getGradesAndCourses() {
-        return ResponseEntity.ok(collegeService.getGradesAndCourses());
+    public ResponseEntity<ResponseDto<List<GradeCoursesDto>>> getGradesAndCourses(@RequestParam Integer collegeId) {
+        return ResponseEntity.ok(collegeService.getGradesAndCourses(collegeId));
     }
 }

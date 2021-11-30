@@ -1,20 +1,23 @@
 package org.bilan.co.application.college;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.college.CollegeDto;
-import org.bilan.co.domain.dtos.CourseDto;
-import org.bilan.co.domain.dtos.GradeCoursesDto;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.CollegeDashboardDto;
+import org.bilan.co.domain.dtos.college.CollegeDto;
+import org.bilan.co.domain.dtos.college.IModuleDashboard;
+import org.bilan.co.domain.dtos.course.GradeCoursesDto;
+import org.bilan.co.domain.dtos.course.ICourseProjection;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.domain.entities.Colleges;
 import org.bilan.co.infraestructure.persistance.CollegesRepository;
 import org.bilan.co.infraestructure.persistance.CoursesRepository;
+import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.dozer.Mapper;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,13 +28,16 @@ public class CollegeService implements ICollegeService {
     private final CollegesRepository collegesRepository;
     private final CoursesRepository coursesRepository;
     private final TeachersRepository teachersRepository;
+    private final StudentsRepository studentsRepository;
     private final Mapper mapper;
 
     public CollegeService(CollegesRepository collegesRepository, CoursesRepository coursesRepository,
-                          TeachersRepository teachersRepository, Mapper mapper) {
+                          TeachersRepository teachersRepository, StudentsRepository studentsRepository,
+                          Mapper mapper) {
         this.collegesRepository = collegesRepository;
         this.coursesRepository = coursesRepository;
         this.teachersRepository = teachersRepository;
+        this.studentsRepository = studentsRepository;
         this.mapper = mapper;
     }
 
@@ -49,32 +55,28 @@ public class CollegeService implements ICollegeService {
     public ResponseDto<CollegeDashboardDto> statistics(AuthenticatedUserDto user) {
         return this.teachersRepository.findById(user.getDocument())
                 .map(teachers -> this.collegesRepository.collegeByCampusCodeDane(teachers.getCodDaneSede()))
-                .map(colleges -> collegesRepository.statistics(colleges.getId()))
-                .map(Factories::newCollegeDashboard)
+                .map(this::summary)
                 .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
     }
 
-    @Override
-    public ResponseDto<GradeCoursesDto> getGradesAndCourses() {
-        log.info("Grades and courses requested");
-        //Consider creating a table to store the grades.
-        List<String> grades = new ArrayList<>();
-        grades.add("10");
-        grades.add("11");
-
-        GradeCoursesDto response = new GradeCoursesDto();
-        response.setGrades(grades);
-
-
-        List<CourseDto> courses = coursesRepository.findAll()
-                .stream()
-                .map(c -> mapper.map(c, CourseDto.class))
-                .collect(Collectors.toList());
-
-        response.setCourses(courses);
-
-        return new ResponseDto<>("Grades and courses retrieved successfully", 200, response);
+    @NotNull
+    private CollegeDashboardDto summary(Colleges colleges) {
+        List<IModuleDashboard> statistics = collegesRepository.statistics(colleges.getId());
+        return Factories.newCollegeDashboard(statistics, colleges.getStudents().size());
     }
 
+    @Override
+    public ResponseDto<List<GradeCoursesDto>> getGradesAndCourses(Integer collegeId) {
+        List<ICourseProjection> records = coursesRepository.getCoursesAndGradeWithStudentsByCollege(collegeId);
+
+        List<GradeCoursesDto> courses = records.stream()
+                .collect(Collectors.groupingBy(ICourseProjection::getGrade))
+                .entrySet()
+                .stream()
+                .map(entry -> Factories.newGradeCourseDto(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        return new ResponseDto<>(String.format("List of grades and courses for %d", collegeId), 200, courses);
+    }
 }
