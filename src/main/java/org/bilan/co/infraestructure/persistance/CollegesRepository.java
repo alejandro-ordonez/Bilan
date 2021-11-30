@@ -1,11 +1,9 @@
 package org.bilan.co.infraestructure.persistance;
 
 import org.bilan.co.domain.dtos.college.CollegeDto;
-import org.bilan.co.domain.dtos.college.IModuleDashboard;
 import org.bilan.co.domain.entities.Colleges;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,7 +20,4 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
             " FROM Colleges c " +
             "WHERE c.campusCodeDane = ?1")
     Colleges collegeByCampusCodeDane(String campusCodeDane);
-
-    @Query(value = "CALL p_statistics_colleges(:college)", nativeQuery = true)
-    List<IModuleDashboard> statistics(@Param("college") Integer college);
 }

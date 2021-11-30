@@ -5,7 +5,7 @@ public interface IModuleDashboard {
 
     String getName();
 
-    Float getScore();
+    Float getScorePerformanceActivity();
 
-    Integer getPoints();
+    Float getScoreThinkingCompetence();
 }

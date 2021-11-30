@@ -14,5 +14,4 @@ public interface ICollegeService {
 
     ResponseDto<List<GradeCoursesDto>> getGradesAndCourses(Integer collegeId);
 
-    ResponseDto<CollegeDashboardDto> statistics(AuthenticatedUserDto user);
 }
