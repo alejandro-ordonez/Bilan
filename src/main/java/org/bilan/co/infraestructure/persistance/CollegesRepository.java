@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CollegesRepository extends JpaRepository<Colleges, String> {
+public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
 
     @Query("SELECT new org.bilan.co.domain.dtos.college.CollegeDto(c.id, c.name, c.campusName, c.campusCodeDane) " +
             " FROM Colleges c " +
@@ -23,14 +23,6 @@ public interface CollegesRepository extends JpaRepository<Colleges, String> {
             "WHERE c.campusCodeDane = ?1")
     Colleges collegeByCampusCodeDane(String campusCodeDane);
 
-    @Query(value = "" +
-            "SELECT pa.id" +
-            "     , pa.name" +
-            "     , pa.score " +
-            "     , pg.points " +
-            "  FROM v_performance_activities pa " +
-            "  JOIN v_performance_game pg " +
-            "    ON pa.id = pg.id " +
-            " WHERE pa.college = :college", nativeQuery = true)
+    @Query(value = "CALL p_statistics_colleges(:college)", nativeQuery = true)
     List<IModuleDashboard> statistics(@Param("college") Integer college);
 }
