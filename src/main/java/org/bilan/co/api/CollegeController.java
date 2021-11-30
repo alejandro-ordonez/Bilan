@@ -20,23 +20,14 @@ public class CollegeController {
 
 
     private final ICollegeService collegeService;
-    private final JwtTokenUtil jwtTokenUtil;
 
-    public CollegeController(ICollegeService collegeService, JwtTokenUtil jwtTokenUtil) {
+    public CollegeController(ICollegeService collegeService) {
         this.collegeService = collegeService;
-        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @GetMapping
     public ResponseEntity<ResponseDto<List<CollegeDto>>> findCollegesByState(@RequestParam Integer stateMunId) {
         return ResponseEntity.ok(collegeService.findCollegesByState(stateMunId));
-    }
-
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @GetMapping("/statistics")
-    public ResponseEntity<ResponseDto<CollegeDashboardDto>> statistics(@RequestHeader(Constants.AUTHORIZATION) String token) {
-        AuthenticatedUserDto user = jwtTokenUtil.getInfoFromToken(token);
-        return ResponseEntity.ok(collegeService.statistics(user));
     }
 
     @PreAuthorize("hasAuthority('TEACHER')")
