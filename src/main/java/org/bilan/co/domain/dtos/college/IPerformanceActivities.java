@@ -1,6 +1,9 @@
 package org.bilan.co.domain.dtos.college;
 
-public interface IModuleDashboard {
+public interface IPerformanceActivities {
+
+    String getState();
+
     Integer getId();
 
     String getName();
