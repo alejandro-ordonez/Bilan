@@ -41,7 +41,13 @@ public class DashboardService implements IDashboardService {
     @Override
     public ResponseDto<CollegeDashboardDto> collegeStatistics(AuthenticatedUserDto user) {
         return this.teachersRepository.findById(user.getDocument())
-                .map(teachers -> this.collegesRepository.collegeByCampusCodeDane(teachers.getCodDaneSede()))
+                .map(teachers -> collegeStatistics(teachers.getCodDaneSede()))
+                .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
+    }
+
+    @Override
+    public ResponseDto<CollegeDashboardDto> collegeStatistics(String codeDane) {
+        return Optional.ofNullable(this.collegesRepository.collegeByCampusCodeDane(codeDane))
                 .flatMap(this::getCollegeStatistics)
                 .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
@@ -59,6 +65,16 @@ public class DashboardService implements IDashboardService {
         return this.getStateStatistics(state)
                 .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
+    }
+
+    @Override
+    public ResponseDto<GovernmentDashboardDto> studentStatistics(Integer studentId) {
+        return null;
+    }
+
+    @Override
+    public ResponseDto<GovernmentDashboardDto> collegeGradeStatistics(String codeDane, String grade, Integer courseId) {
+        return null;
     }
 
     private Optional<CollegeDashboardDto> getCollegeStatistics(Colleges college) {

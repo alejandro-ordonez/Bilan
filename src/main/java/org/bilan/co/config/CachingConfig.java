@@ -8,6 +8,7 @@ import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -17,8 +18,9 @@ public class CachingConfig {
     @Bean
     public CacheManager cacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
-        cacheManager.setCaches(Collections.singletonList(new ConcurrentMapCache("colleges")));
-        cacheManager.setCaches(Collections.singletonList(new ConcurrentMapCache(Constants.CACHE_COLLEGES_BY_STATE)));
+        cacheManager.setCaches(Arrays.asList(
+                new ConcurrentMapCache("colleges"),
+                new ConcurrentMapCache(Constants.CACHE_COLLEGES_BY_STATE)));
         return cacheManager;
     }
 }

@@ -88,7 +88,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable()
                 .authorizeRequests()
                 .antMatchers("/", "/management/*", "/actuator/*",
-                        "/college-info",
                         "/teacher/enroll",
                         "/auth/login", "/auth/register/*","/api-docs", "/api-docs/*",
                         "/swagger-ui/*", "/swagger-ui.html")
