@@ -1,6 +1,6 @@
 package org.bilan.co.infraestructure.persistance.evidence;
 
-import org.bilan.co.domain.dtos.teacher.EvidencesDto;
+import org.bilan.co.domain.projections.IEvidence;
 import org.bilan.co.domain.entities.Evidences;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -36,11 +36,11 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
             "   AND e.phase = :phase " +
             "   AND c.course_id = :courseId" +
             "   AND s.cod_grade = :grade ", nativeQuery = true)
-    Optional<List<EvidencesDto>> filter(@Param("grade") String grade,
-                                        @Param("tribeId") Integer tribeId,
-                                        @Param("courseId") Integer courseId,
-                                        @Param("phase") String phase,
-                                        @Param("teacherId") String teacherId);
+    Optional<List<IEvidence>> filter(@Param("grade") String grade,
+                                     @Param("tribeId") Integer tribeId,
+                                     @Param("courseId") Integer courseId,
+                                     @Param("phase") String phase,
+                                     @Param("teacherId") String teacherId);
 
     @Query("SELECT COUNT(e) FROM Evidences e " +
             "WHERE e.idStudent.document=:document AND " +

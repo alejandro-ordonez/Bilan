@@ -3,8 +3,8 @@ package org.bilan.co.api;
 
 import org.bilan.co.application.dashboards.IDashboardService;
 import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.college.CollegeDashboardDto;
-import org.bilan.co.domain.dtos.college.GovernmentDashboardDto;
+import org.bilan.co.domain.dtos.dashboard.CollegeDashboardDto;
+import org.bilan.co.domain.dtos.dashboard.GovernmentDashboardDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
@@ -26,9 +26,9 @@ public class DashboardController {
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/college/statistics")
-    public ResponseEntity<ResponseDto<CollegeDashboardDto>> statistics(@RequestHeader(Constants.AUTHORIZATION) String token) {
+    public ResponseEntity<ResponseDto<CollegeDashboardDto>> collegeStatistics(@RequestHeader(Constants.AUTHORIZATION) String token) {
         AuthenticatedUserDto user = jwtTokenUtil.getInfoFromToken(token);
-        return ResponseEntity.ok(dashboardService.statistics(user));
+        return ResponseEntity.ok(dashboardService.collegeStatistics(user));
     }
 
     @PreAuthorize("hasAuthority('TEACHER')")

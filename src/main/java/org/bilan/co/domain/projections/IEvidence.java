@@ -1,6 +1,6 @@
-package org.bilan.co.domain.dtos.teacher;
+package org.bilan.co.domain.projections;
 
-public interface EvidencesDto {
+public interface IEvidence {
     String getDocument();
     String getName();
     String getLastName();
