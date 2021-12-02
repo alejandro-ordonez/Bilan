@@ -6,7 +6,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.teacher.EvaluationDto;
-import org.bilan.co.domain.dtos.teacher.EvidencesDto;
+import org.bilan.co.domain.projections.IEvidence;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.entities.*;
 import org.bilan.co.domain.enums.BucketName;
@@ -71,7 +71,7 @@ public class EvidenceService implements IEvidenceService {
 
 
     @Override
-    public ResponseDto<List<EvidencesDto>> filter(FilterEvidence filter, AuthenticatedUserDto user) {
+    public ResponseDto<List<IEvidence>> filter(FilterEvidence filter, AuthenticatedUserDto user) {
         return this.evidenceRepository.filter(filter.getGrade(), filter.getTribeId(), filter.getCourseId(),
                         filter.getPhase().toString(), user.getDocument())
                 .filter(list -> !list.isEmpty())

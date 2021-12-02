@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.CollegeDto;
 import org.bilan.co.domain.dtos.course.GradeCoursesDto;
-import org.bilan.co.domain.dtos.course.ICourseProjection;
+import org.bilan.co.domain.projections.ICourse;
 import org.bilan.co.infraestructure.persistance.CollegesRepository;
 import org.bilan.co.infraestructure.persistance.CoursesRepository;
 import org.dozer.Mapper;
@@ -41,10 +41,10 @@ public class CollegeService implements ICollegeService {
 
     @Override
     public ResponseDto<List<GradeCoursesDto>> getGradesAndCourses(Integer collegeId) {
-        List<ICourseProjection> records = coursesRepository.getCoursesAndGradeWithStudentsByCollege(collegeId);
+        List<ICourse> records = coursesRepository.getCoursesAndGradeWithStudentsByCollege(collegeId);
 
         List<GradeCoursesDto> courses = records.stream()
-                .collect(Collectors.groupingBy(ICourseProjection::getGrade))
+                .collect(Collectors.groupingBy(ICourse::getGrade))
                 .entrySet()
                 .stream()
                 .map(entry -> Factories.newGradeCourseDto(entry.getKey(), entry.getValue()))

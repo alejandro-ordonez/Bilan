@@ -10,8 +10,10 @@ import java.util.List;
 @Repository
 public interface StateMunicipalityRepository extends JpaRepository<StateMunicipality, Integer> {
 
-    @Query("SELECT DISTINCT c.state" +
+    @Query("SELECT DISTINCT c.state " +
             " FROM StateMunicipality c " +
             "ORDER BY c.state")
     List<String> states();
+
+
 }
