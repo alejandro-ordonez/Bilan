@@ -1,7 +1,7 @@
 package org.bilan.co.tests.tribes;
 
-import org.bilan.co.infraestructure.persistance.TribesRepository;
 import org.bilan.co.domain.entities.Tribes;
+import org.bilan.co.infraestructure.persistance.TribesRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

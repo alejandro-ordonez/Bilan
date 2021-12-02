@@ -2,13 +2,23 @@ package org.bilan.co.domain.projections;
 
 public interface IPerformanceGame {
 
-    String getCodeDane();
+    Integer getMunId();
 
-    String getCollege();
+    String getMunName();
+
+    Integer getCollegeId();
+
+    String getCollegeName();
 
     Integer getId();
 
     String getName();
+
+
+    String getCodeDane();
+
+    String getCollege();
+
 
     String getState();
 

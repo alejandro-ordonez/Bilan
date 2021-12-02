@@ -5,7 +5,7 @@ public final class Constants {
     public static final String AUTHORIZATION = "Authorization";
 
     public static final String CACHE_COLLEGES = "colleges";
-    public static final String CACHE_COLLEGES_BY_STATE = "colleges-state";
+    public static final String CACHE_COLLEGES_BY_MUN = "colleges-mun";
 
     private Constants() {
     }

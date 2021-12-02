@@ -1,9 +1,7 @@
 package org.bilan.co.domain.projections;
 
-public interface ICollege {
+public interface IMunicipality {
     Integer getId();
 
     String getName();
-
-    Integer getNumberStudents();
 }
