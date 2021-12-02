@@ -1,8 +1,8 @@
 package org.bilan.co.application.college;
 
+import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.CollegeDto;
 import org.bilan.co.domain.dtos.course.GradeCoursesDto;
-import org.bilan.co.domain.dtos.ResponseDto;
 
 import java.util.List;
 

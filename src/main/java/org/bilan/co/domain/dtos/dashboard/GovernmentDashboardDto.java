@@ -6,7 +6,7 @@ import lombok.Data;
 
 import java.util.List;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

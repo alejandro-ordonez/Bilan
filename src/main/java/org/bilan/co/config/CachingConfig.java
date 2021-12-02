@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 @EnableCaching
@@ -20,7 +19,7 @@ public class CachingConfig {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
                 new ConcurrentMapCache("colleges"),
-                new ConcurrentMapCache(Constants.CACHE_COLLEGES_BY_STATE)));
+                new ConcurrentMapCache(Constants.CACHE_COLLEGES_BY_MUN)));
         return cacheManager;
     }
 }

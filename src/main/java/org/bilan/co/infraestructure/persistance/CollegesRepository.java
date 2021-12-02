@@ -9,9 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import static org.bilan.co.utils.Constants.*;
-
 import java.util.List;
+
+import static org.bilan.co.utils.Constants.CACHE_COLLEGES_BY_MUN;
 
 @Repository
 public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
@@ -21,22 +21,26 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
             "WHERE c.stateMunicipality.id = ?1")
     List<CollegeDto> getColleges(Integer stateMunId);
 
-    @Query("SELECT c " +
-            " FROM Colleges c " +
-            "WHERE c.campusCodeDane = ?1")
-    Colleges collegeByCampusCodeDane(String campusCodeDane);
+    @Query(value = "" +
+            "  SELECT c.id AS id " +
+            "       , CONCAT(c.nombre_establecimiento, ' - ', c.nombre_sede) AS name " +
+            "       , COUNT(s.document) " +
+            "    FROM colleges c " +
+            "    JOIN students s " +
+            "   WHERE c.id = :collegeId " +
+            "GROUP BY c.id ", nativeQuery = true)
+    ICollege singleById(@Param("collegeId") Integer collegeId);
 
     @Query(value = "" +
             "  SELECT DISTINCT" +
-            "         c.codigo_dane AS codeDane" +
-            "       , c.nombre_establecimiento AS name " +
-            "       , dm.departamento AS state" +
+            "         c.id AS id " +
+            "       , CONCAT(c.nombre_establecimiento, ' - ', c.nombre_sede) AS name " +
             "    FROM colleges c " +
             "    JOIN departamento_municipio dm " +
             "      ON dm.id = c.dep_mun_id " +
-            "   WHERE dm.departamento = :state " +
+            "   WHERE dm.id = :munId " +
             "GROUP BY c.codigo_dane " +
             "ORDER BY c.id ", nativeQuery = true)
-    @Cacheable(CACHE_COLLEGES_BY_STATE)
-    List<ICollege> findByState(@Param("state") String state);
+    @Cacheable(CACHE_COLLEGES_BY_MUN)
+    List<ICollege> findByMunId(@Param("munId") Integer munId);
 }
