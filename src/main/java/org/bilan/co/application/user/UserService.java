@@ -141,9 +141,6 @@ public class UserService implements IUserService {
                     String line = it.nextLine();
                     String[] user = line.split(",");
 
-                    if(user.length!=5)
-                        throw new Exception("The line was in bad format");
-
                     switch (userType){
                         case Student:
                             processStudent(user, nLine, colleges);
@@ -152,29 +149,32 @@ public class UserService implements IUserService {
                             processTeacher(user, nLine, colleges);
                             break;
                     }
-
-                    // do something with line
                 }
 
             } catch (Exception e) {
                 String message = "One of the lines was incorrect, it didn't match the expected columns or one of the" +
                         "arguments were incorrect: " + e.getMessage();
                 log.error(message);
-                responseDto = new ResponseDto<>(message, 500, "");
+                return new ResponseDto<>(message, 500, "");
 
             } finally {
                 LineIterator.closeQuietly(it);
             }
 
         } catch (IOException e) {
-            log.error("Failed to extract the file from request");
+            String message = "Failed to extract the file from request";
+            log.error(message);
+            return new ResponseDto<>(message, 500, "");
         }
 
-        return responseDto;
+        return new ResponseDto<>("The users were added successfully", 200, "");
     }
 
 
-    private void processTeacher(String[] user, int nLine, Colleges colleges) throws IllegalArgumentException{
+    private void processTeacher(String[] user, int nLine, Colleges colleges) throws Exception {
+        if(user.length!=5)
+            throw new Exception("The line was in bad format");
+
         String document = user[0];
 
         if(!teachersRepository.existsById(document))
@@ -184,17 +184,13 @@ public class UserService implements IUserService {
         DocumentType documentType = DocumentType.valueOf(user[1]);
         String grade = user[2];
 
-        if(!(grade.equals("10")||grade.equals("11")))
-            throw new IllegalArgumentException("The grade was incorrect at line: "+nLine);
+        validateGrade(grade, nLine);
 
         String courseString = user[3];
-        Optional<Courses> courses = coursesRepository.findByCourseName(courseString);
 
-        if(!courses.isPresent())
-            throw new IllegalArgumentException("The course was not found in the database, at line: "+nLine);
+        Courses courses = getCourse(courseString, nLine);
 
         String tribeName = user[4];
-
 
         Classroom classroom = new Classroom();
 
@@ -208,17 +204,54 @@ public class UserService implements IUserService {
 
         classroom.setTeacher(teacher);
         classroom.setCollege(colleges);
-        classroom.setCourse(courses.get());
+        classroom.setCourse(courses);
         classroom.setTribe(t.get());
         classroom.setGrade(grade);
     }
 
-    private void processStudent(String[] user, int nLine, Colleges colleges) {
+    private void processStudent(String[] user, int nLine, Colleges colleges) throws Exception {
+        if(user.length!=6)
+            throw new Exception("The line was in bad format, at: "+nLine);
 
+        String document = user[0];
+        DocumentType documentType = DocumentType.valueOf(user[1]);
+        String name = user[2];
+        String lastName = user[3];
+        String grade = user[4];
+        String courseString = user[5];
 
+        validateGrade(grade, nLine);
 
+        Courses courses = getCourse(courseString, nLine);
+
+        Roles roles = new Roles();
+        roles.setId(1);
+
+        Students s = new Students();
+        s.setDocument(document);
+        s.setDocumentType(documentType);
+        s.setName(name);
+        s.setLastName(lastName);
+        s.setGrade(grade);
+        s.setCourses(courses);
+        s.setRole(roles);
+        s.setIsEnabled(false);
+        s.setConfirmed(false);
     }
 
+    private void validateGrade(String grade, int nLine){
+        if(!(grade.equals("10")||grade.equals("11")))
+            throw new IllegalArgumentException("The grade was incorrect at line: "+nLine);
+    }
+
+    private Courses getCourse(String courseString, int nLine){
+        Optional<Courses> courses = coursesRepository.findByCourseName(courseString);
+
+        if(!courses.isPresent())
+            throw new IllegalArgumentException("The course was not found in the database, at line: "+nLine);
+
+        return courses.get();
+    }
 
     private UserInfo getUser(AuthenticatedUserDto authDto) {
         log.info("Getting userInfo");
