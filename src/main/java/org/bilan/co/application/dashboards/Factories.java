@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.bilan.co.domain.dtos.dashboard.GovernmentDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.ModuleDashboardDto;
 import org.bilan.co.domain.entities.Colleges;
+import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.enums.Tribe;
 import org.bilan.co.domain.projections.ICollege;
 import org.bilan.co.domain.projections.IMunicipality;
@@ -34,6 +35,9 @@ final class Factories {
 
     private static final Function<Integer, Function<Tribe, Predicate<IPerformanceActivity>>> BY_TRIBE_AND_COLLEGE_ACTIVITIES = collegeId -> tribe -> BY_TRIBE_ACTIVITIES.apply(tribe).and((entity) -> Objects.equals(collegeId, entity.getCollegeId()));
     private static final Function<Integer, Function<Tribe, Predicate<IPerformanceGame>>> BY_TRIBE_AND_COLLEGE_GAMES = collegeId -> tribe -> BY_TRIBE_GAMES.apply(tribe).and((entity) -> Objects.equals(collegeId, entity.getCollegeId()));
+
+    private static final Function<String, Function<Tribe, Predicate<IPerformanceActivity>>> BY_TRIBE_AND_DOCUMENT_ACTIVITIES = studentDocument -> tribe -> BY_TRIBE_ACTIVITIES.apply(tribe).and((entity) -> Objects.equals(studentDocument, entity.getDocument()));
+    private static final Function<String, Function<Tribe, Predicate<IPerformanceGame>>> BY_TRIBE_AND_DOCUMENT_GAMES = studentDocument -> tribe -> BY_TRIBE_GAMES.apply(tribe).and((entity) -> Objects.equals(studentDocument, entity.getDocument()));
 
 
     public static GovernmentDashboardDto newGovernmentDashboard(GovernmentDashboard info) {
@@ -117,6 +121,28 @@ final class Factories {
         return dashboardDto;
     }
 
+    public static GovernmentDashboardDto newGovernmentCourseGradeDashboard(CourseGradeDashboard info) {
+        DataFilter dataFilter = new DataFilter();
+        dataFilter.setActivities(info.getPerformanceActivities());
+        dataFilter.setPerformanceGames(info.getPerformanceGames());
+        List<StateDashboardDto> stateDashboard = new ArrayList<>();
+        for (Students students : info.getStudents()) {
+            dataFilter.setActivitiesPredicate(BY_TRIBE_AND_DOCUMENT_ACTIVITIES.apply(students.getDocument()));
+            dataFilter.setGamesPredicate(BY_TRIBE_AND_DOCUMENT_GAMES.apply(students.getDocument()));
+            StateDashboardDto dashboardDto = new StateDashboardDto();
+            dashboardDto.setId(students.getDocument());
+            dashboardDto.setName(students.getName() + " " + students.getLastName());
+            dashboardDto.setModules(buildModulesByTribe(dataFilter));
+            stateDashboard.add(dashboardDto);
+        }
+        GovernmentDashboardDto dashboardDto = new GovernmentDashboardDto();
+        dashboardDto.setTimeInApp(0);
+        dashboardDto.setStudents(info.getStudents().size());
+        dashboardDto.setData(stateDashboard);
+        return dashboardDto;
+    }
+
+
     private static List<ModuleDashboardDto> buildModulesByTribe(DataFilter dataFilter) {
         return Arrays.stream(Tribe.values())
                 .parallel()
@@ -190,5 +216,10 @@ final class Factories {
     @Data
     public static class CollegeDashboard extends DefaultDataDashboard {
         private ICollege college;
+    }
+
+    @Data
+    public static class CourseGradeDashboard extends DefaultDataDashboard {
+        private List<Students> students;
     }
 }

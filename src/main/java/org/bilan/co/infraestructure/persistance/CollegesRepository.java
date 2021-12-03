@@ -24,7 +24,7 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
     @Query(value = "" +
             "  SELECT c.id AS id " +
             "       , CONCAT(c.nombre_establecimiento, ' - ', c.nombre_sede) AS name " +
-            "       , COUNT(s.document) " +
+            "       , COUNT(s.document) AS numberStudents" +
             "    FROM colleges c " +
             "    JOIN students s " +
             "   WHERE c.id = :collegeId " +
