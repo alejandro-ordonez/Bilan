@@ -68,6 +68,4 @@ public class UserInfo {
 
     @OneToMany(mappedBy = "author")
     private List<Post> posts;
-
-
 }

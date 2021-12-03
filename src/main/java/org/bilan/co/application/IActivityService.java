@@ -1,8 +1,8 @@
 package org.bilan.co.application;
 
-import java.util.List;
-
 import org.bilan.co.domain.dtos.ActivityDto;
+
+import java.util.List;
 
 public interface IActivityService {
 

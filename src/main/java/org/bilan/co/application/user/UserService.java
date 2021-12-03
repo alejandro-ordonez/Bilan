@@ -9,6 +9,7 @@ import org.bilan.co.domain.dtos.user.EnableUser;
 import org.bilan.co.domain.dtos.user.UserInfoDto;
 import org.bilan.co.domain.entities.Roles;
 import org.bilan.co.domain.entities.UserInfo;
+import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -44,9 +46,7 @@ public class UserService implements IUserService {
     private JwtTokenUtil jwtTokenUtil;
 
     public AuthenticatedUserDto getUserNameTokenById(AuthenticatedUserDto dataToken) {
-
         UserInfo user = getUser(dataToken);
-
         if (user == null)
             return new UserInfoDto();
 
@@ -63,7 +63,7 @@ public class UserService implements IUserService {
         AuthenticatedUserDto userAuthenticated = jwtTokenUtil.getInfoFromToken(token);
         UserInfo user = getUser(userAuthenticated);
 
-        if(user==null){
+        if (Objects.isNull(user)) {
             return new ResponseDto<>("The user info couldn't be found", 404, null);
         }
 
@@ -73,6 +73,7 @@ public class UserService implements IUserService {
         result.setDocument(user.getDocument());
         result.setLastName(user.getLastName());
         result.setDocumentType(user.getDocumentType());
+        result.setUserType(UserType.findByRol(user.getRole().getName()));
 
         return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
                 .createResponseDto();
@@ -85,30 +86,23 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto<Boolean> enableUser(EnableUser user) {
-       return new ResponseDto<>("User state changed", 200,
-               userInfoRepository.updateState(user.getDocument(), user.getEnabled()));
+        return new ResponseDto<>("User state changed", 200,
+                userInfoRepository.updateState(user.getDocument(), user.getEnabled()));
     }
 
 
     private UserInfo getUser(AuthenticatedUserDto authDto) {
         log.info("Getting userInfo");
-
         switch (authDto.getUserType()) {
-
             case Teacher:
                 return teachersRepository.findById(authDto.getDocument()).orElse(null);
-
             case Student:
                 return studentsRepository.findById(authDto.getDocument()).orElse(null);
-
             case Min:
                 return minUserRepository.findById(authDto.getDocument()).orElse(null);
-
             default:
                 return null;
         }
-
-
     }
 
     @Override
@@ -118,7 +112,7 @@ public class UserService implements IUserService {
             AuthenticatedUserDto authDto = new ObjectMapper().readValue(username, AuthenticatedUserDto.class);
             UserInfo user = getUser(authDto);
 
-            if(user == null){
+            if (user == null) {
                 log.error("User couldn't be loaded");
                 return new User("", "", new ArrayList<>());
             }
@@ -143,6 +137,6 @@ public class UserService implements IUserService {
                 .map(p -> new SimpleGrantedAuthority(p.getName()))
                 .forEach(authorities::add);
 
-            return authorities;
+        return authorities;
     }
 }

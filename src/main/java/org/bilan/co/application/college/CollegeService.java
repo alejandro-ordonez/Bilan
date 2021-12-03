@@ -1,17 +1,16 @@
 package org.bilan.co.application.college;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.dtos.CollegeDto;
-import org.bilan.co.domain.dtos.CourseDto;
-import org.bilan.co.domain.dtos.GradeCoursesDto;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.college.CollegeDto;
+import org.bilan.co.domain.dtos.course.GradeCoursesDto;
+import org.bilan.co.domain.projections.ICourse;
 import org.bilan.co.infraestructure.persistance.CollegesRepository;
 import org.bilan.co.infraestructure.persistance.CoursesRepository;
 import org.dozer.Mapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +22,8 @@ public class CollegeService implements ICollegeService {
     private final CoursesRepository coursesRepository;
     private final Mapper mapper;
 
-    public CollegeService(CollegesRepository collegesRepository, CoursesRepository coursesRepository, Mapper mapper) {
+    public CollegeService(CollegesRepository collegesRepository, CoursesRepository coursesRepository,
+                          Mapper mapper) {
         this.collegesRepository = collegesRepository;
         this.coursesRepository = coursesRepository;
         this.mapper = mapper;
@@ -40,25 +40,16 @@ public class CollegeService implements ICollegeService {
     }
 
     @Override
-    public ResponseDto<GradeCoursesDto> getGradesAndCourses() {
-        log.info("Grades and courses requested");
-        //Consider creating a table to store the grades.
-        List<String> grades = new ArrayList<>();
-        grades.add("10");
-        grades.add("11");
+    public ResponseDto<List<GradeCoursesDto>> getGradesAndCourses(Integer collegeId) {
+        List<ICourse> records = coursesRepository.getCoursesAndGradeWithStudentsByCollege(collegeId);
 
-        GradeCoursesDto response = new GradeCoursesDto();
-        response.setGrades(grades);
-
-
-        List<CourseDto> courses = coursesRepository.findAll()
+        List<GradeCoursesDto> courses = records.stream()
+                .collect(Collectors.groupingBy(ICourse::getGrade))
+                .entrySet()
                 .stream()
-                .map(c -> mapper.map(c, CourseDto.class))
+                .map(entry -> Factories.newGradeCourseDto(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
-        response.setCourses(courses);
-
-        return new ResponseDto<>("Grades and courses retrieved successfully", 200, response);
+        return new ResponseDto<>(String.format("List of grades and courses for %d", collegeId), 200, courses);
     }
-
 }

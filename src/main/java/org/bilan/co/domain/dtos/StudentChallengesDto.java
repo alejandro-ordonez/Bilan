@@ -1,7 +1,5 @@
 package org.bilan.co.domain.dtos;
 
-import java.util.List;
-
 public class StudentChallengesDto {
     private int currentPoints;
     private int challengeId;

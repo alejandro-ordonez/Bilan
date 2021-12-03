@@ -6,23 +6,26 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.teacher.EvaluationDto;
-import org.bilan.co.domain.dtos.teacher.EvidencesDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
-import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.entities.Evidences;
+import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.domain.enums.BucketName;
 import org.bilan.co.domain.enums.Phase;
+import org.bilan.co.domain.projections.IEvidence;
 import org.bilan.co.infraestructure.persistance.EvaluationRepository;
-import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
+import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
+import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.S3FileStore;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
-
-import org.bilan.co.utils.Constants;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -71,7 +74,7 @@ public class EvidenceService implements IEvidenceService {
 
 
     @Override
-    public ResponseDto<List<EvidencesDto>> filter(FilterEvidence filter, AuthenticatedUserDto user) {
+    public ResponseDto<List<IEvidence>> filter(FilterEvidence filter, AuthenticatedUserDto user) {
         return this.evidenceRepository.filter(filter.getGrade(), filter.getTribeId(), filter.getCourseId(),
                         filter.getPhase().toString(), user.getDocument())
                 .filter(list -> !list.isEmpty())
