@@ -4,9 +4,9 @@ import org.bilan.co.application.evidence.EvidenceService;
 import org.bilan.co.application.evidence.IEvidenceService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.teacher.EvaluationDto;
-import org.bilan.co.domain.dtos.teacher.EvidencesDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.enums.Phase;
+import org.bilan.co.domain.projections.IEvidence;
 import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.http.MediaType;
@@ -51,7 +51,7 @@ public class EvidencesController {
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping
-    public ResponseEntity<ResponseDto<List<EvidencesDto>>> filter(
+    public ResponseEntity<ResponseDto<List<IEvidence>>> filter(
             @RequestParam("grade") String grade,
             @RequestParam("tribeId") Integer tribeId,
             @RequestParam("courseId") Integer courseId,

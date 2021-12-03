@@ -1,10 +1,10 @@
 package org.bilan.co.domain.entities.builders;
 
-import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.entities.Evidences;
 import org.bilan.co.domain.entities.ResolvedAnswerBy;
 import org.bilan.co.domain.entities.StudentStats;
 import org.bilan.co.domain.entities.Students;
+import org.bilan.co.domain.enums.DocumentType;
 
 import java.util.List;
 import java.util.Objects;

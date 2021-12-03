@@ -2,9 +2,9 @@ package org.bilan.co.application.evidence;
 
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.teacher.EvaluationDto;
-import org.bilan.co.domain.dtos.teacher.EvidencesDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.enums.Phase;
+import org.bilan.co.domain.projections.IEvidence;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public interface IEvidenceService {
 
     ResponseDto<String> evaluate(AuthenticatedUserDto authenticatedUser, EvaluationDto evaluationDto);
 
-    ResponseDto<List<EvidencesDto>> filter(EvidenceService.FilterEvidence filter, AuthenticatedUserDto user);
+    ResponseDto<List<IEvidence>> filter(EvidenceService.FilterEvidence filter, AuthenticatedUserDto user);
 
     byte[] download(Long evidenceId);
 }

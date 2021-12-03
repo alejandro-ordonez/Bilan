@@ -1,15 +1,20 @@
 package org.bilan.co.application.dashboards;
 
 import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.college.CollegeDashboardDto;
-import org.bilan.co.domain.dtos.college.GovernmentDashboardDto;
-import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.domain.dtos.dashboard.GovernmentDashboardDto;
+import org.bilan.co.domain.dtos.dashboard.StudentDashboardDto;
 
 public interface IDashboardService {
 
-    ResponseDto<CollegeDashboardDto> statistics(AuthenticatedUserDto user);
+    ResponseDto<GovernmentDashboardDto> govStatistics();
 
-    ResponseDto<GovernmentDashboardDto> governmentStatistics();
+    ResponseDto<GovernmentDashboardDto> govStateStatistics(String state);
 
-    ResponseDto<GovernmentDashboardDto> stateStatistics(String state);
+    ResponseDto<GovernmentDashboardDto> govMunicipalityStatistics(Integer munId);
+
+    ResponseDto<GovernmentDashboardDto> govCollegeStatistics(Integer collegeId);
+
+    ResponseDto<GovernmentDashboardDto> govCourseGradeStatistics(Integer collegeId, String grade, Integer courseId);
+
+    ResponseDto<StudentDashboardDto> govStudentStatistics(String document);
 }

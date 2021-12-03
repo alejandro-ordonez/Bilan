@@ -1,8 +1,8 @@
 package org.bilan.co.infraestructure.persistance;
 
 import org.bilan.co.domain.dtos.college.CollegeDto;
-import org.bilan.co.domain.dtos.course.ICourseProjection;
 import org.bilan.co.domain.entities.Courses;
+import org.bilan.co.domain.projections.ICourse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -28,7 +28,7 @@ public interface CoursesRepository extends JpaRepository<Courses, Integer> {
             "    ON s.course_id = c.id " +
             " WHERE s.college_id = ?1 " +
             "   AND cod_grade IS NOT NULL ", nativeQuery = true)
-    List<ICourseProjection> getCoursesAndGradeWithStudentsByCollege(Integer collegeId);
+    List<ICourse> getCoursesAndGradeWithStudentsByCollege(Integer collegeId);
 
     @Query("SELECT course FROM Courses course WHERE course.name = name")
     Optional<Courses> findByCourseName(String name);
