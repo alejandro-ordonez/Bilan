@@ -37,22 +37,15 @@ public interface DashboardRepository extends JpaRepository<Evaluation, Long> {
     @Query(value = "CALL p_statistics_performance_colleges(:collegeId)", nativeQuery = true)
     List<IPerformanceGame> statisticsCollegePerformance(@Param("collegeId") Integer collegeId);
 
-/*
+    @Query(value = "CALL p_statistics_grade(:collegeId, :grade, :courseId)", nativeQuery = true)
+    List<IPerformanceActivity> statistics(@Param("collegeId") Integer collegeId, @Param("grade") String grade, @Param("courseId") Integer courseId);
 
+    @Query(value = "CALL p_statistics_performance_grade(:collegeId, :grade, :courseId)", nativeQuery = true)
+    List<IPerformanceGame> statisticsPerformance(@Param("collegeId") Integer collegeId, @Param("grade") String grade, @Param("courseId") Integer courseId);
 
-    @Query(value = "CALL p_statistics_grade(:college, :grade, :course)", nativeQuery = true)
-    List<IPerformanceActivity> statistics(@Param("college") Integer college, @Param("grade") String grade, @Param("course") Integer course);
+    @Query(value = "CALL p_statistics_student(:student)", nativeQuery = true)
+    List<IPerformanceActivity> statisticsStudent(@Param("student") String student);
 
-    @Query(value = "CALL p_statistics_student(:college, :student)", nativeQuery = true)
-    List<IPerformanceActivity> statistics(@Param("college") Integer college, @Param("student") String student);
-
-
-
-
-
-    @Query(value = "CALL p_statistics_performance_grade(:college, :grade, :course)", nativeQuery = true)
-    List<IPerformanceGame> statisticsPerformance(@Param("college") Integer college, @Param("grade") String grade, @Param("course") Integer course);
-
-    @Query(value = "CALL p_statistics_performance_student(:college, :student)", nativeQuery = true)
-    List<IPerformanceGame> statisticsPerformance(@Param("college") Integer college, @Param("student") String student);*/
+    @Query(value = "CALL p_statistics_performance_student(:student)", nativeQuery = true)
+    List<IPerformanceGame> statisticsStudentPerformance(@Param("student") String student);
 }

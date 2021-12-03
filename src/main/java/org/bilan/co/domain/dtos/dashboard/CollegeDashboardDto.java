@@ -13,5 +13,5 @@ public class CollegeDashboardDto {
     private Integer students;
     private Integer totalForumAnswers;
     private Integer timeInApp;
-    private List<ModuleDashboardDto> data;
+    private List<TribeSummaryDto> data;
 }

@@ -11,17 +11,17 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
-public class GovernmentDashboardDto {
-    private final Integer students;
+public class StudentDashboardDto {
+    private final Integer percentage;
     private final Integer timeInApp;
-    private final List<StateDashboardDto> data;
+    private final List<TribeSummaryStudentDto> data;
 
     @Data
-    @JsonInclude(NON_NULL)
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class StateDashboardDto {
-        private String id;
-        private String name;
-        private List<TribeSummaryDto> modules;
+    @JsonInclude(NON_NULL)
+    public static class TribeSummaryStudentDto extends TribeSummaryDto {
+        private Integer preActivePhase;
+        private Integer postActivePhase;
+        private Integer interactivePhase;
     }
 }
