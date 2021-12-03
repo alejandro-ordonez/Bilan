@@ -13,6 +13,7 @@ public interface IDashboardService {
 
     ResponseDto<GovernmentDashboardDto> govCollegeStatistics(Integer collegeId);
 
+    ResponseDto<GovernmentDashboardDto> govCourseGradeStatistics(Integer collegeId, String grade, Integer courseId);
 
 
    /* ResponseDto<GovernmentDashboardDto> studentStatistics(Integer studentId);

@@ -4,13 +4,12 @@ package org.bilan.co.api;
 import org.bilan.co.application.dashboards.IDashboardService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.dashboard.GovernmentDashboardDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -44,9 +43,18 @@ public class DashboardController {
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/government/college/statistics")
-    public ResponseEntity<ResponseDto<GovernmentDashboardDto>> collegeStatistics(@RequestParam Integer collegeId) {
+    public ResponseEntity<ResponseDto<GovernmentDashboardDto>> govCollegeStatistics(@RequestParam Integer collegeId) {
         return ResponseEntity.ok(dashboardService.govCollegeStatistics(collegeId));
     }
+
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/government/grade/statistics")
+    public ResponseEntity<ResponseDto<GovernmentDashboardDto>> govCourseGradeStatistics(@RequestParam Integer collegeId,
+                                                                                        @RequestParam String grade,
+                                                                                        @RequestParam Integer courseId) {
+        return ResponseEntity.ok(dashboardService.govCourseGradeStatistics(collegeId, grade, courseId));
+    }
+
 
 
     /*

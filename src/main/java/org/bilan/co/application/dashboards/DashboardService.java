@@ -3,6 +3,7 @@ package org.bilan.co.application.dashboards;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.dashboard.GovernmentDashboardDto;
+import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.projections.ICollege;
 import org.bilan.co.domain.projections.IMunicipality;
 import org.bilan.co.domain.projections.IPerformanceActivity;
@@ -64,6 +65,13 @@ public class DashboardService implements IDashboardService {
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
     }
 
+    @Override
+    public ResponseDto<GovernmentDashboardDto> govCourseGradeStatistics(Integer collegeId, String grade, Integer courseId) {
+        return this.buildGovCourseGradeStatistics(collegeId, grade, courseId)
+                .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
+                .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
+    }
+
     /*
     @Override
     public ResponseDto<CollegeDashboardDto> collegeStatistics(String codeDane) {
@@ -71,25 +79,7 @@ public class DashboardService implements IDashboardService {
                 .flatMap(this::getCollegeStatistics)
                 .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
-    }
-
-    @Override
-    public ResponseDto<GovernmentDashboardDto> studentStatistics(Integer studentId) {
-        return null;
-    }
-
-    @Override
-    public ResponseDto<GovernmentDashboardDto> collegeGradeStatistics(String codeDane, String grade, Integer courseId) {
-        return null;
-    }
-
-    @Override
-    public ResponseDto<CollegeDashboardDto> collegeStatistics(AuthenticatedUserDto user) {
-        return this.teachersRepository.findById(user.getDocument())
-                .map(teachers -> collegeStatistics(teachers.getCodDaneSede()))
-                .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
     }*/
-
 
     private Optional<GovernmentDashboardDto> buildGovStatistics() {
 
@@ -189,6 +179,32 @@ public class DashboardService implements IDashboardService {
             info.setPerformanceGames(performanceGames.get());
             info.setCollege(college.get());
             return Optional.of(Factories.newGovernmentCollegeDashboard(info));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Error fetching data needed to generate college statistics {}", e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    private Optional<GovernmentDashboardDto> buildGovCourseGradeStatistics(Integer collegeId, String grade,
+                                                                           Integer courseId) {
+
+        CompletableFuture<List<Students>> students =
+                supplyAsync(() -> this.studentsRepository.findStudentsByCollegeAndGrade(collegeId, grade, courseId));
+
+        CompletableFuture<List<IPerformanceActivity>> performanceActivities =
+                supplyAsync(() -> this.dashboardRepository.statisticsCollege(collegeId));
+
+        CompletableFuture<List<IPerformanceGame>> performanceGames =
+                supplyAsync(() -> this.dashboardRepository.statisticsCollegePerformance(collegeId));
+
+        try {
+            CompletableFuture.allOf(performanceActivities, performanceGames).get();
+            Factories.CourseGradeDashboard info = new Factories.CourseGradeDashboard();
+            info.setPerformanceActivities(performanceActivities.get());
+            info.setPerformanceGames(performanceGames.get());
+            info.setStudents(students.get());
+            return Optional.of(Factories.newGovernmentCourseGradeDashboard(info));
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Error fetching data needed to generate college statistics {}", e.getMessage());
