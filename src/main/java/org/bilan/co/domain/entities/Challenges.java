@@ -42,6 +42,6 @@ public class Challenges implements Serializable {
     private Integer timer;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "challenges", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "challenges", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Sessions> sessionsList;
 }

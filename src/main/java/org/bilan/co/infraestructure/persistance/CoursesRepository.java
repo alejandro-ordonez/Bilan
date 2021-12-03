@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CoursesRepository extends JpaRepository<Courses, Integer> {
@@ -28,4 +29,7 @@ public interface CoursesRepository extends JpaRepository<Courses, Integer> {
             " WHERE s.college_id = ?1 " +
             "   AND cod_grade IS NOT NULL ", nativeQuery = true)
     List<ICourseProjection> getCoursesAndGradeWithStudentsByCollege(Integer collegeId);
+
+    @Query("SELECT course FROM Courses course WHERE course.name = name")
+    Optional<Courses> findByCourseName(String name);
 }

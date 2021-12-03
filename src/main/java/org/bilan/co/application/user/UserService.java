@@ -2,13 +2,15 @@ package org.bilan.co.application.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnableUser;
 import org.bilan.co.domain.dtos.user.UserInfoDto;
-import org.bilan.co.domain.entities.Roles;
-import org.bilan.co.domain.entities.UserInfo;
+import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.JwtTokenUtil;
@@ -19,12 +21,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -42,6 +42,15 @@ public class UserService implements IUserService {
     private RolesRepository rolesRepository;
     @Autowired
     private UserInfoRepository userInfoRepository;
+    @Autowired
+    private CoursesRepository coursesRepository;
+    @Autowired
+    private TribesRepository tribesRepository;
+    @Autowired
+    private ClassroomRepository classroomRepository;
+    @Autowired
+    private CollegesRepository collegesRepository;
+
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
@@ -88,6 +97,126 @@ public class UserService implements IUserService {
     public ResponseDto<Boolean> enableUser(EnableUser user) {
         return new ResponseDto<>("User state changed", 200,
                 userInfoRepository.updateState(user.getDocument(), user.getEnabled()));
+    }
+
+    @Override
+    public ResponseDto<String> uploadUsersFromFile(MultipartFile file, UserType userType, String token, String campusCodeDane) {
+
+        Colleges colleges;
+
+        if(campusCodeDane == null){
+            AuthenticatedUserDto authenticatedUserDto = jwtTokenUtil.getInfoFromToken(token);
+            Optional<Classroom> c = classroomRepository.getByTeacher(authenticatedUserDto.getDocument());
+
+            if(!c.isPresent()){
+                String message = "The directive teacher does not have a college linked";
+                throw new IllegalArgumentException(message);
+            }
+
+            colleges = c.get().getCollege();
+        }
+        else {
+            colleges = collegesRepository.collegeByCampusCodeDane(campusCodeDane);
+        }
+
+        return loadUsersFromFile(file, userType, colleges);
+
+    }
+
+    private ResponseDto<String> loadUsersFromFile(MultipartFile file, UserType userType, Colleges colleges){
+
+        LineIterator it = null;
+
+        ResponseDto<String> responseDto;
+
+        int nLine = 0;
+
+        try {
+            it = FileUtils.lineIterator(file.getResource().getFile(), "UTF-8");
+
+            try {
+
+                while (it.hasNext()) {
+                    nLine ++;
+                    String line = it.nextLine();
+                    String[] user = line.split(",");
+
+                    if(user.length!=5)
+                        throw new Exception("The line was in bad format");
+
+                    switch (userType){
+                        case Student:
+                            processStudent(user, nLine, colleges);
+                            break;
+                        case Teacher:
+                            processTeacher(user, nLine, colleges);
+                            break;
+                    }
+
+                    // do something with line
+                }
+
+            } catch (Exception e) {
+                String message = "One of the lines was incorrect, it didn't match the expected columns or one of the" +
+                        "arguments were incorrect: " + e.getMessage();
+                log.error(message);
+                responseDto = new ResponseDto<>(message, 500, "");
+
+            } finally {
+                LineIterator.closeQuietly(it);
+            }
+
+        } catch (IOException e) {
+            log.error("Failed to extract the file from request");
+        }
+
+        return responseDto;
+    }
+
+
+    private void processTeacher(String[] user, int nLine, Colleges colleges) throws IllegalArgumentException{
+        String document = user[0];
+
+        if(!teachersRepository.existsById(document))
+            throw new IllegalArgumentException("Teacher not found");
+
+
+        DocumentType documentType = DocumentType.valueOf(user[1]);
+        String grade = user[2];
+
+        if(!(grade.equals("10")||grade.equals("11")))
+            throw new IllegalArgumentException("The grade was incorrect at line: "+nLine);
+
+        String courseString = user[3];
+        Optional<Courses> courses = coursesRepository.findByCourseName(courseString);
+
+        if(!courses.isPresent())
+            throw new IllegalArgumentException("The course was not found in the database, at line: "+nLine);
+
+        String tribeName = user[4];
+
+
+        Classroom classroom = new Classroom();
+
+        Teachers teacher = new Teachers();
+        teacher.setDocument(document);
+
+        Optional<Tribes> t = tribesRepository.getByName(tribeName);
+
+        if(!t.isPresent())
+            throw new IllegalArgumentException("The tribe couldn't be found, spelling perhaps? at line: "+nLine);
+
+        classroom.setTeacher(teacher);
+        classroom.setCollege(colleges);
+        classroom.setCourse(courses.get());
+        classroom.setTribe(t.get());
+        classroom.setGrade(grade);
+    }
+
+    private void processStudent(String[] user, int nLine, Colleges colleges) {
+
+
+
     }
 
 

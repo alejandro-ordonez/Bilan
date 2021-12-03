@@ -66,6 +66,6 @@ public class UserInfo {
     @JoinColumn(name = "role_id")
     private Roles role;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Post> posts;
 }

@@ -42,6 +42,6 @@ public class Answers implements Serializable {
     @ManyToOne
     private Questions idQuestion;
 
-    @OneToMany(mappedBy = "idAnswer")
+    @OneToMany(mappedBy = "idAnswer", fetch = FetchType.LAZY)
     private List<ResolvedAnswerBy> resolvedAnswerByList;
 }

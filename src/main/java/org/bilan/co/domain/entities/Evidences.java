@@ -59,6 +59,6 @@ public class Evidences implements Serializable {
     @ManyToOne
     private Tribes tribe;
 
-    @OneToMany(mappedBy = "evidence")
+    @OneToMany(mappedBy = "evidence", fetch = FetchType.LAZY)
     private List<Evaluation> evaluations;
 }

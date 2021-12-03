@@ -56,6 +56,9 @@ public class StudentStats implements Serializable {
     @Column(name = "current_spirits")
     private Integer currentSpirits = 3;
 
+    @Column(name = "time_in_game")
+    private Float timeInGame;
+
     @Column(name = "tribes_balance")
     private String tribesBalance;
 
