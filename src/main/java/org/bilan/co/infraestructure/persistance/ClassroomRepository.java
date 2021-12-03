@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface ClassroomRepository extends JpaRepository<Classroom, Integer> {
 
-    @Query("SELECT c FROM Classroom c WHERE c.teacher.document = :document LIMIT 1")
-    Optional<Classroom> getByTeacher(String document);
+    @Query("SELECT c FROM Classroom c WHERE c.teacher.document = :document")
+    Optional<Classroom> findFirstByTeacher(String document);
 }

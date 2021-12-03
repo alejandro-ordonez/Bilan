@@ -43,4 +43,9 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
             "ORDER BY c.id ", nativeQuery = true)
     @Cacheable(CACHE_COLLEGES_BY_MUN)
     List<ICollege> findByMunId(@Param("munId") Integer munId);
+
+    @Query("SELECT c " +
+            " FROM Colleges c " +
+            "WHERE c.campusCodeDane = ?1")
+    Colleges collegeByCampusCodeDane(String campusCodeDane);
 }

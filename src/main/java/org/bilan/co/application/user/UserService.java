@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -106,7 +107,7 @@ public class UserService implements IUserService {
 
         if(campusCodeDane == null){
             AuthenticatedUserDto authenticatedUserDto = jwtTokenUtil.getInfoFromToken(token);
-            Optional<Classroom> c = classroomRepository.getByTeacher(authenticatedUserDto.getDocument());
+            Optional<Classroom> c = classroomRepository.findFirstByTeacher(authenticatedUserDto.getDocument());
 
             if(!c.isPresent()){
                 String message = "The directive teacher does not have a college linked";
@@ -132,13 +133,15 @@ public class UserService implements IUserService {
         int nLine = 0;
 
         try {
-            it = FileUtils.lineIterator(file.getResource().getFile(), "UTF-8");
+            File fileToUpload = new File(Objects.requireNonNull(file.getOriginalFilename()));
+            FileUtils.copyToFile(file.getInputStream(), fileToUpload);
+            it = FileUtils.lineIterator(fileToUpload, "UTF-8");
 
             try {
-
+                String line = it.nextLine();
                 while (it.hasNext()) {
                     nLine ++;
-                    String line = it.nextLine();
+                    line = it.nextLine();
                     String[] user = line.split(",");
 
                     switch (userType){
@@ -163,7 +166,7 @@ public class UserService implements IUserService {
 
         } catch (IOException e) {
             String message = "Failed to extract the file from request";
-            log.error(message);
+            log.error(message, e);
             return new ResponseDto<>(message, 500, "");
         }
 
@@ -207,6 +210,8 @@ public class UserService implements IUserService {
         classroom.setCourse(courses);
         classroom.setTribe(t.get());
         classroom.setGrade(grade);
+
+        classroomRepository.save(classroom);
     }
 
     private void processStudent(String[] user, int nLine, Colleges colleges) throws Exception {
@@ -235,8 +240,11 @@ public class UserService implements IUserService {
         s.setGrade(grade);
         s.setCourses(courses);
         s.setRole(roles);
-        s.setIsEnabled(false);
+        s.setColleges(colleges);
+        s.setIsEnabled(true);
         s.setConfirmed(false);
+
+        studentsRepository.save(s);
     }
 
     private void validateGrade(String grade, int nLine){
@@ -245,7 +253,7 @@ public class UserService implements IUserService {
     }
 
     private Courses getCourse(String courseString, int nLine){
-        Optional<Courses> courses = coursesRepository.findByCourseName(courseString);
+        Optional<Courses> courses = coursesRepository.findFirstByCourseName(courseString);
 
         if(!courses.isPresent())
             throw new IllegalArgumentException("The course was not found in the database, at line: "+nLine);
@@ -256,6 +264,7 @@ public class UserService implements IUserService {
     private UserInfo getUser(AuthenticatedUserDto authDto) {
         log.info("Getting userInfo");
         switch (authDto.getUserType()) {
+            case DirectiveUser:
             case Teacher:
                 return teachersRepository.findById(authDto.getDocument()).orElse(null);
             case Student:

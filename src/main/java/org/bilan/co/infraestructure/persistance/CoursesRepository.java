@@ -30,6 +30,6 @@ public interface CoursesRepository extends JpaRepository<Courses, Integer> {
             "   AND cod_grade IS NOT NULL ", nativeQuery = true)
     List<ICourse> getCoursesAndGradeWithStudentsByCollege(Integer collegeId);
 
-    @Query("SELECT course FROM Courses course WHERE course.name = name")
-    Optional<Courses> findByCourseName(String name);
+    @Query("SELECT course FROM Courses course WHERE course.name = :name")
+    Optional<Courses> findFirstByCourseName(String name);
 }

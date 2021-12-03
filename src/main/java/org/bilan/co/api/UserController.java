@@ -36,7 +36,7 @@ public class UserController {
         return ResponseEntity.ok(userService.enableUser(user));
     }
 
-    @PreAuthorize("hasAuthority('DIRECT_TEACHER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('DIRECT_TEACHER', 'ADMIN')")
     @PostMapping("/load")
     public ResponseEntity<ResponseDto<String>> uploadUsersFromFile(@RequestPart("file") MultipartFile file,
                                                                    @RequestParam("userType") UserType userType,
