@@ -4,18 +4,17 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.bilan.co.application.dashboards.DataModel.CollegeDashboard;
-import org.bilan.co.application.dashboards.DataModel.CourseGradeDashboard;
-import org.bilan.co.application.dashboards.DataModel.MainDashboard;
-import org.bilan.co.application.dashboards.DataModel.MunicipalityDashboard;
-import org.bilan.co.application.dashboards.DataModel.StateDashboard;
-import org.bilan.co.application.dashboards.DataModel.StudentDashboard;
+import org.bilan.co.application.dashboards.DataModel.*;
 import org.bilan.co.domain.dtos.dashboard.*;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.enums.Tribe;
-import org.bilan.co.domain.projections.*;
+import org.bilan.co.domain.projections.IPerformanceActivity;
+import org.bilan.co.domain.projections.IPerformanceGame;
+import org.bilan.co.domain.projections.ISummary;
 import org.bilan.co.utils.Constants;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.support.PagedListHolder;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.*;
 import java.util.function.Function;
@@ -40,7 +39,7 @@ final class Factories {
                 .map(state -> createRowSummary(activities, games, state, null, state))
                 .collect(Collectors.toList());
 
-        return new GeneralDashboardDto(0, 0, summaries);
+        return GeneralDashboardDto.builder().data(summaries).timeInApp(0).students(0).build();
     }
 
     /**
@@ -59,14 +58,15 @@ final class Factories {
                         String.valueOf(municipality.getId()), municipality.getId()))
                 .collect(Collectors.toList());
 
-        return new GeneralDashboardDto(0, 0, summaries);
+        return GeneralDashboardDto.builder().data(summaries).timeInApp(0).students(0).build();
     }
 
     /**
      * @param info
+     * @param pageRequest
      * @return
      */
-    public static GeneralDashboardDto createMunicipalityDashboard(MunicipalityDashboard info) {
+    public static GeneralDashboardDto createMunicipalityDashboard(MunicipalityDashboard info, PageRequest pageRequest) {
 
         Map<Integer, List<IPerformanceActivity>> activities = info.getPerformanceActivities()
                 .stream().collect(Collectors.groupingBy(IPerformanceActivity::getCollegeId));
@@ -79,7 +79,12 @@ final class Factories {
                         String.valueOf(college.getId()), college.getId()))
                 .collect(Collectors.toList());
 
-        return new GeneralDashboardDto(0, 0, summaries);
+        PagedListHolder<RowSummary<TribeSummaryDto>> holder = new PagedListHolder<>(summaries);
+        holder.setPageSize(pageRequest.getPageSize());
+        holder.setPage(pageRequest.getPageNumber());
+
+        return GeneralDashboardDto.builder().data(summaries)
+                .timeInApp(0).students(0).page(holder.getPage()).pageCount(holder.getPageCount()).build();
     }
 
     /**
@@ -205,7 +210,8 @@ final class Factories {
                 .mapToInt(IPerformanceGame::getNumberQuestionsAnswered)
                 .sum() / (float) Constants.TOTAL_QUESTIONS_BY_GRADE;
 
-        return new StudentDashboardDto((int) (perCompletionAllTribes * 100), (int) (perCompletionGame * 100), 0, summary);
+        return new StudentDashboardDto((int) (perCompletionAllTribes * 100),
+                (int) (perCompletionGame * 100), 0, summary);
     }
 
     /**
@@ -218,15 +224,11 @@ final class Factories {
     private static Pair<Integer, Integer> getScoresBasicCompetence(Map<String, List<IPerformanceActivity>> activities,
                                                                    Map<String, List<IPerformanceGame>> games,
                                                                    Students student) {
-        Integer scoreActivityCP = Optional.ofNullable(activities.get(student.getDocument()))
-                .flatMap(list -> list.stream().findFirst())
-                .map(IPerformanceActivity::getScoreBasicCompetence)
-                .orElse(0);
+        List<IPerformanceActivity> activity = activities.get(student.getDocument());
+        Integer scoreActivityCP = Objects.isNull(activity) ? 0 : activity.get(0).getScoreBasicCompetence();
 
-        Integer scoreGameCP = Optional.ofNullable(games.get(student.getDocument()))
-                .flatMap(list -> list.stream().findFirst())
-                .map(IPerformanceGame::getScoreBasicCompetence)
-                .orElse(0);
+        List<IPerformanceGame> game = games.get(student.getDocument());
+        Integer scoreGameCP = Objects.isNull(game) ? 0 : game.get(0).getScoreBasicCompetence();
 
         return Pair.of(scoreActivityCP, scoreGameCP);
     }
@@ -240,11 +242,8 @@ final class Factories {
      */
     private static StudentDashboard getStudentDashboard(Map<String, List<IPerformanceActivity>> activities,
                                                         Map<String, List<IPerformanceGame>> games, Students student) {
-        StudentDashboard studentDashboard = new StudentDashboard();
-        studentDashboard.setPerformanceActivities(activities.getOrDefault(student.getDocument(), Collections.emptyList()));
-        studentDashboard.setPerformanceGames(games.getOrDefault(student.getDocument(), Collections.emptyList()));
-        studentDashboard.setStudent(student);
-        return studentDashboard;
+        return new StudentDashboard(activities.getOrDefault(student.getDocument(), Collections.emptyList()),
+                games.getOrDefault(student.getDocument(), Collections.emptyList()), student);
     }
 
     /**

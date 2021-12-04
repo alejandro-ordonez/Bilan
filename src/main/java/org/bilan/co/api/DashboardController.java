@@ -7,7 +7,9 @@ import org.bilan.co.domain.dtos.dashboard.CollegeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.GeneralDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.GradeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.StudentDashboardDto;
+import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,8 +43,10 @@ public class DashboardController {
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/government/municipality/statistics")
-    public ResponseEntity<ResponseDto<GeneralDashboardDto>> govMunStatistics(@RequestParam Integer munId) {
-        return ResponseEntity.ok(dashboardService.govMunicipalityStatistics(munId));
+    public ResponseEntity<ResponseDto<GeneralDashboardDto>> govMunStatistics(@RequestParam Integer munId,
+                                                                             @RequestParam(defaultValue = "0") Integer page) {
+        return ResponseEntity.ok(dashboardService.govMunicipalityStatistics(munId, PageRequest.of(Math.max(0, page),
+                Constants.MAX_SIZE_PAGE)));
     }
 
     @PreAuthorize("hasAuthority('TEACHER')")

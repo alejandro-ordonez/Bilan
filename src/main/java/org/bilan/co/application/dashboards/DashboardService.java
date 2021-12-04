@@ -13,6 +13,7 @@ import org.bilan.co.domain.projections.IMunicipality;
 import org.bilan.co.domain.projections.IPerformanceActivity;
 import org.bilan.co.domain.projections.IPerformanceGame;
 import org.bilan.co.infraestructure.persistance.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,8 +57,8 @@ public class DashboardService implements IDashboardService {
     }
 
     @Override
-    public ResponseDto<GeneralDashboardDto> govMunicipalityStatistics(Integer munId) {
-        return this.buildGovMunicipalityStatistics(munId)
+    public ResponseDto<GeneralDashboardDto> govMunicipalityStatistics(Integer munId, PageRequest pageRequest) {
+        return this.buildGovMunicipalityStatistics(munId, pageRequest)
                 .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
     }
@@ -88,21 +89,18 @@ public class DashboardService implements IDashboardService {
         CompletableFuture<List<String>> states =
                 supplyAsync(this.stateMunicipalityRepository::states);
 
-        CompletableFuture<List<IPerformanceActivity>> performanceActivities =
+        CompletableFuture<List<IPerformanceActivity>> activities =
                 supplyAsync(this.dashboardRepository::statistics);
 
-        CompletableFuture<List<IPerformanceGame>> performanceGames =
+        CompletableFuture<List<IPerformanceGame>> games =
                 supplyAsync(this.dashboardRepository::statisticsPerformance);
 
         try {
-            CompletableFuture.allOf(performanceActivities, performanceGames, states).get();
+            CompletableFuture.allOf(activities, games, states).get();
 
-            MainDashboard info = new MainDashboard();
-            info.setPerformanceActivities(performanceActivities.get());
-            info.setPerformanceGames(performanceGames.get());
-            info.setStates(states.get());
-
+            MainDashboard info = new MainDashboard(activities.get(), games.get(), states.get());
             return Optional.of(Factories.createMainDashboard(info));
+
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Error fetching data needed to generate government statistics {}", e.getMessage());
@@ -115,21 +113,18 @@ public class DashboardService implements IDashboardService {
         CompletableFuture<List<IMunicipality>> municipalitiesByState =
                 supplyAsync(() -> this.stateMunicipalityRepository.findMunicipalitiesByState(state));
 
-        CompletableFuture<List<IPerformanceActivity>> performanceActivities =
+        CompletableFuture<List<IPerformanceActivity>> activities =
                 supplyAsync(() -> this.dashboardRepository.statistics(state));
 
-        CompletableFuture<List<IPerformanceGame>> performanceGames =
+        CompletableFuture<List<IPerformanceGame>> games =
                 supplyAsync(() -> this.dashboardRepository.statisticsPerformance(state));
 
         try {
-            CompletableFuture.allOf(performanceActivities, performanceGames, municipalitiesByState).get();
+            CompletableFuture.allOf(activities, games, municipalitiesByState).get();
 
-            StateDashboard info = new StateDashboard();
-            info.setPerformanceActivities(performanceActivities.get());
-            info.setPerformanceGames(performanceGames.get());
-            info.setMunicipalities(municipalitiesByState.get());
-
+            StateDashboard info = new StateDashboard(activities.get(), games.get(), municipalitiesByState.get());
             return Optional.of(Factories.createStateDashboard(info));
+
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Error fetching data needed to generate government statistics {}", e.getMessage());
@@ -137,25 +132,22 @@ public class DashboardService implements IDashboardService {
         return Optional.empty();
     }
 
-    private Optional<GeneralDashboardDto> buildGovMunicipalityStatistics(Integer munId) {
+    private Optional<GeneralDashboardDto> buildGovMunicipalityStatistics(Integer munId, PageRequest pageRequest) {
         CompletableFuture<List<ICollege>> collegesByMun =
                 supplyAsync(() -> this.collegesRepository.findByMunId(munId));
 
-        CompletableFuture<List<IPerformanceActivity>> performanceActivities =
+        CompletableFuture<List<IPerformanceActivity>> activities =
                 supplyAsync(() -> this.dashboardRepository.statistics(munId));
 
-        CompletableFuture<List<IPerformanceGame>> performanceGames =
+        CompletableFuture<List<IPerformanceGame>> games =
                 supplyAsync(() -> this.dashboardRepository.statisticsPerformance(munId));
 
         try {
-            CompletableFuture.allOf(performanceActivities, performanceGames, collegesByMun).get();
+            CompletableFuture.allOf(activities, games, collegesByMun).get();
 
-            MunicipalityDashboard info = new MunicipalityDashboard();
-            info.setPerformanceActivities(performanceActivities.get());
-            info.setPerformanceGames(performanceGames.get());
-            info.setColleges(collegesByMun.get());
+            MunicipalityDashboard info = new MunicipalityDashboard(activities.get(), games.get(), collegesByMun.get());
+            return Optional.of(Factories.createMunicipalityDashboard(info,pageRequest));
 
-            return Optional.of(Factories.createMunicipalityDashboard(info));
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Error fetching data needed to generate government statistics {}", e.getMessage());
@@ -168,21 +160,18 @@ public class DashboardService implements IDashboardService {
         CompletableFuture<ICollege> college =
                 supplyAsync(() -> this.collegesRepository.singleById(collegeId));
 
-        CompletableFuture<List<IPerformanceActivity>> performanceActivities =
+        CompletableFuture<List<IPerformanceActivity>> activities =
                 supplyAsync(() -> this.dashboardRepository.statisticsCollege(collegeId));
 
-        CompletableFuture<List<IPerformanceGame>> performanceGames =
+        CompletableFuture<List<IPerformanceGame>> games =
                 supplyAsync(() -> this.dashboardRepository.statisticsCollegePerformance(collegeId));
 
         try {
-            CompletableFuture.allOf(performanceActivities, performanceGames).get();
+            CompletableFuture.allOf(activities, games).get();
 
-            CollegeDashboard info = new CollegeDashboard();
-            info.setPerformanceActivities(performanceActivities.get());
-            info.setPerformanceGames(performanceGames.get());
-            info.setCollege(college.get());
-
+            CollegeDashboard info = new CollegeDashboard(activities.get(), games.get(), college.get());
             return Optional.of(Factories.createCollegeDashboard(info));
+
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Error fetching data needed to generate college statistics {}", e.getMessage());
@@ -195,19 +184,18 @@ public class DashboardService implements IDashboardService {
         CompletableFuture<List<Students>> students =
                 supplyAsync(() -> this.studentsRepository.findStudentsByCollegeAndGrade(collegeId, grade, courseId));
 
-        CompletableFuture<List<IPerformanceActivity>> performanceActivities =
+        CompletableFuture<List<IPerformanceActivity>> activities =
                 supplyAsync(() -> this.dashboardRepository.statistics(collegeId, grade, courseId));
 
-        CompletableFuture<List<IPerformanceGame>> performanceGames =
+        CompletableFuture<List<IPerformanceGame>> games =
                 supplyAsync(() -> this.dashboardRepository.statisticsPerformance(collegeId, grade, courseId));
 
         try {
-            CompletableFuture.allOf(performanceActivities, performanceGames).get();
-            CourseGradeDashboard info = new CourseGradeDashboard();
-            info.setPerformanceActivities(performanceActivities.get());
-            info.setPerformanceGames(performanceGames.get());
-            info.setStudents(students.get());
+            CompletableFuture.allOf(activities, games).get();
+
+            CourseGradeDashboard info = new CourseGradeDashboard(activities.get(), games.get(), students.get());
             return Optional.of(Factories.createCourseGradeDashboard(info));
+
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Error fetching data needed to generate college statistics {}", e.getMessage());
@@ -219,18 +207,17 @@ public class DashboardService implements IDashboardService {
         CompletableFuture<Students> students =
                 supplyAsync(() -> this.studentsRepository.findById(document).get());
 
-        CompletableFuture<List<IPerformanceActivity>> performanceActivities =
+        CompletableFuture<List<IPerformanceActivity>> activities =
                 supplyAsync(() -> this.dashboardRepository.statisticsStudent(document));
 
-        CompletableFuture<List<IPerformanceGame>> performanceGames =
+        CompletableFuture<List<IPerformanceGame>> games =
                 supplyAsync(() -> this.dashboardRepository.statisticsStudentPerformance(document));
         try {
-            CompletableFuture.allOf(performanceActivities, performanceGames).get();
-            StudentDashboard info = new StudentDashboard();
-            info.setPerformanceActivities(performanceActivities.get());
-            info.setPerformanceGames(performanceGames.get());
-            info.setStudent(students.get());
+            CompletableFuture.allOf(activities, games).get();
+
+            StudentDashboard info = new StudentDashboard(activities.get(), games.get(), students.get());
             return Optional.of(Factories.createStudentDashboard(info));
+
         } catch (Exception e) {
             e.printStackTrace();
             log.error("Error fetching data needed to generate college statistics {}", e.getMessage());
