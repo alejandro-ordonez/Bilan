@@ -5,7 +5,6 @@ public class ResponseDto<T> {
     private int Code;
     private T result;
 
-
     public ResponseDto(String description, int code, T result) {
         this.description = description;
         Code = code;

@@ -5,14 +5,16 @@ import org.bilan.co.domain.dtos.dashboard.CollegeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.GeneralDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.GradeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.StudentDashboardDto;
+import org.springframework.data.domain.PageRequest;
 
+@SuppressWarnings("rawtypes")
 public interface IDashboardService {
 
     ResponseDto<GeneralDashboardDto> govStatistics();
 
     ResponseDto<GeneralDashboardDto> govStateStatistics(String state);
 
-    ResponseDto<GeneralDashboardDto> govMunicipalityStatistics(Integer munId);
+    ResponseDto<GeneralDashboardDto> govMunicipalityStatistics(Integer munId, PageRequest page);
 
     ResponseDto<CollegeDashboardDto> govCollegeStatistics(Integer collegeId);
 

@@ -1,6 +1,7 @@
 package org.bilan.co.application.dashboards;
 
 import lombok.Data;
+import lombok.Getter;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.projections.ICollege;
 import org.bilan.co.domain.projections.IMunicipality;
@@ -12,37 +13,73 @@ import java.util.List;
 public class DataModel {
     @Data
     private static class DefaultDataDashboard {
-        private List<IPerformanceActivity> performanceActivities;
-        private List<IPerformanceGame> performanceGames;
+        private final List<IPerformanceActivity> performanceActivities;
+        private final List<IPerformanceGame> performanceGames;
     }
 
-    @Data
+    @Getter
     public static class MainDashboard extends DefaultDataDashboard {
-        private List<String> states;
+        private final List<String> states;
+
+        public MainDashboard(List<IPerformanceActivity> performanceActivities,
+                             List<IPerformanceGame> performanceGames, List<String> states) {
+            super(performanceActivities, performanceGames);
+            this.states = states;
+        }
     }
 
-    @Data
+    @Getter
     public static class StateDashboard extends DefaultDataDashboard {
-        private List<IMunicipality> municipalities;
+        private final List<IMunicipality> municipalities;
+
+        public StateDashboard(List<IPerformanceActivity> performanceActivities,
+                              List<IPerformanceGame> performanceGames, List<IMunicipality> municipalities) {
+            super(performanceActivities, performanceGames);
+            this.municipalities = municipalities;
+        }
     }
 
-    @Data
+    @Getter
     public static class MunicipalityDashboard extends DefaultDataDashboard {
-        private List<ICollege> colleges;
+        private final List<ICollege> colleges;
+
+        public MunicipalityDashboard(List<IPerformanceActivity> performanceActivities,
+                                     List<IPerformanceGame> performanceGames, List<ICollege> colleges) {
+            super(performanceActivities, performanceGames);
+            this.colleges = colleges;
+        }
     }
 
-    @Data
+    @Getter
     public static class CollegeDashboard extends DefaultDataDashboard {
-        private ICollege college;
+        private final ICollege college;
+
+        public CollegeDashboard(List<IPerformanceActivity> performanceActivities,
+                                List<IPerformanceGame> performanceGames, ICollege college) {
+            super(performanceActivities, performanceGames);
+            this.college = college;
+        }
     }
 
-    @Data
+    @Getter
     public static class CourseGradeDashboard extends DefaultDataDashboard {
-        private List<Students> students;
+        private final List<Students> students;
+
+        public CourseGradeDashboard(List<IPerformanceActivity> performanceActivities,
+                                    List<IPerformanceGame> performanceGames, List<Students> students) {
+            super(performanceActivities, performanceGames);
+            this.students = students;
+        }
     }
 
-    @Data
+    @Getter
     public static class StudentDashboard extends DefaultDataDashboard {
-        private Students student;
+        private final Students student;
+
+        public StudentDashboard(List<IPerformanceActivity> performanceActivities,
+                                List<IPerformanceGame> performanceGames, Students student) {
+            super(performanceActivities, performanceGames);
+            this.student = student;
+        }
     }
 }
