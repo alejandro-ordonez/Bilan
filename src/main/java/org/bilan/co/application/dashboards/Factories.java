@@ -21,9 +21,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * TODO: Check how to reuse code in createMainDashboard, createStateDashboard, createMunicipalityDashboard
- */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class Factories {
@@ -39,35 +36,10 @@ final class Factories {
         Map<String, List<IPerformanceGame>> games = info.getPerformanceGames()
                 .stream().collect(Collectors.groupingBy(IPerformanceGame::getState));
 
-        List<RowSummary<TribeSummaryDto>> summaries = new ArrayList<>();
-        for (String state : info.getStates()) {
-            RowSummary<TribeSummaryDto> rowSummary = new RowSummary<>();
-            rowSummary.setName(state);
-            rowSummary.setModules(new ArrayList<>());
+        List<RowSummary<TribeSummaryDto>> summaries = info.getStates().parallelStream()
+                .map(state -> createRowSummary(activities, games, state, null, state))
+                .collect(Collectors.toList());
 
-            for (Tribe tribe : Tribe.values()) {
-                Optional<IPerformanceActivity> activity = byTribe(activities.get(state), tribe);
-                Optional<IPerformanceGame> game = byTribe(games.get(state), tribe);
-                int gameScore = game.map(IPerformanceGame::getScorePerformance).orElse(0);
-                int activityScore = activity.map(IPerformanceActivity::getScorePerformanceActivity).orElse(0);
-
-                TribeSummaryDto tribeSummaryDto = new TribeSummaryDto();
-                tribeSummaryDto.setId(String.valueOf(tribe.getId()));
-                tribeSummaryDto.setName(tribe.getName());
-                tribeSummaryDto.setTitle(tribe.getAbbreviation());
-                tribeSummaryDto.setPerformanceGameScore(gameScore);
-                tribeSummaryDto.setPerformanceActivityScore(activityScore);
-                rowSummary.getModules().add(tribeSummaryDto);
-            }
-
-            Integer scoreActivityCP = Optional.ofNullable(activities.get(state))
-                    .flatMap(list -> list.stream().findFirst())
-                    .map(IPerformanceActivity::getScoreBasicCompetence)
-                    .orElse(0);
-
-            rowSummary.getModules().add(createTribeSummaryDto(Pair.of(scoreActivityCP, 0)));
-            summaries.add(rowSummary);
-        }
         return new GeneralDashboardDto(0, 0, summaries);
     }
 
@@ -82,36 +54,11 @@ final class Factories {
         Map<Integer, List<IPerformanceGame>> games = info.getPerformanceGames()
                 .stream().collect(Collectors.groupingBy(IPerformanceGame::getMunId));
 
-        List<RowSummary<TribeSummaryDto>> summaries = new ArrayList<>();
-        for (IMunicipality municipality : info.getMunicipalities()) {
-            RowSummary<TribeSummaryDto> rowSummary = new RowSummary<>();
-            rowSummary.setId(municipality.getId().toString());
-            rowSummary.setName(municipality.getName());
-            rowSummary.setModules(new ArrayList<>());
+        List<RowSummary<TribeSummaryDto>> summaries = info.getMunicipalities().parallelStream()
+                .map(municipality -> createRowSummary(activities, games, municipality.getName(),
+                        String.valueOf(municipality.getId()), municipality.getId()))
+                .collect(Collectors.toList());
 
-            for (Tribe tribe : Tribe.values()) {
-                Optional<IPerformanceActivity> activity = byTribe(activities.get(municipality.getId()), tribe);
-                Optional<IPerformanceGame> game = byTribe(games.get(municipality.getId()), tribe);
-                int gameScore = game.map(IPerformanceGame::getScorePerformance).orElse(0);
-                int activityScore = activity.map(IPerformanceActivity::getScorePerformanceActivity).orElse(0);
-
-                TribeSummaryDto tribeSummaryDto = new TribeSummaryDto();
-                tribeSummaryDto.setId(String.valueOf(tribe.getId()));
-                tribeSummaryDto.setName(tribe.getName());
-                tribeSummaryDto.setTitle(tribe.getAbbreviation());
-                tribeSummaryDto.setPerformanceGameScore(gameScore);
-                tribeSummaryDto.setPerformanceActivityScore(activityScore);
-                rowSummary.getModules().add(tribeSummaryDto);
-            }
-
-            Integer scoreActivityCP = Optional.ofNullable(activities.get(municipality.getId()))
-                    .flatMap(list -> list.stream().findFirst())
-                    .map(IPerformanceActivity::getScoreBasicCompetence)
-                    .orElse(0);
-
-            rowSummary.getModules().add(createTribeSummaryDto(Pair.of(scoreActivityCP, 0)));
-            summaries.add(rowSummary);
-        }
         return new GeneralDashboardDto(0, 0, summaries);
     }
 
@@ -127,35 +74,10 @@ final class Factories {
         Map<Integer, List<IPerformanceGame>> games = info.getPerformanceGames()
                 .stream().collect(Collectors.groupingBy(IPerformanceGame::getCollegeId));
 
-        List<RowSummary<TribeSummaryDto>> summaries = new ArrayList<>();
-        for (ICollege college : info.getColleges()) {
-            RowSummary<TribeSummaryDto> rowSummary = new RowSummary<>();
-            rowSummary.setId(college.getId().toString());
-            rowSummary.setName(college.getName());
-            rowSummary.setModules(new ArrayList<>());
-
-            for (Tribe tribe : Tribe.values()) {
-                Optional<IPerformanceActivity> activity = byTribe(activities.get(college.getId()), tribe);
-                Optional<IPerformanceGame> game = byTribe(games.get(college.getId()), tribe);
-                int gameScore = game.map(IPerformanceGame::getScorePerformance).orElse(0);
-                int activityScore = activity.map(IPerformanceActivity::getScorePerformanceActivity).orElse(0);
-
-                TribeSummaryDto tribeSummaryDto = new TribeSummaryDto();
-                tribeSummaryDto.setId(String.valueOf(tribe.getId()));
-                tribeSummaryDto.setName(tribe.getName());
-                tribeSummaryDto.setTitle(tribe.getAbbreviation());
-                tribeSummaryDto.setPerformanceGameScore(gameScore);
-                tribeSummaryDto.setPerformanceActivityScore(activityScore);
-                rowSummary.getModules().add(tribeSummaryDto);
-            }
-
-            Integer scoreActivityCP = info.getPerformanceActivities().stream().findFirst()
-                    .map(IPerformanceActivity::getScoreBasicCompetence).
-                    orElse(0);
-
-            rowSummary.getModules().add(createTribeSummaryDto(Pair.of(scoreActivityCP, 0)));
-            summaries.add(rowSummary);
-        }
+        List<RowSummary<TribeSummaryDto>> summaries = info.getColleges().parallelStream()
+                .map(college -> createRowSummary(activities, games, college.getName(),
+                        String.valueOf(college.getId()), college.getId()))
+                .collect(Collectors.toList());
 
         return new GeneralDashboardDto(0, 0, summaries);
     }
@@ -266,12 +188,12 @@ final class Factories {
             summary.add(tribeStudentSummary);
         }
 
-        double val = info.getPerformanceActivities()
+        double perCompletionAllTribes = info.getPerformanceActivities()
                 .stream()
                 .mapToInt(activity -> activity.getInteractive() + activity.getPostActive() + activity.getPreActive())
                 .sum() / (double) Constants.TOTAL_PHASES;
 
-        return new StudentDashboardDto((int) (val * 100), 0, summary);
+        return new StudentDashboardDto((int) (perCompletionAllTribes * 100), 0, summary);
     }
 
     /**
@@ -332,5 +254,45 @@ final class Factories {
             return Optional.empty();
         }
         return activities.stream().filter(t -> t.getId() == tribe.getId()).findFirst();
+    }
+
+    /**
+     * @param activities
+     * @param games
+     * @param name
+     * @param state
+     * @param <T>
+     * @return
+     */
+    private static <T> RowSummary<TribeSummaryDto> createRowSummary(Map<T, List<IPerformanceActivity>> activities,
+                                                                    Map<T, List<IPerformanceGame>> games,
+                                                                    String name, String id, T state) {
+        RowSummary<TribeSummaryDto> rowSummary = new RowSummary<>();
+        rowSummary.setId(id);
+        rowSummary.setName(name);
+        rowSummary.setModules(new ArrayList<>());
+
+        for (Tribe tribe : Tribe.values()) {
+            Optional<IPerformanceActivity> activity = byTribe(activities.get(state), tribe);
+            Optional<IPerformanceGame> game = byTribe(games.get(state), tribe);
+            int gameScore = game.map(IPerformanceGame::getScorePerformance).orElse(0);
+            int activityScore = activity.map(IPerformanceActivity::getScorePerformanceActivity).orElse(0);
+
+            TribeSummaryDto tribeSummaryDto = new TribeSummaryDto();
+            tribeSummaryDto.setId(String.valueOf(tribe.getId()));
+            tribeSummaryDto.setName(tribe.getName());
+            tribeSummaryDto.setTitle(tribe.getAbbreviation());
+            tribeSummaryDto.setPerformanceGameScore(gameScore);
+            tribeSummaryDto.setPerformanceActivityScore(activityScore);
+            rowSummary.getModules().add(tribeSummaryDto);
+        }
+
+        Integer scoreActivityCP = Optional.ofNullable(activities.get(state))
+                .flatMap(list -> list.stream().findFirst())
+                .map(IPerformanceActivity::getScoreBasicCompetence)
+                .orElse(0);
+
+        rowSummary.getModules().add(createTribeSummaryDto(Pair.of(scoreActivityCP, 0)));
+        return rowSummary;
     }
 }
