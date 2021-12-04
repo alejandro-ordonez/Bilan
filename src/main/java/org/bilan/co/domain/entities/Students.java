@@ -38,7 +38,7 @@ public class Students extends UserInfo implements Serializable {
     private Colleges colleges;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "studentId")
+    @OneToMany(mappedBy = "studentId", fetch = FetchType.LAZY)
     private List<ResolvedAnswerBy> resolvedAnswerByList;
 
     @JsonIgnore
@@ -46,11 +46,11 @@ public class Students extends UserInfo implements Serializable {
     private StudentStats studentStats;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "idStudent")
+    @OneToMany(mappedBy = "idStudent", fetch = FetchType.LAZY)
     private List<Evidences> evidencesList;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "students")
+    @OneToMany(mappedBy = "students", fetch = FetchType.LAZY)
     private List<Sessions> sessions;
 
     @Transient

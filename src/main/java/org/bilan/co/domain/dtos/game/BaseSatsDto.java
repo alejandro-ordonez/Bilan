@@ -17,6 +17,7 @@ public class BaseSatsDto {
     private Integer currentCycle = 1;
     private Integer currentSpirits = 3;
     private String tribesBalance;
+    private Float timeInGame = 0f;
 
 
 }

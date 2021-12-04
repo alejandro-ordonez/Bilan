@@ -6,10 +6,7 @@ import org.bilan.co.domain.dtos.student.StudentDashboardDto;
 import org.bilan.co.domain.entities.Evaluation;
 import org.bilan.co.domain.entities.Evidences;
 import org.bilan.co.domain.entities.Students;
-import org.bilan.co.infraestructure.persistance.QuestionsRepository;
-import org.bilan.co.infraestructure.persistance.ResolvedAnswerByRepository;
-import org.bilan.co.infraestructure.persistance.StudentsRepository;
-import org.bilan.co.infraestructure.persistance.TribesRepository;
+import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +24,8 @@ public class StudentService implements IStudentService {
     private QuestionsRepository questionsRepository;
     @Autowired
     private StudentsRepository studentsRepository;
+    @Autowired
+    private StatsRepository statsRepository;
     @Autowired
     private ResolvedAnswerByRepository resolvedAnswerByRepository;
     @Autowired
@@ -56,7 +55,7 @@ public class StudentService implements IStudentService {
         float progress = (float) (totalCheckedQuestions + resolved) / (float) (totalQuestions + totalActivities);
         studentStatsRecord.setProgressActivities(progress);
 
-        studentStatsRecord.setTimeInApp(new Random().nextFloat());
+        studentStatsRecord.setTimeInApp(statsRepository.getTimeInApp(document));
 
 
         List<Evidences> evidences = evidenceRepository.getEvidencesEvaluated(document);

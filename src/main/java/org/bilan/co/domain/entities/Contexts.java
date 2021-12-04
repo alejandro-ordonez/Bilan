@@ -18,6 +18,6 @@ public class Contexts {
     @Column(name = "content")
     private String content;
 
-    @OneToMany(mappedBy = "contexts")
+    @OneToMany(mappedBy = "contexts", fetch = FetchType.LAZY)
     private List<Questions> questions;
 }

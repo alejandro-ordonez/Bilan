@@ -15,6 +15,6 @@ public class Privileges {
 
     private String name;
 
-    @ManyToMany(mappedBy = "privileges")
+    @ManyToMany(mappedBy = "privileges", fetch = FetchType.LAZY)
     private Collection<Roles> roles;
 }

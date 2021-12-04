@@ -56,17 +56,17 @@ public class Tribes implements Serializable {
     private Tribes adjacentTribeId;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "idTribe", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "idTribe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Questions> questions;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "tribeId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tribeId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<ResolvedAnswerBy> resolvedAnswerByList;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "tribe", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tribe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Classroom> classrooms;
 

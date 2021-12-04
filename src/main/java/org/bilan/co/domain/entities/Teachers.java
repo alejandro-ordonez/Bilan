@@ -37,7 +37,7 @@ public class Teachers extends UserInfo implements Serializable {
     private String codDaneSede;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Classroom> classrooms;
 
     @Transient

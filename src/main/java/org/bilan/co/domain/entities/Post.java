@@ -29,6 +29,6 @@ public class Post {
     @ManyToOne
     private UserInfo author;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Comment> comments;
 }
