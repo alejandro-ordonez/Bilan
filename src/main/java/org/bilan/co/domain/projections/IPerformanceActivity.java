@@ -2,9 +2,6 @@ package org.bilan.co.domain.projections;
 
 public interface IPerformanceActivity extends ISummary{
 
-    //Performance Game
-    Integer getScoreBasicCompetence();
-
     //Solve phase interactive
     Integer getInteractive();
 
