@@ -53,10 +53,6 @@ public class Questions implements Serializable {
     private String justification;
 
     @Lob
-    @Column
-    private String statements;
-
-    @Lob
     @Column(name = "error_message")
     private String errorMessage;
 

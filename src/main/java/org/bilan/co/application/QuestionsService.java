@@ -7,6 +7,7 @@ import org.bilan.co.domain.dtos.game.QuestionDto;
 import org.bilan.co.domain.dtos.game.QuestionRequestDto;
 import org.bilan.co.domain.dtos.game.ValidateQuestionDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.domain.entities.Contexts;
 import org.bilan.co.domain.entities.Questions;
 import org.bilan.co.infraestructure.persistance.AnswersRepository;
 import org.bilan.co.infraestructure.persistance.QuestionsRepository;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,7 +46,7 @@ public class QuestionsService implements IQuestionsService{
 
         String grade = studentsRepository.getGrade(authenticatedUser.getDocument());
 
-        List<List<Questions>> questions = questionsRepository.getQuestions(grade);
+        List<Questions> questions = questionsRepository.getQuestions(grade);
 
         return buildQuestionsResponse(questions);
     }
@@ -55,24 +57,30 @@ public class QuestionsService implements IQuestionsService{
 
         String grade = studentsRepository.getGrade(authenticatedUser.getDocument());
 
-        //TODO: Add condition to don't repeat questions.
+        //List<Questions> questions = questionsRepository.getQuestions();
 
-        List<List<Questions>> questions = questionsRepository.getQuestions(PageRequest.of(0,
-                        questionRequestDto.getNumberOfQuestions()),
-                        grade, questionRequestDto.getTribeId());
+        List<Questions> questions = questionsRepository.getQuestions(
+                questionRequestDto.getNumberOfQuestions(),
+                authenticatedUser.getDocument(),
+                grade,
+                questionRequestDto.getTribeId());
 
         return  buildQuestionsResponse(questions);
     }
 
-    private ResponseDto<List<QuestionDto>> buildQuestionsResponse(List<List<Questions>> questions){
+
+    private ResponseDto<List<QuestionDto>> buildQuestionsResponse(List<Questions> questions){
         final List<QuestionDto> questionsDto = new ArrayList<>();
 
-        questions.forEach(qs -> {
-            String context = qs.get(0).getContexts().getContent();
+        Map<Contexts, List<Questions>> questionsGrouped = questions.stream()
+                .collect(Collectors.groupingBy(Questions::getContexts));
+
+        questionsGrouped.forEach((context, qs) -> {
+            String contextContent = context.getContent();
 
             qs.forEach(q -> questionsDto.add(new QuestionDto(q.getId(),
                             q.getTitle(),
-                            context,
+                            contextContent,
                             q.getStatement(),
                             q.getErrorMessage(),
                             q.getJustification(),

@@ -8,14 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ResolvedAnswerByRepository extends JpaRepository<ResolvedAnswerBy, Integer> {
 
-    @Query(value = "SELECT COUNT(*) FROM " +
-            "( " +
-            "SELECT id, COUNT(CASE WHEN times >= 3 THEN 1 END) AS checked FROM " +
-            "   (" +
-            "       SELECT r.id, COUNT(*) AS times FROM resolved_answer_by r " +
-            "       LEFT JOIN answers a ON r.id_answer=a.id" +
-            "       WHERE a.is_correct=TRUE AND r.student_id_document=:document" +
-            "   ) AS results" +
-            ") AS results2", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM (SELECT q.id, SUM(a.is_correct) AS times_correct FROM questions q \n" +
+            "LEFT JOIN resolved_answer_by r ON q.id = r.id_question \n" +
+            "LEFT JOIN answers a ON r.id_answer = a.id \n" +
+            "WHERE r.student_id_document = '123456789'\n" +
+            "GROUP BY q.id) AS questions_completed WHERE times_correct >=3", nativeQuery = true)
     Integer getQuestionsCompleted(String document);
 }
