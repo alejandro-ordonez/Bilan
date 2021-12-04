@@ -15,13 +15,4 @@ public class StudentDashboardDto {
     private final Integer percentage;
     private final Integer timeInApp;
     private final List<TribeSummaryStudentDto> data;
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonInclude(NON_NULL)
-    public static class TribeSummaryStudentDto extends TribeSummaryDto {
-        private Integer preActivePhase;
-        private Integer postActivePhase;
-        private Integer interactivePhase;
-    }
 }

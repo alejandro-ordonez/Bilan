@@ -3,7 +3,9 @@ package org.bilan.co.api;
 
 import org.bilan.co.application.dashboards.IDashboardService;
 import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.dashboard.GovernmentDashboardDto;
+import org.bilan.co.domain.dtos.dashboard.CollegeDashboardDto;
+import org.bilan.co.domain.dtos.dashboard.GeneralDashboardDto;
+import org.bilan.co.domain.dtos.dashboard.GradeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.StudentDashboardDto;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.http.ResponseEntity;
@@ -27,33 +29,33 @@ public class DashboardController {
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/government/statistics")
-    public ResponseEntity<ResponseDto<GovernmentDashboardDto>> govStatistics() {
+    public ResponseEntity<ResponseDto<GeneralDashboardDto>> govStatistics() {
         return ResponseEntity.ok(dashboardService.govStatistics());
     }
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/government/state/statistics")
-    public ResponseEntity<ResponseDto<GovernmentDashboardDto>> govStateStatistics(@RequestParam String state) {
+    public ResponseEntity<ResponseDto<GeneralDashboardDto>> govStateStatistics(@RequestParam String state) {
         return ResponseEntity.ok(dashboardService.govStateStatistics(state));
     }
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/government/municipality/statistics")
-    public ResponseEntity<ResponseDto<GovernmentDashboardDto>> govMunStatistics(@RequestParam Integer munId) {
+    public ResponseEntity<ResponseDto<GeneralDashboardDto>> govMunStatistics(@RequestParam Integer munId) {
         return ResponseEntity.ok(dashboardService.govMunicipalityStatistics(munId));
     }
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/government/college/statistics")
-    public ResponseEntity<ResponseDto<GovernmentDashboardDto>> govCollegeStatistics(@RequestParam Integer collegeId) {
+    public ResponseEntity<ResponseDto<CollegeDashboardDto>> govCollegeStatistics(@RequestParam Integer collegeId) {
         return ResponseEntity.ok(dashboardService.govCollegeStatistics(collegeId));
     }
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/government/grade/statistics")
-    public ResponseEntity<ResponseDto<GovernmentDashboardDto>> govCourseGradeStatistics(@RequestParam Integer collegeId,
-                                                                                        @RequestParam String grade,
-                                                                                        @RequestParam Integer courseId) {
+    public ResponseEntity<ResponseDto<GradeDashboardDto>> govCourseGradeStatistics(@RequestParam Integer collegeId,
+                                                                                   @RequestParam String grade,
+                                                                                   @RequestParam Integer courseId) {
         return ResponseEntity.ok(dashboardService.govCourseGradeStatistics(collegeId, grade, courseId));
     }
 
