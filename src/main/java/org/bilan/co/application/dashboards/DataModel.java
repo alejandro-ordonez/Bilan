@@ -17,17 +17,17 @@ public class DataModel {
     }
 
     @Data
-    public static class GovernmentDashboard extends DefaultDataDashboard {
+    public static class MainDashboard extends DefaultDataDashboard {
         private List<String> states;
     }
 
     @Data
-    public static class GovernmentStateDashboard extends DefaultDataDashboard {
+    public static class StateDashboard extends DefaultDataDashboard {
         private List<IMunicipality> municipalities;
     }
 
     @Data
-    public static class GovernmentMunDashboard extends DefaultDataDashboard {
+    public static class MunicipalityDashboard extends DefaultDataDashboard {
         private List<ICollege> colleges;
     }
 

@@ -34,7 +34,7 @@ public class Students extends UserInfo implements Serializable {
     private Courses courses;
 
     @ManyToOne
-    @JoinColumn(name = "college_id",referencedColumnName = "id")
+    @JoinColumn(name = "college_id", referencedColumnName = "id")
     private Colleges colleges;
 
     @JsonIgnore
@@ -67,5 +67,9 @@ public class Students extends UserInfo implements Serializable {
         this.resolvedAnswerByList = resolvedAnswerByList;
         this.studentStats = studentStats;
         this.evidencesList = evidencesList;
+    }
+
+    public String fullName() {
+        return String.format("%s %s", this.name, this.lastName);
     }
 }

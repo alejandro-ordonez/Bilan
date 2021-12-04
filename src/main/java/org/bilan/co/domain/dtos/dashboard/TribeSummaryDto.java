@@ -10,7 +10,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @JsonInclude(NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TribeSummaryDto {
-    private Integer id;
+    private String id;
     private String title;
     private String name;
     private Integer performanceActivityScore;
