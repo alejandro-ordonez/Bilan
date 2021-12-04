@@ -102,8 +102,8 @@ final class Factories {
             tribeSummaryDto.setId(String.valueOf(tribe.getId()));
             tribeSummaryDto.setName(tribe.getName());
             tribeSummaryDto.setTitle(tribe.getAbbreviation());
-            tribeSummaryDto.setPerformanceActivityScore(Objects.isNull(activity) ? 0 : activity.getScorePerformanceActivity());
-            tribeSummaryDto.setPerformanceGameScore(Objects.isNull(game) ? 0 : game.getScorePerformance());
+            tribeSummaryDto.setPerformanceActivityScore(Objects.isNull(activity) ? 0 : activity.getScore());
+            tribeSummaryDto.setPerformanceGameScore(Objects.isNull(game) ? 0 : game.getScore());
             summary.add(tribeSummaryDto);
         }
 
@@ -136,12 +136,15 @@ final class Factories {
                 .stream().collect(Collectors.groupingBy(IPerformanceGame::getDocument));
 
         List<RowSummary<TribeSummaryDto>> summary = new ArrayList<>();
-        int percentage = 0;
+
+        int percentageActivities = 0;
+        int percentageGame = 0;
 
         for (Students student : info.getStudents()) {
             StudentDashboard infoStudent = getStudentDashboard(activities, games, student);
             StudentDashboardDto studentDashboard = Factories.createStudentDashboard(infoStudent);
-            percentage += studentDashboard.getPercentage();
+            percentageActivities += studentDashboard.getPercentage();
+            percentageGame += studentDashboard.getPercentageGame();
 
             RowSummary<TribeSummaryDto> rowSummary = new RowSummary<>();
             rowSummary.setId(student.getDocument());
@@ -157,7 +160,11 @@ final class Factories {
             summary.add(rowSummary);
         }
 
-        return new GradeDashboardDto((percentage / summary.size()), info.getStudents().size(), 0, summary);
+        float percentageActivitiesByGroup = percentageActivities / (float) (Constants.TOTAL_PHASES * info.getStudents().size());
+        float percentageActivitiesBy = percentageGame / (float) (Constants.TOTAL_QUESTIONS_BY_GRADE * info.getStudents().size());
+        float percentageGroup = (percentageActivitiesByGroup + percentageActivitiesBy) / 2;
+
+        return new GradeDashboardDto(((int) percentageGroup * 100), info.getStudents().size(), 0, summary);
     }
 
     /**
@@ -180,20 +187,25 @@ final class Factories {
             tribeStudentSummary.setId(String.valueOf(tribe.getId()));
             tribeStudentSummary.setName(tribe.getName());
             tribeStudentSummary.setTitle(tribe.getAbbreviation());
-            tribeStudentSummary.setPerformanceGameScore(Objects.isNull(game) ? 0 : game.getScorePerformance());
-            tribeStudentSummary.setPerformanceActivityScore(Objects.isNull(activity) ? 0 : activity.getScorePerformanceActivity());
+            tribeStudentSummary.setPerformanceGameScore(Objects.isNull(game) ? 0 : game.getScore());
+            tribeStudentSummary.setPerformanceActivityScore(Objects.isNull(activity) ? 0 : activity.getScore());
             tribeStudentSummary.setInteractivePhase(Objects.isNull(activity) ? 0 : activity.getInteractive());
             tribeStudentSummary.setPostActivePhase(Objects.isNull(activity) ? 0 : activity.getPostActive());
             tribeStudentSummary.setPreActivePhase(Objects.isNull(activity) ? 0 : activity.getPreActive());
             summary.add(tribeStudentSummary);
         }
 
-        double perCompletionAllTribes = info.getPerformanceActivities()
+        float perCompletionAllTribes = info.getPerformanceActivities()
                 .stream()
                 .mapToInt(activity -> activity.getInteractive() + activity.getPostActive() + activity.getPreActive())
-                .sum() / (double) Constants.TOTAL_PHASES;
+                .sum() / (float) Constants.TOTAL_PHASES;
 
-        return new StudentDashboardDto((int) (perCompletionAllTribes * 100), 0, summary);
+        float perCompletionGame = info.getPerformanceGames()
+                .stream()
+                .mapToInt(IPerformanceGame::getNumberQuestionsAnswered)
+                .sum() / (float) Constants.TOTAL_QUESTIONS_BY_GRADE;
+
+        return new StudentDashboardDto((int) (perCompletionAllTribes * 100), (int) (perCompletionGame * 100), 0, summary);
     }
 
     /**
@@ -275,8 +287,8 @@ final class Factories {
         for (Tribe tribe : Tribe.values()) {
             Optional<IPerformanceActivity> activity = byTribe(activities.get(state), tribe);
             Optional<IPerformanceGame> game = byTribe(games.get(state), tribe);
-            int gameScore = game.map(IPerformanceGame::getScorePerformance).orElse(0);
-            int activityScore = activity.map(IPerformanceActivity::getScorePerformanceActivity).orElse(0);
+            int gameScore = game.map(IPerformanceGame::getScore).orElse(0);
+            int activityScore = activity.map(IPerformanceActivity::getScore).orElse(0);
 
             TribeSummaryDto tribeSummaryDto = new TribeSummaryDto();
             tribeSummaryDto.setId(String.valueOf(tribe.getId()));

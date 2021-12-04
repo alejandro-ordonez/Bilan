@@ -1,5 +1,6 @@
 package org.bilan.co.domain.dtos.dashboard;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -13,6 +14,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @JsonInclude(NON_NULL)
 public class StudentDashboardDto {
     private final Integer percentage;
+    @JsonIgnore
+    private final Integer percentageGame;
     private final Integer timeInApp;
     private final List<TribeSummaryStudentDto> data;
 }
