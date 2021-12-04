@@ -110,6 +110,7 @@ final class Factories {
                     .orElse(0);
 
             rowSummary.getModules().add(createTribeSummaryDto(Pair.of(scoreActivityCP, 0)));
+            summaries.add(rowSummary);
         }
         return new GeneralDashboardDto(0, 0, summaries);
     }
