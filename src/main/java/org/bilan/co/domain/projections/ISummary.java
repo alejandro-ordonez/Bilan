@@ -5,6 +5,9 @@ public interface ISummary {
     //Score Performance Activity or Score Performance Game
     Integer getScore();
 
+    //Performance Game
+    Integer getScoreBasicCompetence();
+
     //MunicipalityId
     Integer getMunId();
 

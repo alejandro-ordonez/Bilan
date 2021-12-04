@@ -222,7 +222,13 @@ final class Factories {
                 .flatMap(list -> list.stream().findFirst())
                 .map(IPerformanceActivity::getScoreBasicCompetence)
                 .orElse(0);
-        return Pair.of(scoreActivityCP, 0);
+
+        Integer scoreGameCP = Optional.ofNullable(games.get(student.getDocument()))
+                .flatMap(list -> list.stream().findFirst())
+                .map(IPerformanceGame::getScoreBasicCompetence)
+                .orElse(0);
+
+        return Pair.of(scoreActivityCP, scoreGameCP);
     }
 
 
