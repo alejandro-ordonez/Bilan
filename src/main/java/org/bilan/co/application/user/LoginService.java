@@ -6,6 +6,7 @@
 
 package org.bilan.co.application.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
@@ -36,10 +37,24 @@ public class LoginService implements ILoginService {
 
         try {
             authenticate(new ObjectMapper().writeValueAsString(loginInfo), loginInfo.getPassword());
-        } catch (Exception e) {
+        } catch (BadCredentialsException e) {
             return ResponseEntity.badRequest().body(
                     new ResponseDtoBuilder<String>()
-                            .setDescription("Authentication Failed, the user couldn't be determined")
+                            .setDescription("Authentication Failed, bad credentials")
+                            .setCode(400)
+                            .setResult("")
+                            .createResponseDto());
+        } catch (DisabledException e){
+            return ResponseEntity.badRequest().body(
+                    new ResponseDtoBuilder<String>()
+                            .setDescription("Authentication Failed, the user is disabled")
+                            .setCode(400)
+                            .setResult("")
+                            .createResponseDto());
+        } catch (JsonProcessingException e){
+            return ResponseEntity.badRequest().body(
+                    new ResponseDtoBuilder<String>()
+                            .setDescription("Authentication Failed, error extracting the data")
                             .setCode(400)
                             .setResult("")
                             .createResponseDto());
@@ -52,16 +67,8 @@ public class LoginService implements ILoginService {
                         .createResponseDto());
     }
 
-    private void authenticate(String data, String password) throws Exception {
+    private void authenticate(String data, String password)  {
         log.info(password);
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(data, password));
-        } catch (DisabledException e) {
-            log.error("Failed authentication", e);
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            log.error("Failed authentication", e);
-            throw new Exception("INVALID_CREDENTIALS", e);
-        }
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(data, password));
     }
 }
