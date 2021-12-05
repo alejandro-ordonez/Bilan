@@ -20,6 +20,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +52,8 @@ public class UserService implements IUserService {
     private ClassroomRepository classroomRepository;
     @Autowired
     private CollegesRepository collegesRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -181,7 +184,7 @@ public class UserService implements IUserService {
         String document = user[0];
 
         if(!teachersRepository.existsById(document))
-            throw new IllegalArgumentException("Teacher not found");
+            throw new IllegalArgumentException("Teacher not found: "+ document);
 
 
         DocumentType documentType = DocumentType.valueOf(user[1]);
@@ -241,6 +244,7 @@ public class UserService implements IUserService {
         s.setCourses(courses);
         s.setRole(roles);
         s.setColleges(colleges);
+        s.setPassword(passwordEncoder.encode(document));
         s.setIsEnabled(true);
         s.setConfirmed(false);
 

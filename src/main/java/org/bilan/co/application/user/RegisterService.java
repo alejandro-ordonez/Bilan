@@ -197,6 +197,7 @@ public class RegisterService implements IRegisterService {
             studentsRepository.save(student);
             return userUpdated();
         } catch (Exception e) {
+            log.error("Error: ",e);
             return userNotRegistered();
         }
     }
@@ -205,16 +206,8 @@ public class RegisterService implements IRegisterService {
     private Students updateFieldsStudent(AuthDto authDto, Students student) {
         String encryptedPassword = passwordEncoder.encode(authDto.getPassword());
         student.setPassword(encryptedPassword);
-        student.setGrade(authDto.getGrade());
-        Courses course = new Courses();
-        course.setId(authDto.getCourseId());
-        student.setCourses(course);
         student.setConfirmed(true);
-        student.setModifiedAt(new Date());
         student.setEmail(authDto.getEmail());
-        Colleges colleges = new Colleges();
-        colleges.setId(authDto.getCollegeId());
-        student.setColleges(colleges);
         return student;
     }
 
