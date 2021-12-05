@@ -2,17 +2,16 @@ package org.bilan.co.api;
 
 import org.bilan.co.application.forums.IForumsService;
 import org.bilan.co.domain.dtos.ResponseDto;
-import org.bilan.co.domain.dtos.forums.PostResponseDto;
-import org.bilan.co.domain.dtos.forums.PublishCommentDto;
+import org.bilan.co.domain.dtos.common.PagedResponse;
+import org.bilan.co.domain.dtos.forums.CommentDto;
 import org.bilan.co.domain.dtos.forums.PostDto;
+import org.bilan.co.domain.dtos.forums.PublishCommentDto;
 import org.bilan.co.domain.dtos.forums.PublishPostDto;
 import org.bilan.co.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/forums")
@@ -40,10 +39,17 @@ public class ForumsController {
 
     @PreAuthorize("hasAnyAuthority('TEACHER', 'STUDENT')")
     @GetMapping("/threads")
-    public ResponseEntity<ResponseDto<PostResponseDto>> getThreads(@RequestParam("page") Integer page){
+    public ResponseEntity<ResponseDto<PagedResponse<PostDto>>> getThreads(@RequestParam("page") Integer page){
 
-        ResponseDto<PostResponseDto> posts = forumService.getPosts(page);
+        ResponseDto<PagedResponse<PostDto>> posts = forumService.getPosts(page);
         return ResponseEntity.status(posts.getCode()).body(posts);
+    }
+
+    @GetMapping("/post")
+    public ResponseEntity<ResponseDto<PagedResponse<CommentDto>>> getCommentsFromPost(@RequestParam("postId") Integer postId,
+                                                                                      @RequestParam("page") Integer page){
+        ResponseDto<PagedResponse<CommentDto>> comments = forumService.getComments(postId, page);
+        return ResponseEntity.status(comments.getCode()).body(comments);
     }
 
 
