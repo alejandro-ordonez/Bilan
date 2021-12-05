@@ -1,6 +1,7 @@
 package org.bilan.co.application.forums;
 
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.forums.*;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.entities.Comment;
@@ -15,8 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
-import java.awt.print.Pageable;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,13 +60,17 @@ public class ForumService implements IForumsService{
         Post post = new Post();
         post.setId(publishCommentDto.getPostId());
 
+        comment.setPost(post);
+
         commentRepository.save(comment);
 
         return new ResponseDto<>("Comment added successfully", 200, "");
     }
 
     @Override
-    public ResponseDto<PostResponseDto> getPosts(Integer page) {
+    public ResponseDto<PagedResponse<PostDto>> getPosts(Integer page) {
+
+        Objects.requireNonNull(page);
 
         Page<Post> posts = postRepository.getPosts(PageRequest.of(page, 10));
 
@@ -73,11 +78,31 @@ public class ForumService implements IForumsService{
                 .stream()
                 .collect(Collectors.toList());
 
-        PostResponseDto postResponseDto = new PostResponseDto();
+        PagedResponse<PostDto> postResponseDto = new PagedResponse<>();
         postResponseDto.setNPages(posts.getTotalPages());
-        postResponseDto.setPosts(postsDto);
+        postResponseDto.setData(postsDto);
 
         return new ResponseDto<>("Posts retrieved, page "+page, 200, postResponseDto);
+    }
+
+    @Override
+    public ResponseDto<PagedResponse<CommentDto>> getComments(Integer postId, Integer page) {
+
+        Objects.requireNonNull(postId);
+        Objects.requireNonNull(page);
+
+        Page<Comment> comments = commentRepository.getCommentsByPostId(PageRequest.of(page, 10) ,postId);
+
+        PagedResponse<CommentDto> response = new PagedResponse<>();
+        response.setNPages(comments.getTotalPages());
+
+        List<CommentDto> commentsDto = comments
+                .stream().map(this::getCommentDto)
+                .collect(Collectors.toList());
+
+        response.setData(commentsDto);
+
+        return new ResponseDto<>("Comments retrieved successfully", 200, response);
     }
 
     private PostDto getPostDto(Post post){
@@ -85,12 +110,8 @@ public class ForumService implements IForumsService{
         postDto.setAuthor(post.getAuthor().getName() + " " + post.getAuthor().getLastName());
         postDto.setTitle(post.getTitle());
         postDto.setContent(post.getContent());
-
-        List<CommentDto> commentsDto = post.getComments()
-                .stream().map(this::getCommentDto)
-                .collect(Collectors.toList());
-
-        postDto.setCommentDtoList(commentsDto);
+        postDto.setCreatedAt(post.getCreatedAt());
+        postDto.setId(post.getId());
         postDto.setUserType(getUserType(post.getAuthor().getRole().getId()));
 
         return postDto;
@@ -101,6 +122,8 @@ public class ForumService implements IForumsService{
         CommentDto commentDto = new CommentDto();
         commentDto.setAuthor(c.getAuthor().getName() + " " + c.getAuthor().getLastName());
         commentDto.setContent(c.getContent());
+        commentDto.setCreatedAt(c.getCreatedAt());
+        commentDto.setId(c.getId());
 
         commentDto.setUserType(getUserType(c.getAuthor().getRole().getId()));
 

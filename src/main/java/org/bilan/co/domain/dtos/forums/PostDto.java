@@ -10,6 +10,5 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class PostDto extends CommentDto{
-    List<CommentDto> commentDtoList;
     private String title;
 }
