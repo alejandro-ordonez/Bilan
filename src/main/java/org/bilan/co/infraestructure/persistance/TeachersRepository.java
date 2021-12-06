@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface TeachersRepository extends JpaRepository<Teachers, String> {
 
-    @Query(value = "SELECT ui.*" +
+    @Query(value = "SELECT ui.*, t.*" +
             "  FROM teachers t" +
             "  JOIN user_info ui " +
             "    ON t.document = ui.document "+
