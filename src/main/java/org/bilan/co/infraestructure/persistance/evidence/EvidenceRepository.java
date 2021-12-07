@@ -18,7 +18,7 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
             "     , ui.name AS name" +
             "     , ui.last_name AS lastName" +
             "     , e.created_at AS uploadedDate" +
-            "     , e.file_name as fileEvidenceId" +
+            "     , e.file_name as fileNameEvidence " +
             "     , CASE WHEN ev.id IS NULL THEN false ELSE true END AS hasEvaluation" +
             "  FROM evidences e   " +
             "  JOIN students s" +
