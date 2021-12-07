@@ -12,6 +12,7 @@ import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.domain.enums.BucketName;
 import org.bilan.co.domain.enums.Phase;
 import org.bilan.co.domain.projections.IEvidence;
+import org.bilan.co.domain.utils.Tuple;
 import org.bilan.co.infraestructure.persistance.EvaluationRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
@@ -47,13 +48,14 @@ public class EvidenceService implements IEvidenceService {
     @Override
     public ResponseDto<String> upload(Phase phase, Long tribeId,
                                       MultipartFile file, AuthenticatedUserDto user) {
-        String path = String.format("%s/%s", BucketName.BILAN_EVIDENCES.getBucketName(), UUID.randomUUID());
-        String fileName = String.format("%s", file.getOriginalFilename());
+        UUID newFileId = UUID.randomUUID();
+        String path = String.format("%s/%s", BucketName.BILAN_EVIDENCES.getBucketName(), newFileId);
         try {
-            fileStore.upload(path, fileName, Collections.emptyMap(), file.getInputStream());
-            Evidences evidence = Factories.newEvidence(phase, tribeId, path, fileName, user.getDocument());
+            fileStore.upload(path, newFileId.toString(), Collections.emptyMap(), file.getInputStream());
+            Evidences evidence = Factories.newEvidence(phase, tribeId, path, newFileId.toString(), user.getDocument(),
+                    file.getContentType());
             evidenceRepository.save(evidence);
-            return new ResponseDto<>("Upload successful", HttpStatus.OK.value(), evidence.getId().toString());
+            return new ResponseDto<>("Upload successful", HttpStatus.OK.value(), newFileId.toString());
         } catch (IOException e) {
             return new ResponseDto<>("Something was wrong by uploading the file",
                     HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
@@ -72,7 +74,6 @@ public class EvidenceService implements IEvidenceService {
                 .orElse(new ResponseDto<>(Constants.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND.value(), ""));
     }
 
-
     @Override
     public ResponseDto<List<IEvidence>> filter(FilterEvidence filter, AuthenticatedUserDto user) {
         return this.evidenceRepository.filter(filter.getGrade(), filter.getTribeId(), filter.getCourseId(),
@@ -84,11 +85,11 @@ public class EvidenceService implements IEvidenceService {
     }
 
     @Override
-    public byte[] download(Long evidenceId) {
+    public Optional<Tuple<byte[], String>> download(String evidenceId) {
         return this.evidenceRepository
-                .findById(evidenceId)
-                .map(evidences1 -> fileStore.download(evidences1.getPath(), evidences1.getFileName()))
-                .orElse("".getBytes());
+                .findByFileName(evidenceId)
+                .map(evidences1 -> Tuple.of(fileStore.download(evidences1.getPath(),
+                        evidences1.getFileName()), evidences1.getFileType()));
     }
 
     @Data

@@ -18,7 +18,7 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
             "     , ui.name AS name" +
             "     , ui.last_name AS lastName" +
             "     , e.created_at AS uploadedDate" +
-            "     , e.id as evidenceId" +
+            "     , e.file_name as fileNameEvidence " +
             "     , CASE WHEN ev.id IS NULL THEN false ELSE true END AS hasEvaluation" +
             "  FROM evidences e   " +
             "  JOIN students s" +
@@ -51,4 +51,6 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
             "WHERE e.idStudent.document=:document AND " +
             "e.evaluations.size>=1")
     List<Evidences> getEvidencesEvaluated(String document);
+
+    Optional<Evidences> findByFileName(String fileName);
 }

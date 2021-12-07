@@ -5,6 +5,6 @@ public interface IEvidence {
     String getName();
     String getLastName();
     String getUploadedDate();
-    String getEvidenceId();
+    String getFileNameEvidence();
     Integer getHasEvaluation();
 }

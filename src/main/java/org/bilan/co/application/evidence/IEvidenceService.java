@@ -5,9 +5,11 @@ import org.bilan.co.domain.dtos.teacher.EvaluationDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.enums.Phase;
 import org.bilan.co.domain.projections.IEvidence;
+import org.bilan.co.domain.utils.Tuple;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IEvidenceService {
 
@@ -17,5 +19,5 @@ public interface IEvidenceService {
 
     ResponseDto<List<IEvidence>> filter(EvidenceService.FilterEvidence filter, AuthenticatedUserDto user);
 
-    byte[] download(Long evidenceId);
+    Optional<Tuple<byte[], String>> download(String fileNameEvidence);
 }

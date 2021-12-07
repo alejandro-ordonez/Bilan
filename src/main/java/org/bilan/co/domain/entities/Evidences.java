@@ -51,6 +51,11 @@ public class Evidences implements Serializable {
     @Column(name = "file_name", nullable = false)
     private String fileName;
 
+    @NotNull
+    @Size(max = 255)
+    @Column(name = "file_type", nullable = false)
+    private String fileType;
+
     @JoinColumn(name = "id_student", referencedColumnName = "document")
     @ManyToOne
     private Students idStudent;
