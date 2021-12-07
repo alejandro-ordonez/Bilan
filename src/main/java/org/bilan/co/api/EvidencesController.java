@@ -9,6 +9,7 @@ import org.bilan.co.domain.enums.Phase;
 import org.bilan.co.domain.projections.IEvidence;
 import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,8 +65,10 @@ public class EvidencesController {
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/download/{id}")
-    public byte[] download(@PathVariable("id") Long id,
+    public ResponseEntity<byte[]> download(@PathVariable("id") Long id,
                            @RequestHeader(Constants.AUTHORIZATION) String token) {
-        return this.evidenceService.download(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + id + "\"")
+                .body(this.evidenceService.download(id));
     }
 }
