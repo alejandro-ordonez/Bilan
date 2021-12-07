@@ -101,6 +101,7 @@ public class TeacherService implements ITeacherService{
                     classRoomDto.setCourseId(c.getCourse().getId());
                     classRoomDto.setGrade(c.getGrade());
                     classRoomDto.setTribeId(c.getTribe().getId());
+                    classRoomDto.setCollegeName(c.getCollege().getName());
                     return classRoomDto;
                 })
                 .collect(Collectors.toList());
