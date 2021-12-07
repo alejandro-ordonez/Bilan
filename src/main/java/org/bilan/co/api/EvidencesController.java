@@ -7,6 +7,7 @@ import org.bilan.co.domain.dtos.teacher.EvaluationDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.enums.Phase;
 import org.bilan.co.domain.projections.IEvidence;
+import org.bilan.co.domain.utils.Tuple;
 import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/evidences")
@@ -65,10 +67,12 @@ public class EvidencesController {
 
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/download/{id}")
-    public ResponseEntity<byte[]> download(@PathVariable("id") Long id,
-                           @RequestHeader(Constants.AUTHORIZATION) String token) {
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + id + "\"")
-                .body(this.evidenceService.download(id));
+    public ResponseEntity<byte[]> download(@PathVariable("id") String fileNameEvidence,
+                                           @RequestHeader(Constants.AUTHORIZATION) String token) {
+        return this.evidenceService.download(fileNameEvidence)
+                .map(data -> ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, data.getValue2())
+                        .body(data.getValue1()))
+                .orElse(ResponseEntity.notFound().build());
     }
 }
