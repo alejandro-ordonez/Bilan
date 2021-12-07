@@ -275,6 +275,8 @@ public class UserService implements IUserService {
                 return studentsRepository.findById(authDto.getDocument()).orElse(null);
             case Min:
                 return minUserRepository.findById(authDto.getDocument()).orElse(null);
+            case Admin:
+                return userInfoRepository.findById(authDto.getDocument()).orElse(null);
             default:
                 return null;
         }
