@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
+import org.bilan.co.domain.utils.Tuple;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

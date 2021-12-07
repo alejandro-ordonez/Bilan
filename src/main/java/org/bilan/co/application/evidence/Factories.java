@@ -24,7 +24,8 @@ final class Factories {
         return evaluation;
     }
 
-    public static Evidences newEvidence(Phase phase, Long tribeId, String path, String fileName, String studentId) {
+    public static Evidences newEvidence(Phase phase, Long tribeId, String path, String fileName,
+                                        String studentId, String fileType) {
         Students student = new Students();
         student.setDocument(studentId);
         Tribes tribe = new Tribes();
@@ -34,6 +35,7 @@ final class Factories {
         evidence.setIdStudent(student);
         evidence.setPath(path);
         evidence.setFileName(fileName);
+        evidence.setFileType(fileType);
         evidence.setTribe(tribe);
         evidence.setPhase(phase);
         return evidence;
