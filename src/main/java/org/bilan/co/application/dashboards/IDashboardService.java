@@ -7,7 +7,6 @@ import org.bilan.co.domain.dtos.dashboard.GradeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.StudentDashboardDto;
 import org.springframework.data.domain.PageRequest;
 
-@SuppressWarnings("rawtypes")
 public interface IDashboardService {
 
     ResponseDto<GeneralDashboardDto> govStatistics();
