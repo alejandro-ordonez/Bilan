@@ -54,6 +54,8 @@ public class UserService implements IUserService {
     private CollegesRepository collegesRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AdminRepository adminRepository;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -276,7 +278,7 @@ public class UserService implements IUserService {
             case Min:
                 return minUserRepository.findById(authDto.getDocument()).orElse(null);
             case Admin:
-                return userInfoRepository.findById(authDto.getDocument()).orElse(null);
+                return adminRepository.findById(authDto.getDocument()).orElse(null);
             default:
                 return null;
         }
