@@ -24,11 +24,17 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class Factories {
 
+    private static final List<Object[]> EMPTY_LIST = Collections.singletonList(new Object[]{0, 0, 0});
+
     /**
      * @param info
      * @return
      */
     public static GeneralDashboardDto createMainDashboard(MainDashboard info) {
+
+        Map<String, List<Object[]>> logins = info.getLogins().stream()
+                .collect(Collectors.groupingBy(objects -> objects[0].toString()));
+
         Map<String, List<IPerformanceActivity>> activities = info.getPerformanceActivities()
                 .stream().collect(Collectors.groupingBy(IPerformanceActivity::getState));
 
@@ -36,7 +42,7 @@ final class Factories {
                 .stream().collect(Collectors.groupingBy(IPerformanceGame::getState));
 
         List<RowSummary<TribeSummaryDto>> summaries = info.getStates().parallelStream()
-                .map(state -> createRowSummary(activities, games, state, null, state))
+                .map(state -> createRowSummary(activities, games, logins, state, state, state))
                 .collect(Collectors.toList());
 
         return GeneralDashboardDto.builder().data(summaries).timeInApp(0).students(0).build();
@@ -47,6 +53,10 @@ final class Factories {
      * @return
      */
     public static GeneralDashboardDto createStateDashboard(StateDashboard info) {
+
+        Map<Integer, List<Object[]>> logins = info.getLogins().stream()
+                .collect(Collectors.groupingBy(objects -> (Integer) objects[0]));
+
         Map<Integer, List<IPerformanceActivity>> activities = info.getPerformanceActivities()
                 .stream().collect(Collectors.groupingBy(IPerformanceActivity::getMunId));
 
@@ -54,7 +64,7 @@ final class Factories {
                 .stream().collect(Collectors.groupingBy(IPerformanceGame::getMunId));
 
         List<RowSummary<TribeSummaryDto>> summaries = info.getMunicipalities().parallelStream()
-                .map(municipality -> createRowSummary(activities, games, municipality.getName(),
+                .map(municipality -> createRowSummary(activities, games, logins, municipality.getName(),
                         String.valueOf(municipality.getId()), municipality.getId()))
                 .collect(Collectors.toList());
 
@@ -66,7 +76,11 @@ final class Factories {
      * @param pageRequest
      * @return
      */
-    public static GeneralDashboardDto createMunicipalityDashboard(MunicipalityDashboard info, PageRequest pageRequest) {
+    public static GeneralDashboardDto createMunicipalityDashboard(MunicipalityDashboard info,
+                                                                  PageRequest pageRequest) {
+
+        Map<Integer, List<Object[]>> logins = info.getLogins().stream()
+                .collect(Collectors.groupingBy(objects -> (Integer) objects[0]));
 
         Map<Integer, List<IPerformanceActivity>> activities = info.getPerformanceActivities()
                 .stream().collect(Collectors.groupingBy(IPerformanceActivity::getCollegeId));
@@ -75,7 +89,7 @@ final class Factories {
                 .stream().collect(Collectors.groupingBy(IPerformanceGame::getCollegeId));
 
         List<RowSummary<TribeSummaryDto>> summaries = info.getColleges().parallelStream()
-                .map(college -> createRowSummary(activities, games, college.getName(),
+                .map(college -> createRowSummary(activities, games, logins, college.getName(),
                         String.valueOf(college.getId()), college.getId()))
                 .collect(Collectors.toList());
 
@@ -93,6 +107,9 @@ final class Factories {
      */
     public static CollegeDashboardDto createCollegeDashboard(CollegeDashboard info) {
 
+        Map<Integer, List<Object[]>> logins = info.getLogins().stream()
+                .collect(Collectors.groupingBy(objects -> (Integer) objects[0]));
+
         Map<Integer, IPerformanceActivity> activities = info.getPerformanceActivities()
                 .stream().collect(Collectors.toMap(IPerformanceActivity::getId, Function.identity()));
 
@@ -100,6 +117,7 @@ final class Factories {
                 .stream().collect(Collectors.toMap(IPerformanceGame::getId, Function.identity()));
 
         List<TribeSummaryDto> summary = new ArrayList<>();
+        Object[] loginStudentsByTribe;
         for (Tribe tribe : Tribe.values()) {
             IPerformanceActivity activity = activities.get(tribe.getId());
             IPerformanceGame game = games.get(tribe.getId());
@@ -109,6 +127,8 @@ final class Factories {
             tribeSummaryDto.setTitle(tribe.getAbbreviation());
             tribeSummaryDto.setPerformanceActivityScore(Objects.isNull(activity) ? 0 : activity.getScore());
             tribeSummaryDto.setPerformanceGameScore(Objects.isNull(game) ? 0 : game.getScore());
+            loginStudentsByTribe = logins.getOrDefault(tribe.getId(), EMPTY_LIST).get(0);
+            tribeSummaryDto.setLogins(String.format("%s/%s", loginStudentsByTribe[1], loginStudentsByTribe[2]));
             summary.add(tribeSummaryDto);
         }
 
@@ -134,6 +154,9 @@ final class Factories {
      */
     public static GradeDashboardDto createCourseGradeDashboard(CourseGradeDashboard info) {
 
+        Map<String, List<Object[]>> logins = info.getLogins().stream()
+                .collect(Collectors.groupingBy(objects -> objects[0].toString()));
+
         Map<String, List<IPerformanceActivity>> activities = info.getPerformanceActivities()
                 .stream().collect(Collectors.groupingBy(IPerformanceActivity::getDocument));
 
@@ -154,6 +177,7 @@ final class Factories {
             RowSummary<TribeSummaryDto> rowSummary = new RowSummary<>();
             rowSummary.setId(student.getDocument());
             rowSummary.setName(student.fullName());
+            rowSummary.setLogins(logins.getOrDefault(student.getDocument(), EMPTY_LIST).get(0)[1]);
 
             List<TribeSummaryDto> tribeSummary = studentDashboard.getData().stream()
                     .map(TribeSummaryStudentDto::cleanPhases).collect(Collectors.toList());
@@ -274,19 +298,27 @@ final class Factories {
     }
 
     /**
+     *
      * @param activities
      * @param games
+     * @param logins
      * @param name
+     * @param id
      * @param state
      * @param <T>
      * @return
      */
     private static <T> RowSummary<TribeSummaryDto> createRowSummary(Map<T, List<IPerformanceActivity>> activities,
                                                                     Map<T, List<IPerformanceGame>> games,
+                                                                    Map<T, List<Object[]>> logins,
                                                                     String name, String id, T state) {
+
+        Object[] login = logins.getOrDefault(state, EMPTY_LIST).get(0);
+
         RowSummary<TribeSummaryDto> rowSummary = new RowSummary<>();
         rowSummary.setId(id);
         rowSummary.setName(name);
+        rowSummary.setLogins(String.format("%s/%s", login[1], login[2]));
         rowSummary.setModules(new ArrayList<>());
 
         for (Tribe tribe : Tribe.values()) {

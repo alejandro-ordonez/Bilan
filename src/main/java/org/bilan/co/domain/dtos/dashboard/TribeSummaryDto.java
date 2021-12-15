@@ -13,6 +13,7 @@ public class TribeSummaryDto {
     private String id;
     private String title;
     private String name;
+    private String logins;
     private Integer performanceActivityScore;
     private Integer performanceGameScore;
 }

@@ -9,15 +9,15 @@ import org.springframework.data.domain.PageRequest;
 
 public interface IDashboardService {
 
-    ResponseDto<GeneralDashboardDto> govStatistics();
+    ResponseDto<GeneralDashboardDto> statistics();
 
-    ResponseDto<GeneralDashboardDto> govStateStatistics(String state);
+    ResponseDto<GeneralDashboardDto> stateStatistics(String state);
 
-    ResponseDto<GeneralDashboardDto> govMunicipalityStatistics(Integer munId, PageRequest page);
+    ResponseDto<GeneralDashboardDto> municipalityStatistics(Integer munId, PageRequest page);
 
-    ResponseDto<CollegeDashboardDto> govCollegeStatistics(Integer collegeId);
+    ResponseDto<CollegeDashboardDto> collegeStatistics(Integer collegeId);
 
-    ResponseDto<GradeDashboardDto> govCourseGradeStatistics(Integer collegeId, String grade, Integer courseId);
+    ResponseDto<GradeDashboardDto> courseGradeStatistics(Integer collegeId, String grade, Integer courseId);
 
-    ResponseDto<StudentDashboardDto> govStudentStatistics(String document);
+    ResponseDto<StudentDashboardDto> studentStatistics(String document);
 }
