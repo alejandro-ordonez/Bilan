@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/dashboard")
+@RequestMapping("/dashboard/statistics")
 public class DashboardController {
 
     private final IDashboardService dashboardService;
@@ -30,42 +30,42 @@ public class DashboardController {
     }
 
     @PreAuthorize("hasAuthority('MIN_USER')")
-    @GetMapping("/government/statistics")
-    public ResponseEntity<ResponseDto<GeneralDashboardDto>> govStatistics() {
-        return ResponseEntity.ok(dashboardService.govStatistics());
+    @GetMapping
+    public ResponseEntity<ResponseDto<GeneralDashboardDto>> statistics() {
+        return ResponseEntity.ok(dashboardService.statistics());
     }
 
     @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU')")
-    @GetMapping("/government/state/statistics")
-    public ResponseEntity<ResponseDto<GeneralDashboardDto>> govStateStatistics(@RequestParam String state) {
-        return ResponseEntity.ok(dashboardService.govStateStatistics(state));
+    @GetMapping("/state")
+    public ResponseEntity<ResponseDto<GeneralDashboardDto>> stateStatistics(@RequestParam String state) {
+        return ResponseEntity.ok(dashboardService.stateStatistics(state));
     }
 
     @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU')")
-    @GetMapping("/government/municipality/statistics")
-    public ResponseEntity<ResponseDto<GeneralDashboardDto>> govMunStatistics(@RequestParam Integer munId,
-                                                                             @RequestParam(defaultValue = "0") Integer page) {
-        return ResponseEntity.ok(dashboardService.govMunicipalityStatistics(munId, PageRequest.of(Math.max(0, page),
+    @GetMapping("/municipality")
+    public ResponseEntity<ResponseDto<GeneralDashboardDto>> munStatistics(@RequestParam Integer munId,
+                                                                          @RequestParam(defaultValue = "0") Integer page) {
+        return ResponseEntity.ok(dashboardService.municipalityStatistics(munId, PageRequest.of(Math.max(0, page),
                 Constants.MAX_SIZE_PAGE)));
     }
 
     @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER')")
-    @GetMapping("/government/college/statistics")
-    public ResponseEntity<ResponseDto<CollegeDashboardDto>> govCollegeStatistics(@RequestParam Integer collegeId) {
-        return ResponseEntity.ok(dashboardService.govCollegeStatistics(collegeId));
+    @GetMapping("/college")
+    public ResponseEntity<ResponseDto<CollegeDashboardDto>> collegeStatistics(@RequestParam Integer collegeId) {
+        return ResponseEntity.ok(dashboardService.collegeStatistics(collegeId));
     }
 
     @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER')")
-    @GetMapping("/government/grade/statistics")
-    public ResponseEntity<ResponseDto<GradeDashboardDto>> govCourseGradeStatistics(@RequestParam Integer collegeId,
-                                                                                   @RequestParam String grade,
-                                                                                   @RequestParam Integer courseId) {
-        return ResponseEntity.ok(dashboardService.govCourseGradeStatistics(collegeId, grade, courseId));
+    @GetMapping("/grade")
+    public ResponseEntity<ResponseDto<GradeDashboardDto>> courseGradeStatistics(@RequestParam Integer collegeId,
+                                                                                @RequestParam String grade,
+                                                                                @RequestParam Integer courseId) {
+        return ResponseEntity.ok(dashboardService.courseGradeStatistics(collegeId, grade, courseId));
     }
 
     @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER', 'STUDENT')")
-    @GetMapping("/government/student/statistics")
-    public ResponseEntity<ResponseDto<StudentDashboardDto>> govStudentStatistics(@RequestParam String document) {
-        return ResponseEntity.ok(dashboardService.govStudentStatistics(document));
+    @GetMapping("/student")
+    public ResponseEntity<ResponseDto<StudentDashboardDto>> studentStatistics(@RequestParam String document) {
+        return ResponseEntity.ok(dashboardService.studentStatistics(document));
     }
 }

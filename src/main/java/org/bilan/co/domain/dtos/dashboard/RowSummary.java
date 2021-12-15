@@ -14,5 +14,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public class RowSummary<T> {
     private String id;
     private String name;
+    private Object logins;
     private List<T> modules;
 }
