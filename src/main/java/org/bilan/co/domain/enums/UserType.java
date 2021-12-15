@@ -9,10 +9,11 @@ import java.util.Arrays;
 @Getter
 public enum UserType {
     Teacher("TEACHER"),
-    DirectiveUser("DIRECT_TEACHER"),
+    DirectiveTeacher("DIRECT_TEACHER"),
     Student("STUDENT"),
-    Min("SEC_EDU"),
+    MinUser("MIN_USER"),
     Admin("ADMIN"),
+    SecEdu("SEC_EDU"),
     Unknown("");
     private final String role;
 

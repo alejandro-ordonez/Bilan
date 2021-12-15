@@ -8,5 +8,5 @@ import javax.persistence.Transient;
 @Entity
 public class MinUser extends UserInfo {
     @Transient
-    private UserType userType = UserType.Min;
+    private final UserType userType = UserType.MinUser;
 }

@@ -88,6 +88,7 @@ public class UserService implements IUserService {
         result.setDocument(user.getDocument());
         result.setLastName(user.getLastName());
         result.setDocumentType(user.getDocumentType());
+        result.setGrantedAuthorities(getAuthorities(user.getRole()));
         result.setUserType(UserType.findByRol(user.getRole().getName()));
 
         return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
@@ -269,19 +270,17 @@ public class UserService implements IUserService {
 
     private UserInfo getUser(AuthenticatedUserDto authDto) {
         log.info("Getting userInfo");
-        switch (authDto.getUserType()) {
-            case DirectiveUser:
-            case Teacher:
-                return teachersRepository.findById(authDto.getDocument()).orElse(null);
-            case Student:
-                return studentsRepository.findById(authDto.getDocument()).orElse(null);
-            case Min:
-                return minUserRepository.findById(authDto.getDocument()).orElse(null);
-            case Admin:
-                return adminRepository.findById(authDto.getDocument()).orElse(null);
-            default:
-                return null;
-        }
+
+        Optional<UserInfo> userInfo = userInfoRepository.findById(authDto.getDocument());
+        if(!userInfo.isPresent())
+            return null;
+
+        UserType userType = UserType.findByRol(userInfo.get().getRole().getName());
+
+        if(userType!= authDto.getUserType())
+            return null;
+
+        return userInfo.get();
     }
 
     @Override
