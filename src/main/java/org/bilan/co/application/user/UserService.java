@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
+import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnableUser;
 import org.bilan.co.domain.dtos.user.UserInfoDto;
@@ -15,6 +16,8 @@ import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -27,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -82,6 +86,13 @@ public class UserService implements IUserService {
             return new ResponseDto<>("The user info couldn't be found", 404, null);
         }
 
+        UserInfoDto result = parseUser(user);
+
+        return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
+                .createResponseDto();
+    }
+
+    private UserInfoDto parseUser(UserInfo user){
         UserInfoDto result = new UserInfoDto();
         result.setEmail(user.getEmail());
         result.setName(user.getName());
@@ -91,8 +102,7 @@ public class UserService implements IUserService {
         result.setGrantedAuthorities(getAuthorities(user.getRole()));
         result.setUserType(UserType.findByRol(user.getRole().getName()));
 
-        return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
-                .createResponseDto();
+        return result;
     }
 
     @Override
@@ -128,6 +138,32 @@ public class UserService implements IUserService {
 
         return loadUsersFromFile(file, userType, colleges);
 
+    }
+
+    @Override
+    public ResponseDto<PagedResponse<UserInfoDto>> getUsersAdmin(Integer nPage, String partialDocument) {
+
+        Page<UserInfo> query;
+
+        if(partialDocument == null)
+                query = userInfoRepository.getUsersAdmin(PageRequest.of(nPage, 10));
+
+        else{
+            query = userInfoRepository.searchUsersWithDocument(PageRequest.of(nPage, 10), partialDocument);
+        }
+
+
+        PagedResponse<UserInfoDto> userInfoDtoPagedResponse = new PagedResponse<>();
+        userInfoDtoPagedResponse.setNPages(query.getTotalPages());
+
+        List<UserInfoDto> users = query.getContent()
+                .stream()
+                .map(this::parseUser)
+                .collect(Collectors.toList());
+
+        userInfoDtoPagedResponse.setData(users);
+
+        return new ResponseDto<>("Users retrieved successfully", 200, userInfoDtoPagedResponse);
     }
 
     private ResponseDto<String> loadUsersFromFile(MultipartFile file, UserType userType, Colleges colleges){
