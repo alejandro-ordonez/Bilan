@@ -15,14 +15,13 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, String> {
             "WHERE u.document = :document")
     boolean updateState(String document, Boolean enabled);
 
-    @Query(value = "SELECT * FROM user_info u WHERE u.role_id = 4 OR u.role_id = 5 OR u.role_id = 6",
-            countQuery = "SELECT COUNT(*) FROM user_info u WHERE u.role_id = 4 OR u.role_id = 5 OR u.role_id = 6",
-            nativeQuery = true)
+    @Query("SELECT u FROM UserInfo u " +
+            "WHERE u.role.id = 4 OR u.role.id = 5 OR u.role.id = 6")
     Page<UserInfo> getUsersAdmin(Pageable page);
 
-    @Query(value =  "SELECT * FROM user_info u WHERE (u.role_id = 4 OR u.role_id = 5 OR u.role_id = 6) AND u.document LIKE CONCAT('%', :partialDocument, '%')",
-            countQuery = "SELECT COUNT(*) FROM user_info u WHERE (u.role_id = 4 OR u.role_id = 5 OR u.role_id = 6) AND u.document LIKE CONCAT('%', :partialDocument, '%')",
-            nativeQuery = true)
+    @Query(value =  "SELECT u FROM UserInfo u " +
+            "WHERE (u.role.id = 4 OR u.role.id = 5 OR u.role.id = 6) AND " +
+            "u.document LIKE CONCAT('%', :partialDocument, '%')")
     Page<UserInfo> searchUsersWithDocument(Pageable page, String partialDocument);
 
 
