@@ -27,15 +27,17 @@ public class FileManagerBean {
     @Bean
     public IFileManager fileManager(){
         String storage = env.getProperty("bilan.storage");
-        Storage storageType = Storage.valueOf(storage);
+
+        Storage storageType = Storage.Gluster;
+        if(storage!=null)
+            storageType = Storage.valueOf(storage);
 
         switch (storageType){
             case AWS:
                 return buildAwsFileManager();
+            default:
             case Gluster:
                 return buildGlusterFileManager();
-            default:
-                throw new IllegalArgumentException("There was an error selecting the file manager");
         }
 
     }
