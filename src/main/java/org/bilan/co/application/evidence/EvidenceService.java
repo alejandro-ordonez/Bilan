@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.bilan.co.application.files.IFileManager;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.teacher.EvaluationDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
@@ -17,7 +18,6 @@ import org.bilan.co.infraestructure.persistance.EvaluationRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
 import org.bilan.co.utils.Constants;
-import org.bilan.co.utils.S3FileStore;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,12 +32,12 @@ import java.util.UUID;
 @Component
 public class EvidenceService implements IEvidenceService {
 
-    private final S3FileStore fileStore;
+    private final IFileManager fileStore;
     private final EvidenceRepository evidenceRepository;
     private final EvaluationRepository evaluationRepository;
     private final TeachersRepository teachersRepository;
 
-    public EvidenceService(S3FileStore fileStore, EvidenceRepository evidenceRepository,
+    public EvidenceService(IFileManager fileStore, EvidenceRepository evidenceRepository,
                            EvaluationRepository evaluationRepository, TeachersRepository teachersRepository) {
         this.fileStore = fileStore;
         this.evidenceRepository = evidenceRepository;
@@ -51,7 +51,7 @@ public class EvidenceService implements IEvidenceService {
         UUID newFileId = UUID.randomUUID();
         String path = String.format("%s/%s", BucketName.BILAN_EVIDENCES.getBucketName(), newFileId);
         try {
-            fileStore.upload(path, newFileId.toString(), Collections.emptyMap(), file.getInputStream());
+            fileStore.uploadFile(path, newFileId.toString(), Collections.emptyMap(), file.getInputStream());
             Evidences evidence = Factories.newEvidence(phase, tribeId, path, newFileId.toString(), user.getDocument(),
                     file.getContentType());
             evidenceRepository.save(evidence);
@@ -88,7 +88,7 @@ public class EvidenceService implements IEvidenceService {
     public Optional<Tuple<byte[], String>> download(String evidenceId) {
         return this.evidenceRepository
                 .findByFileName(evidenceId)
-                .map(evidences1 -> Tuple.of(fileStore.download(evidences1.getPath(),
+                .map(evidences1 -> Tuple.of(fileStore.downloadFile(evidences1.getPath(),
                         evidences1.getFileName()), evidences1.getFileType()));
     }
 

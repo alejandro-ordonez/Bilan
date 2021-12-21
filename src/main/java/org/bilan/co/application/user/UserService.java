@@ -100,6 +100,7 @@ public class UserService implements IUserService {
         result.setLastName(user.getLastName());
         result.setDocumentType(user.getDocumentType());
         result.setGrantedAuthorities(getAuthorities(user.getRole()));
+        result.setIsEnabled(user.getIsEnabled());
         result.setUserType(UserType.findByRol(user.getRole().getName()));
 
         return result;

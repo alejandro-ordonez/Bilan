@@ -29,7 +29,7 @@ public class CollegeController {
         return ResponseEntity.ok(collegeService.findCollegesByState(stateMunId));
     }
 
-    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER')")
+    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER', 'ADMIN')")
     @GetMapping("/grades-courses")
     public ResponseEntity<ResponseDto<List<GradeCoursesDto>>> getGradesAndCourses(@RequestParam Integer collegeId) {
         return ResponseEntity.ok(collegeService.getGradesAndCourses(collegeId));
