@@ -113,8 +113,8 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto<Boolean> enableUser(EnableUser user) {
-        return new ResponseDto<>("User state changed", 200,
-                userInfoRepository.updateState(user.getDocument(), user.getEnabled()));
+        userInfoRepository.updateState(user.getDocument(), user.getEnabled());
+        return new ResponseDto<>("User state changed", 200, user.getEnabled());
     }
 
     @Override
