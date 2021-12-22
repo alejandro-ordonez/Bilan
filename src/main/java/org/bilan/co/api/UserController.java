@@ -56,9 +56,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<ResponseDto<PagedResponse<UserInfoDto>>> getUsers(
             @RequestParam("page") Integer nPage,
-            @RequestParam(value = "partialDocument", required = false) String partialDocument){
+            @RequestParam(value = "partialDocument", required = false) String partialDocument,
+            @RequestHeader(Constants.AUTHORIZATION) String jwt){
 
-        ResponseDto<PagedResponse<UserInfoDto>> users = userService.getUsersAdmin(nPage,partialDocument);
+        ResponseDto<PagedResponse<UserInfoDto>> users = userService.getUsersAdmin(nPage,partialDocument, jwt);
         return ResponseEntity.status(users.getCode()).body(users);
     }
 

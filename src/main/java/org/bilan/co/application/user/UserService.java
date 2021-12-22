@@ -142,15 +142,18 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResponseDto<PagedResponse<UserInfoDto>> getUsersAdmin(Integer nPage, String partialDocument) {
+    public ResponseDto<PagedResponse<UserInfoDto>> getUsersAdmin(Integer nPage, String partialDocument, String jwt) {
+
+        AuthenticatedUserDto userDto = jwtTokenUtil.getInfoFromToken(jwt);
 
         Page<UserInfo> query;
 
         if(partialDocument == null)
-                query = userInfoRepository.getUsersAdmin(PageRequest.of(nPage, 10));
+                query = userInfoRepository.getUsersAdmin(PageRequest.of(nPage, 10), userDto.getDocument());
 
         else{
-            query = userInfoRepository.searchUsersWithDocument(PageRequest.of(nPage, 10), partialDocument);
+            query = userInfoRepository.searchUsersWithDocument(
+                    PageRequest.of(nPage, 10), partialDocument, userDto.getDocument());
         }
 
 

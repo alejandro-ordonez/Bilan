@@ -19,5 +19,5 @@ public interface IUserService extends UserDetailsService {
 
     ResponseDto<String> uploadUsersFromFile(MultipartFile file, UserType userType, String token, String campusCodeDane);
 
-    ResponseDto<PagedResponse<UserInfoDto>> getUsersAdmin(Integer nPage, String partialDocument);
+    ResponseDto<PagedResponse<UserInfoDto>> getUsersAdmin(Integer nPage, String partialDocument, String jwt);
 }
