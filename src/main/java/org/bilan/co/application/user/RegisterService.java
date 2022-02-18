@@ -8,9 +8,10 @@ import org.bilan.co.domain.dtos.user.RegisterUserDto;
 import org.bilan.co.domain.entities.*;
 import org.bilan.co.domain.entities.builders.StudentsBuilder;
 import org.bilan.co.domain.enums.UserState;
+import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.domain.utils.Tuple;
-import org.bilan.co.infraestructure.persistance.StudentsRepository;
-import org.bilan.co.infraestructure.persistance.TeachersRepository;
+import org.bilan.co.infraestructure.persistance.*;
+import org.bilan.co.utils.Constants;
 import org.bilan.co.ws.simat.client.SimatEstudianteClient;
 import org.bilan.co.ws.simat.client.SimatMatriculaClient;
 import org.bilan.co.ws.simat.estudiante.Estudiante;
@@ -20,8 +21,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -31,17 +34,26 @@ public class RegisterService implements IRegisterService {
     private final StudentsRepository studentsRepository;
     private final SimatEstudianteClient simatEstudianteClient;
     private final SimatMatriculaClient simatMatriculaClient;
+    private final UserInfoRepository userInfoRepository;
+    private final MinUserRepository minUserRepository;
+    private final CollegesRepository collegesRepository;
     private final PasswordEncoder passwordEncoder;
 
     public RegisterService(TeachersRepository teachersRepository, StudentsRepository studentsRepository,
                            SimatEstudianteClient simatEstudianteClient, SimatMatriculaClient simatMatriculaClient,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           UserInfoRepository userInfoRepository,
+                           MinUserRepository minUserRepository,
+                           CollegesRepository collegesRepository) {
 
         this.teachersRepository = teachersRepository;
         this.studentsRepository = studentsRepository;
         this.simatEstudianteClient = simatEstudianteClient;
         this.simatMatriculaClient = simatMatriculaClient;
         this.passwordEncoder = passwordEncoder;
+        this.userInfoRepository = userInfoRepository;
+        this.minUserRepository = minUserRepository;
+        this.collegesRepository = collegesRepository;
 
     }
 
@@ -111,12 +123,15 @@ public class RegisterService implements IRegisterService {
     }
 
     private Students newStudent(AuthDto authDto, Estudiante estudiante) {
-        return new StudentsBuilder()
+        Students s = new StudentsBuilder()
                 .setDocument(authDto.getDocument())
                 .setDocumentType(authDto.getDocumentType())
                 .setName(estudiante.getPrimerNombre() + " " + estudiante.getSegundoNombre())
                 .setLastName(estudiante.getPrimerApellido() + " " + estudiante.getSegundoApellido())
                 .createStudents();
+
+        s.setConfirmed(false);
+        return s;
     }
 
     private ResponseDto<UserState> userNotFound() {
@@ -212,18 +227,89 @@ public class RegisterService implements IRegisterService {
     }
 
     public ResponseDto<UserState> createUser(RegisterUserDto regUserDto) {
-        switch (regUserDto.getUserType()) {
-            case Teacher:
-                return this.createTeacher(regUserDto);
-            case Student:
-                return this.createStudent(regUserDto);
-            default:
-                return new ResponseDtoBuilder<UserState>()
-                        .setDescription("UserType does not exist")
-                        .setCode(HttpStatus.BAD_REQUEST.value())
-                        .setResult(UserState.UnknownUserType)
-                        .createResponseDto();
+        try{
+            switch (regUserDto.getUserType()) {
+                case DirectiveTeacher:
+                case Teacher:
+                    return this.createTeacher(regUserDto);
+
+                case Student:
+                    return this.createStudent(regUserDto);
+
+                case MinUser:
+                    return this.createMinUser(regUserDto);
+
+                case SecEdu:
+                    return this.createSecEdu(regUserDto);
+
+                default:
+                    return new ResponseDtoBuilder<UserState>()
+                            .setDescription("UserType does not exist")
+                            .setCode(HttpStatus.BAD_REQUEST.value())
+                            .setResult(UserState.UnknownUserType)
+                            .createResponseDto();
+            }
         }
+        catch (Exception e){
+            log.error("Failed to save the user: "+ regUserDto.getDocument(), e);
+            return new ResponseDto<>("Something was wrong", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    UserState.UserNotRegistered);
+        }
+    }
+
+    private<T extends UserInfo> T createBaseUser(Class<T>  userClass, RegisterUserDto regUserDto){
+
+        T user = null;
+
+        try {
+            user = userClass.getDeclaredConstructor().newInstance();
+            user.setDocument(regUserDto.getDocument());
+            user.setName(regUserDto.getName());
+            user.setLastName(regUserDto.getLastName());
+            user.setEmail(regUserDto.getEmail());
+            user.setPassword(this.passwordEncoder.encode(regUserDto.getPassword()));
+            user.setDocumentType(regUserDto.getDocumentType());
+            user.setConfirmed(false);
+            user.setIsEnabled(true);
+
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            log.error("Error trying to create an user", e);
+        }
+
+        return user;
+    }
+
+    private ResponseDto<UserState> createMinUser(RegisterUserDto registerUserDto){
+        MinUser minUser = minUserRepository.findById(registerUserDto.getDocument()).orElse(null);
+        if(Objects.nonNull(minUser)){
+            return new ResponseDto<>("User already exists",
+                    HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
+        }
+
+        minUser = createBaseUser(MinUser.class, registerUserDto);
+        Roles roles = new Roles();
+        roles.setId(6);
+        minUser.setRole(roles);
+
+        minUser.setPositionName(Constants.MIN_USER);
+
+        minUserRepository.save(minUser);
+
+        return new ResponseDto<>("MinUser registered successfully", HttpStatus.OK.value(),
+                UserState.UserRegistered);
+    }
+
+    private ResponseDto<UserState> createSecEdu(RegisterUserDto registerUserDto) {
+        UserInfo userInfo = createBaseUser(UserInfo.class, registerUserDto);
+
+        Roles roles = new Roles();
+        roles.setId(4);
+
+        userInfo.setRole(roles);
+
+        userInfoRepository.save(userInfo);
+        return new ResponseDto<>("Sec Edu registered successfully", HttpStatus.OK.value(),
+                UserState.UserRegistered);
     }
 
     private ResponseDto<UserState> createTeacher(RegisterUserDto regUserDto) {
@@ -233,24 +319,36 @@ public class RegisterService implements IRegisterService {
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
         }
 
-        teacher = new Teachers();
-        teacher.setDocument(regUserDto.getDocument());
-        teacher.setName(regUserDto.getName());
-        teacher.setLastName(regUserDto.getLastName());
-        teacher.setEmail(regUserDto.getEmail());
-        teacher.setCreatedAt(new Date());
-        teacher.setPassword(this.passwordEncoder.encode(regUserDto.getPassword()));
-        teacher.setDocumentType(regUserDto.getDocumentType());
+        teacher = createBaseUser(Teachers.class, regUserDto);
+        teacher.setCodDane(regUserDto.getCodDane());
 
-        try {
-            teachersRepository.save(teacher);
-            return new ResponseDto<>("Teacher registered successfully", HttpStatus.OK.value(),
-                    UserState.UserRegistered);
-        } catch (Exception e) {
-            log.error("Something was wrong saving the user info", e);
-            return new ResponseDto<>("Something was wrong", HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    UserState.UserNotRegistered);
+
+        Optional<Colleges> college = collegesRepository.findByCodDaneSede(regUserDto.getCodDane());
+        if(!college.isPresent()) {
+            return new ResponseDto<>("College not found",
+                    HttpStatus.BAD_REQUEST.value(), UserState.UserNotRegistered);
         }
+        Roles role = new Roles();
+
+        teacher.setCodDaneSede(college.get().getCampusCodeDane());
+        teacher.setCodDaneMinResidencia(college.get().getStateMunicipality().getCodDaneMunicipality());
+
+        if(regUserDto.getUserType().equals(UserType.DirectiveTeacher)){
+            teacher.setPositionName(Constants.DIREC_TEACHER);
+            role.setId(2);
+        }
+
+        else if(regUserDto.getUserType().equals(UserType.Teacher)){
+            teacher.setPositionName(Constants.TEACHER);
+            role.setId(2);
+        }
+
+        teacher.setRole(role);
+
+        teachersRepository.save(teacher);
+        return new ResponseDto<>("Teacher registered successfully", HttpStatus.OK.value(),
+                UserState.UserRegistered);
+
     }
 
     private ResponseDto<UserState> createStudent(RegisterUserDto regUserDto) {
@@ -260,28 +358,24 @@ public class RegisterService implements IRegisterService {
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
         }
 
-        student = new Students();
-        student.setName(regUserDto.getName());
-        student.setGrade(regUserDto.getGrade());
-        student.setDocument(regUserDto.getDocument());
-        student.setLastName(regUserDto.getLastName());
-        student.setEmail(regUserDto.getEmail());
-        student.setDocumentType(regUserDto.getDocumentType());
-        student.setCreatedAt(new Date());
-        student.setModifiedAt(new Date());
-        student.setPassword(passwordEncoder.encode(regUserDto.getPassword()));
+        student = createBaseUser(Students.class, regUserDto);
+        StudentStats studentStats = new StudentStats();
+        student.setStudentStats(studentStats);
+        studentStats.setIdStudent(student);
 
-        try {
-            StudentStats studentStats = new StudentStats();
-            student.setStudentStats(studentStats);
-            studentStats.setIdStudent(student);
-            studentsRepository.save(student);
-            return new ResponseDto<>("Student registered successfully", HttpStatus.OK.value(),
-                    UserState.UserRegistered);
-        } catch (Exception e) {
-            log.error("Something was wrong saving the user info", e);
-            return new ResponseDto<>("Something was wrong", HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    UserState.UserNotRegistered);
-        }
+        Roles role = new Roles();
+        role.setId(1);
+        student.setRole(role);
+
+        Courses course = new Courses();
+        course.setId(regUserDto.getCourseId());
+
+        student.setCourses(course);
+        student.setGrade(regUserDto.getGrade());
+
+        student.setPositionName(Constants.STUDENT);
+        studentsRepository.save(student);
+        return new ResponseDto<>("Student registered successfully", HttpStatus.OK.value(),
+                UserState.UserRegistered);
     }
 }

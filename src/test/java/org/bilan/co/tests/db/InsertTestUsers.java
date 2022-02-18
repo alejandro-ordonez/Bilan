@@ -1,8 +1,8 @@
 package org.bilan.co.tests.db;
 
 import lombok.extern.slf4j.Slf4j;
-import org.bilan.co.domain.entities.Students;
-import org.bilan.co.domain.entities.Teachers;
+import org.bilan.co.application.user.IUserService;
+import org.bilan.co.domain.entities.*;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
@@ -31,6 +31,9 @@ public class InsertTestUsers {
     private UserInfoRepository userInfoRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private IUserService userService;
 
     @Test
     public void insertTestStudents() throws IOException {
@@ -89,14 +92,68 @@ public class InsertTestUsers {
 
         Students s = new Students();
         s.setDocumentType(DocumentType.TI);
-        s.setGrade("10");
+        s.setGrade("11");
+
+        Courses c = new Courses();
+        c.setId(3);
+
+        s.setCourses(c);
         s.setCreatedAt(new Date());
 
-        s.setName("William");
-        s.setLastName("Faram");
-        s.setDocument("80179301");
-        s.setPassword(passwordEncoder.encode("80179301"));
+        Colleges colleges = new Colleges();
+        colleges.setId(31989);
 
+        Roles r = new Roles();
+        r.setId(1);
+
+        s.setName("Valentina");
+        s.setLastName("Echeverry Ramirez");
+        s.setDocument("1006382038");
+        s.setPassword(passwordEncoder.encode("1006382038"));
+
+    }
+
+    @Test
+    public void loadUserFromSplitLine() {
+        String[] student = new String[]
+                {
+                        "14442838",
+                        "CC",
+                        "RAUL",
+                        "SALGADO CIFUENTES",
+                        "11",
+                        "C",
+                };
+
+        Colleges colleges = new Colleges();
+        colleges.setId(31989);
+
+        try {
+            userService.processStudent(student,1, colleges);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void loadTeacherFromSplitLine() {
+        String[] teacher = new String[]
+                {
+                        "14442838",
+                        "CC",
+                        "11",
+                        "C",
+                        "Ciencias Naturales"
+                };
+
+        Colleges colleges = new Colleges();
+        colleges.setId(31989);
+
+        try {
+            userService.processTeacher(teacher, 1, colleges);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

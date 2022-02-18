@@ -5,6 +5,7 @@ import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnableUser;
 import org.bilan.co.domain.dtos.user.UserInfoDto;
+import org.bilan.co.domain.entities.Colleges;
 import org.bilan.co.domain.enums.UserType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,8 @@ public interface IUserService extends UserDetailsService {
     ResponseDto<Boolean> enableUser(EnableUser user);
 
     ResponseDto<String> uploadUsersFromFile(MultipartFile file, UserType userType, String token, String campusCodeDane);
+    void processStudent(String[] user, int nLine, Colleges colleges) throws Exception;
+    void processTeacher(String[] user, int nLine, Colleges colleges) throws Exception;
 
     ResponseDto<PagedResponse<UserInfoDto>> getUsersAdmin(Integer nPage, String partialDocument, String jwt);
 }

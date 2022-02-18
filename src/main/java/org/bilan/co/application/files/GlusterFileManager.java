@@ -25,7 +25,7 @@ public class GlusterFileManager implements IFileManager{
     public void uploadFile(String path, String fileName, Map<String, String> metadata, InputStream inputStream) {
         String basePath = env.getProperty("bilan.storage.path");
         if(basePath == null){
-            basePath = "/BILAN";
+            basePath = "/bilan";
         }
         basePath += "/"+path;
         File file = new File(basePath, fileName);

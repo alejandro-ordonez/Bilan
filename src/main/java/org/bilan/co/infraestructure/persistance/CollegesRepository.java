@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.bilan.co.utils.Constants.CACHE_COLLEGES_BY_MUN;
 
@@ -20,6 +21,9 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
             " FROM Colleges c " +
             "WHERE c.stateMunicipality.id = ?1")
     List<CollegeDto> getColleges(Integer stateMunId);
+
+    @Query("SELECT c FROM Colleges c WHERE c.campusCodeDane = :codDane")
+    Optional<Colleges> findByCodDaneSede(String codDane);
 
     @Query(value = "" +
             "  SELECT c.id AS id " +

@@ -220,7 +220,8 @@ public class UserService implements IUserService {
     }
 
 
-    private void processTeacher(String[] user, int nLine, Colleges colleges) throws Exception {
+    @Override
+    public void processTeacher(String[] user, int nLine, Colleges colleges) throws Exception {
         if(user.length!=5)
             throw new Exception("The line was in bad format");
 
@@ -244,6 +245,7 @@ public class UserService implements IUserService {
         Classroom classroom = new Classroom();
 
         Teachers teacher = new Teachers();
+        teacher.setDocumentType(documentType);
         teacher.setDocument(document);
 
         Optional<Tribes> t = tribesRepository.getByName(tribeName);
@@ -260,7 +262,8 @@ public class UserService implements IUserService {
         classroomRepository.save(classroom);
     }
 
-    private void processStudent(String[] user, int nLine, Colleges colleges) throws Exception {
+    @Override
+    public void processStudent(String[] user, int nLine, Colleges colleges) throws Exception {
         if(user.length!=6)
             throw new Exception("The line was in bad format, at: "+nLine);
 
