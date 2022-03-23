@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -84,13 +85,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .configurationSource(corsConfigurationSource())
                 .and()
-                .csrf()
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .disable()
                 .authorizeRequests()
                 .antMatchers("/", "/management/*", "/actuator/*",
                         "/teacher/enroll",
-                        "/auth/login", "/auth/register/*","/api-docs", "/api-docs/*",
-                        "/swagger-ui/*", "/swagger-ui.html")
+                        "/auth/login", "/auth/register/*","/api-docs", "/api-docs/*")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
