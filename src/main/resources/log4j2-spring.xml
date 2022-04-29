@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="Bilan" status="info">
+
+    <Properties>
+        <Property name="PATTERN">%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%throwable</Property>
+        <Property name="PATH">/var/bilan/logs/</Property>
+        <Property name="FILE_PATTERN">$${date:yyyy-MM}/bilan-%d{-dd-MMMM-yyyy}-%i.log</Property>
+        <Property name="FILE_SIZE">10 MB</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${PATTERN}"/>
+        </Console>
+        <RollingFile name="File" fileName="${PATH}bilan.log"
+                     filePattern="${PATH}${FILE_PATTERN}">
+            <PatternLayout>
+                <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${FILE_SIZE}"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
+    </Loggers>
+
+</Configuration>
