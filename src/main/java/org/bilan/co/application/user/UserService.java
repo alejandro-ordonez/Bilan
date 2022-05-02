@@ -259,6 +259,9 @@ public class UserService implements IUserService {
         classroom.setTribe(t.get());
         classroom.setGrade(grade);
 
+        teacher.setEmail("");
+        teacher.setPositionName("Profesor");
+
         classroomRepository.save(classroom);
     }
 
@@ -293,6 +296,9 @@ public class UserService implements IUserService {
         s.setPassword(passwordEncoder.encode(document));
         s.setIsEnabled(true);
         s.setConfirmed(false);
+
+        s.setEmail("");
+        s.setPositionName("Estudiante");
 
         studentsRepository.save(s);
     }
