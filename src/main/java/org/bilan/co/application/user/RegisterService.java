@@ -374,6 +374,11 @@ public class RegisterService implements IRegisterService {
         student.setGrade(regUserDto.getGrade());
 
         student.setPositionName(Constants.STUDENT);
+
+        Colleges college = new Colleges();
+        college.setId(regUserDto.getCollegeId());
+
+        student.setColleges(college);
         studentsRepository.save(student);
         return new ResponseDto<>("Student registered successfully", HttpStatus.OK.value(),
                 UserState.UserRegistered);
