@@ -17,6 +17,8 @@ public final class Constants {
     public static final String SEC_EDU = "Secretaría de Educación";
     public static final String ADMIN = "Administrador";
     public static final String DIREC_TEACHER = "Docente Directivo";
+    public static final String DEFAULT_FILE_PATH = "/bilan";
+    public static final String ENV_FILE_PATH = "bilan.storage.path";
 
     private Constants() {
     }
