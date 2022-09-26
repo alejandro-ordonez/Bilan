@@ -12,8 +12,7 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BasicInfo {
-
-    @Pattern(regexp = "[1-9][0-9]{6,12}")
+    @Pattern(regexp = "[1-9][0-9]{5,12}")
     protected String document;
 
     @NotNull

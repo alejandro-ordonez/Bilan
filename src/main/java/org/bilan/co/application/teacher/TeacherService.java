@@ -6,6 +6,7 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
 import org.bilan.co.domain.dtos.college.ClassRoomStats;
 import org.bilan.co.domain.dtos.student.StudentStatsRecord;
+import org.bilan.co.domain.dtos.teacher.TeacherDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnrollmentDto;
 import org.bilan.co.domain.entities.*;
@@ -42,6 +43,27 @@ public class TeacherService implements ITeacherService{
     @Autowired
     private Mapper mapper;
 
+    private Classroom classroomDtoToEntity(ClassRoomDto cr, Teachers teacher) {
+        Classroom classroom = new Classroom();
+        classroom.setGrade(cr.getGrade());
+        classroom.setTeacher(teacher);
+
+        Tribes tribe = new Tribes();
+        tribe.setId(cr.getTribeId());
+
+        Colleges colleges = new Colleges();
+        colleges.setId(cr.getCollegeId());
+
+        Courses course = new Courses();
+        course.setId(cr.getCourseId());
+
+        classroom.setTribe(tribe);
+        classroom.setCollege(colleges);
+        classroom.setCourse(course);
+
+        return classroom;
+    }
+
     @Override
     public ResponseDto<String> enroll(EnrollmentDto enrollmentDto) {
 
@@ -55,26 +77,7 @@ public class TeacherService implements ITeacherService{
         Teachers teacher = teacherQuery.get();
 
         List<Classroom> classroomToEnroll = enrollmentDto.getCoursesToEnroll()
-                .stream().map(cr -> {
-                    Classroom classroom = new Classroom();
-                    classroom.setGrade(cr.getGrade());
-                    classroom.setTeacher(teacher);
-
-                    Tribes tribe = new Tribes();
-                    tribe.setId(cr.getTribeId());
-
-                    Colleges colleges = new Colleges();
-                    colleges.setId(cr.getCollegeId());
-
-                    Courses course = new Courses();
-                    course.setId(cr.getCourseId());
-
-                    classroom.setTribe(tribe);
-                    classroom.setCollege(colleges);
-                    classroom.setCourse(course);
-
-                    return classroom;
-                }).collect(Collectors.toList());
+                .stream().map(cr -> classroomDtoToEntity(cr, teacher)).collect(Collectors.toList());
 
         teacher.getClassrooms().addAll(classroomToEnroll);
         teachersRepository.save(teacher);
@@ -130,5 +133,32 @@ public class TeacherService implements ITeacherService{
         classRoomStats.setStudents(students.size());
 
         return new ResponseDto<>("Classroom stats retrieved", 200, classRoomStats);
+    }
+
+    @Override
+    public ResponseDto<TeacherDto> getTeacher(String document) {
+        return null;
+    }
+
+    @Override
+    public ResponseDto<String> updateTeacher(TeacherDto teacherDto) {
+        Optional<Teachers> teacher = this.teachersRepository.findById(teacherDto.getDocument());
+        if(!teacher.isPresent()){
+            return new ResponseDto<>("Failed to update the teacher, it doesn't exists", 400, "Error");
+        }
+
+        Teachers teacherUpdated = teacher.get();
+        teacherUpdated.setCodDane(teacherDto.getCodDane());
+        teacherUpdated.setCodDaneMinResidencia(teacherDto.getCodDaneMinResidencia());
+        teacherUpdated.setEmail(teacherDto.getEmail());
+
+        List<Classroom> classrooms = teacherDto.getClassRoomDtoList()
+                .stream()
+                .map(classRoomDto -> classroomDtoToEntity(classRoomDto, teacherUpdated))
+                .collect(Collectors.toList());
+
+        teacherUpdated.setClassrooms(classrooms);
+
+        return new ResponseDto<>("Teacher updated", 200, "Success");
     }
 }

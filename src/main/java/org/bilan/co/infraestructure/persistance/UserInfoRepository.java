@@ -7,9 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Repository
 public interface UserInfoRepository extends JpaRepository<UserInfo, String> {
@@ -21,13 +23,13 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, String> {
     void updateState(String document, Boolean enabled);
 
     @Query("SELECT u FROM UserInfo u " +
-            "WHERE NOT u.document = :document")
-    Page<UserInfo> getUsersAdmin(Pageable page, String document);
+            "WHERE NOT u.document = :document AND u.role.id IN (:roles)")
+    Page<UserInfo> getUsers(Pageable page, String document,  @Param("roles") List<Integer> roles);
 
     @Query(value =  "SELECT u FROM UserInfo u " +
             "WHERE u.document LIKE CONCAT('%', :partialDocument, '%') " +
-            "AND NOT u.document = :document")
-    Page<UserInfo> searchUsersWithDocument(Pageable page, String partialDocument, String document);
+            "AND NOT u.document = :document AND u.role.id IN (:roles)")
+    Page<UserInfo> searchUsersWithDocument(Pageable page, String partialDocument, String document, List<Integer> roles);
 
 
 }

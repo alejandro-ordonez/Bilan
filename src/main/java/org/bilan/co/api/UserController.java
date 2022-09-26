@@ -56,7 +56,7 @@ public class UserController {
         return ResponseEntity.status(result.getCode()).body(result);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER', 'DIRECT_TEACHER')")
     @GetMapping
     public ResponseEntity<ResponseDto<PagedResponse<UserInfoDto>>> getUsers(
             @RequestParam("page") Integer nPage,

@@ -148,12 +148,38 @@ public class UserService implements IUserService {
 
         Page<UserInfo> query;
 
-        if(partialDocument == null)
-                query = userInfoRepository.getUsersAdmin(PageRequest.of(nPage, 10), userDto.getDocument());
+        List<Integer> queryRole;
+        switch (userDto.getUserType()){
+            case DirectiveTeacher:
+                queryRole = Collections.singletonList(UserType.Teacher.getId());
+                break;
+
+            case Teacher:
+                queryRole = Collections.singletonList(UserType.Student.getId());
+                break;
+
+            case SecEdu:
+                queryRole = Arrays.asList(UserType.DirectiveTeacher.getId(), UserType.Teacher.getId());
+                break;
+
+            case Admin:
+                queryRole = Arrays.asList(
+                        UserType.MinUser.getId(),
+                        UserType.Admin.getId(),
+                        UserType.DirectiveTeacher.getId()
+                );
+                break;
+
+            default:
+                throw new IllegalArgumentException("Invalid user Type");
+        }
+        String purgedDocument = partialDocument.trim();
+        if(purgedDocument.isEmpty())
+                query = userInfoRepository.getUsers(PageRequest.of(nPage, 10), userDto.getDocument(), queryRole);
 
         else{
             query = userInfoRepository.searchUsersWithDocument(
-                    PageRequest.of(nPage, 10), partialDocument, userDto.getDocument());
+                    PageRequest.of(nPage, 10), partialDocument, userDto.getDocument(), queryRole);
         }
 
 
