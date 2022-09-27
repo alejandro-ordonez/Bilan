@@ -5,6 +5,8 @@ import org.bilan.co.application.student.StudentService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
 import org.bilan.co.domain.dtos.college.ClassRoomStats;
+import org.bilan.co.domain.dtos.common.PagedResponse;
+import org.bilan.co.domain.dtos.student.StudentDto;
 import org.bilan.co.domain.dtos.student.StudentStatsRecord;
 import org.bilan.co.domain.dtos.teacher.TeacherDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
@@ -16,6 +18,8 @@ import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,6 +37,8 @@ public class TeacherService implements ITeacherService{
     private StudentsRepository studentsRepository;
     @Autowired
     private ClassroomRepository classroomRepository;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
     private StudentService studentService;
@@ -43,26 +49,6 @@ public class TeacherService implements ITeacherService{
     @Autowired
     private Mapper mapper;
 
-    private Classroom classroomDtoToEntity(ClassRoomDto cr, Teachers teacher) {
-        Classroom classroom = new Classroom();
-        classroom.setGrade(cr.getGrade());
-        classroom.setTeacher(teacher);
-
-        Tribes tribe = new Tribes();
-        tribe.setId(cr.getTribeId());
-
-        Colleges colleges = new Colleges();
-        colleges.setId(cr.getCollegeId());
-
-        Courses course = new Courses();
-        course.setId(cr.getCourseId());
-
-        classroom.setTribe(tribe);
-        classroom.setCollege(colleges);
-        classroom.setCourse(course);
-
-        return classroom;
-    }
 
     @Override
     public ResponseDto<String> enroll(EnrollmentDto enrollmentDto) {
@@ -77,7 +63,7 @@ public class TeacherService implements ITeacherService{
         Teachers teacher = teacherQuery.get();
 
         List<Classroom> classroomToEnroll = enrollmentDto.getCoursesToEnroll()
-                .stream().map(cr -> classroomDtoToEntity(cr, teacher)).collect(Collectors.toList());
+                .stream().map(cr -> TeacherUtils.classroomDtoToEntity(cr, teacher)).collect(Collectors.toList());
 
         teacher.getClassrooms().addAll(classroomToEnroll);
         teachersRepository.save(teacher);
@@ -97,16 +83,7 @@ public class TeacherService implements ITeacherService{
 
         List<ClassRoomDto> classRoomDtos = teachers.get().getClassrooms()
                 .stream()
-                .map(c -> {
-                    ClassRoomDto classRoomDto = new ClassRoomDto();
-                    classRoomDto.setClassroomId(c.getId());
-                    classRoomDto.setCollegeId(c.getCollege().getId());
-                    classRoomDto.setCourseId(c.getCourse().getId());
-                    classRoomDto.setGrade(c.getGrade());
-                    classRoomDto.setTribeId(c.getTribe().getId());
-                    classRoomDto.setCollegeName(c.getCollege().getName());
-                    return classRoomDto;
-                })
+                .map(TeacherUtils::parseClassRoom)
                 .collect(Collectors.toList());
 
         return new ResponseDto<>("Classrooms retrieved", 200, classRoomDtos);
@@ -154,11 +131,44 @@ public class TeacherService implements ITeacherService{
 
         List<Classroom> classrooms = teacherDto.getClassRoomDtoList()
                 .stream()
-                .map(classRoomDto -> classroomDtoToEntity(classRoomDto, teacherUpdated))
+                .map(classRoomDto -> TeacherUtils.classroomDtoToEntity(classRoomDto, teacherUpdated))
                 .collect(Collectors.toList());
 
         teacherUpdated.setClassrooms(classrooms);
 
         return new ResponseDto<>("Teacher updated", 200, "Success");
+    }
+
+    @Override
+    public ResponseDto<PagedResponse<TeacherDto>> getTeachers(Integer nPage, String partialDocument, String jwt) {
+        AuthenticatedUserDto authenticatedUserDto = jwtTokenUtil.getInfoFromToken(jwt);
+        Optional<Teachers> teacher = teachersRepository.findById(authenticatedUserDto.getDocument());
+
+        if(!teacher.isPresent()){
+            return new ResponseDto<>("User not found", 404, null);
+        }
+
+        Page<Teachers> query;
+        String purgedDocument = partialDocument.trim();
+
+        if(purgedDocument.isEmpty())
+            query = teachersRepository.getTeachersFromCodDaneSede(PageRequest.of(nPage, 10),
+                    authenticatedUserDto.getDocument(), teacher.get().getCodDaneSede());
+
+        else
+            query = teachersRepository.searchTeacherWithDocument(
+                    PageRequest.of(nPage, 10), authenticatedUserDto.getDocument(), partialDocument, teacher.get().getCodDaneSede());
+
+        PagedResponse<TeacherDto> teacherResponse = new PagedResponse<>();
+        teacherResponse.setNPages(query.getTotalPages());
+
+        List<TeacherDto> teachers = query.getContent()
+                .stream()
+                .map(TeacherUtils::parseTeacher)
+                .collect(Collectors.toList());
+
+        teacherResponse.setData(teachers);
+
+        return new ResponseDto<>("Teachers returned successfully", 200, teacherResponse);
     }
 }

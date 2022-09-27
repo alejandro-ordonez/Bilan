@@ -120,24 +120,23 @@ public class UserService implements IUserService {
     @Override
     public ResponseDto<String> uploadUsersFromFile(MultipartFile file, UserType userType, String token, String campusCodeDane) {
 
-        Colleges colleges;
+        Optional<Colleges> c;
 
         if(campusCodeDane == null){
             AuthenticatedUserDto authenticatedUserDto = jwtTokenUtil.getInfoFromToken(token);
-            Optional<Classroom> c = classroomRepository.findFirstByTeacher(authenticatedUserDto.getDocument());
-
+            String codDaneSede = teachersRepository.getCodDaneSede(authenticatedUserDto.getDocument());
+            c = collegesRepository.findByCodDaneSede(codDaneSede);
             if(!c.isPresent()){
                 String message = "The directive teacher does not have a college linked";
-                throw new IllegalArgumentException(message);
+                return new ResponseDto<>(message, 400,"failed");
             }
-
-            colleges = c.get().getCollege();
         }
         else {
-            colleges = collegesRepository.collegeByCampusCodeDane(campusCodeDane);
-        }
+            c = collegesRepository.findByCodDaneSede(campusCodeDane);
 
-        return loadUsersFromFile(file, userType, colleges);
+        }
+        return c.map(colleges -> loadUsersFromFile(file, userType, colleges)).
+                orElseGet(() -> new ResponseDto<>("College not found", 404, "failed"));
 
     }
 

@@ -1,6 +1,9 @@
 package org.bilan.co.infraestructure.persistance;
 
+import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -27,4 +30,14 @@ public interface TeachersRepository extends JpaRepository<Teachers, String> {
 
     @Query("SELECT t.codDaneSede FROM Teachers t WHERE t.document = :document")
     String getCodDaneSede(String document);
+
+
+    @Query(value =  "SELECT t FROM Teachers t " +
+            "WHERE t.document LIKE CONCAT('%', :partialDocument, '%') " +
+            "AND NOT t.document = :document AND t.codDaneSede = :codDaneSede")
+    Page<Teachers> searchTeacherWithDocument(Pageable page, String document, String partialDocument, String codDaneSede);
+
+    @Query(value =  "SELECT t FROM Teachers t " +
+            "WHERE NOT t.document = :document AND t.codDaneSede = :codDaneSede")
+    Page<Teachers> getTeachersFromCodDaneSede(Pageable page, String document, String codDaneSede);
 }

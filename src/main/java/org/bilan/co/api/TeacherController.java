@@ -5,6 +5,7 @@ import org.bilan.co.application.teacher.ITeacherService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
 import org.bilan.co.domain.dtos.college.ClassRoomStats;
+import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.teacher.TeacherDto;
 import org.bilan.co.domain.dtos.user.EnrollmentDto;
 import org.bilan.co.utils.Constants;
@@ -33,6 +34,14 @@ public class TeacherController {
     @GetMapping()
     public ResponseEntity<ResponseDto<TeacherDto>> getTeacher(@RequestParam("document") String document){
         ResponseDto<TeacherDto> res = this.teacherService.getTeacher(document);
+        return ResponseEntity.status(res.getCode()).body(res);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ResponseDto<PagedResponse<TeacherDto>>> getTeachers(@RequestParam("page") Integer nPage,
+                                                                              @RequestParam(value = "partialDocument", required = false) String partialDocument,
+                                                                              @RequestHeader(Constants.AUTHORIZATION) String jwt){
+        ResponseDto<PagedResponse<TeacherDto>> res = this.teacherService.getTeachers(nPage, partialDocument, jwt);
         return ResponseEntity.status(res.getCode()).body(res);
     }
 
