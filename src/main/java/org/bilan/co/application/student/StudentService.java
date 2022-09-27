@@ -2,13 +2,19 @@ package org.bilan.co.application.student;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.student.StudentDashboardDto;
-import org.bilan.co.domain.entities.Evaluation;
-import org.bilan.co.domain.entities.Evidences;
-import org.bilan.co.domain.entities.Students;
+import org.bilan.co.domain.dtos.student.StudentDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.domain.dtos.user.UserInfoDto;
+import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
+import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -24,6 +30,12 @@ public class StudentService implements IStudentService {
     private QuestionsRepository questionsRepository;
     @Autowired
     private StudentsRepository studentsRepository;
+    @Autowired
+    private TeachersRepository teachersRepository;
+    @Autowired
+    private CollegesRepository collegesRepository;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private StatsRepository statsRepository;
     @Autowired
@@ -110,5 +122,52 @@ public class StudentService implements IStudentService {
     @Override
     public ResponseDto<StudentDashboardDto> getStudentStatsDashboard(String document) {
         return new ResponseDto<>("Dashboard retrieved", 200, getStudentStatsRecord(document));
+    }
+
+
+    private StudentDto parseStudent(Students student){
+        StudentDto studentDto = new StudentDto();
+        studentDto.setCourse(student.getCourses().getName());
+        studentDto.setGrade(student.getGrade());
+        studentDto.setName(student.getName());
+        studentDto.setLastName(student.getLastName());
+        studentDto.setDocument(student.getDocument());
+        studentDto.setEmail(student.getEmail());
+        studentDto.setIsEnabled(student.getIsEnabled());
+        studentDto.setDocumentType(student.getDocumentType());
+        studentDto.setUserType(student.getUserType());
+
+        return studentDto;
+    }
+
+
+    @Override
+    public ResponseDto<PagedResponse<StudentDto>> getStudents(int nPage, String partialDocument, String jwt) {
+        AuthenticatedUserDto authenticatedUserDto = jwtTokenUtil.getInfoFromToken(jwt);
+        String codDaneSede = this.teachersRepository.getCodDaneSede(authenticatedUserDto.getDocument());
+        int collegeId = this.collegesRepository.getIdByCodDaneSede(codDaneSede);
+
+        Page<Students> query;
+
+        String purgedDocument = partialDocument.trim();
+        if(purgedDocument.isEmpty())
+            query = studentsRepository.getStudents(PageRequest.of(nPage, 10), authenticatedUserDto.getDocument() , collegeId);
+
+        else{
+            query = studentsRepository.searchStudentsWithDocument(
+                    PageRequest.of(nPage, 10), partialDocument, authenticatedUserDto.getDocument(), collegeId);
+        }
+
+        PagedResponse<StudentDto> studentsResponse = new PagedResponse<>();
+        studentsResponse.setNPages(query.getTotalPages());
+
+        List<StudentDto> students = query.getContent()
+                .stream()
+                .map(this::parseStudent)
+                .collect(Collectors.toList());
+
+        studentsResponse.setData(students);
+
+        return new ResponseDto<>("Users retrieved successfully", 200, studentsResponse);
     }
 }

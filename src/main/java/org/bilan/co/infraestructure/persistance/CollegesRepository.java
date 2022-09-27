@@ -52,4 +52,7 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
             " FROM Colleges c " +
             "WHERE c.campusCodeDane = ?1")
     Colleges collegeByCampusCodeDane(String campusCodeDane);
+
+    @Query("SELECT c.id FROM Colleges c WHERE c.campusCodeDane = :codDaneSede")
+    Integer getIdByCodDaneSede(String codDaneSede);
 }

@@ -24,4 +24,7 @@ public interface TeachersRepository extends JpaRepository<Teachers, String> {
             "   AND s.document = ?3" +
             "   AND NOT EXISTS (SELECT e2.id FROM evaluation e2 WHERE e2.evidences_id = e.id)", nativeQuery = true)
     Optional<Teachers> findTeacherByStudentAndEvidence(Long evidenceId, String teacherId, String studentId);
+
+    @Query("SELECT t.codDaneSede FROM Teachers t WHERE t.document = :document")
+    String getCodDaneSede(String document);
 }
