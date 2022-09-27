@@ -216,6 +216,12 @@
                 <spring.profiles.active>stage</spring.profiles.active>
             </properties>
         </profile>
+         <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+        </profile>
         <profile>
             <id>gen-ws-resources</id>
             <build>
