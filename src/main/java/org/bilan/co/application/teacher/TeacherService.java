@@ -149,6 +149,9 @@ public class TeacherService implements ITeacherService{
         }
 
         Page<Teachers> query;
+        if(partialDocument == null)
+            partialDocument = "";
+
         String purgedDocument = partialDocument.trim();
 
         if(purgedDocument.isEmpty())
