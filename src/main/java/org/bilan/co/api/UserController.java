@@ -37,7 +37,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUserInfo(userInfoDto, jwt));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN', 'DIRECT_TEACHER')")
     @PutMapping("/enable")
     public ResponseEntity<ResponseDto<Boolean>> update(@RequestBody EnableUser user) {
         return ResponseEntity.ok(userService.enableUser(user));
