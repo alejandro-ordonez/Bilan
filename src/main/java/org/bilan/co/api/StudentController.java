@@ -54,7 +54,7 @@ public class StudentController {
     }
 
     @PutMapping()
-    @PreAuthorize("hasAuthority('TEACHER, DIRECT_TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER, DIRECT_TEACHER')")
     public ResponseEntity<ResponseDto<String>> updateStudent(@RequestBody StudentDto studentDto){
         ResponseDto<String> response = this.studentService.updateStudent(studentDto);
         return ResponseEntity.status(response.getCode()).body(response);

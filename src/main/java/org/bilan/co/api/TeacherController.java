@@ -25,7 +25,7 @@ public class TeacherController {
     private ITeacherService teacherService;
 
 
-    @PreAuthorize("hasAuthority('TEACHER, DIRECT_TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER, DIRECT_TEACHER')")
     @PutMapping()
     public ResponseEntity<ResponseDto<String>> updateTeacher(@RequestBody TeacherDto teacherDto){
         return ResponseEntity.ok(this.teacherService.updateTeacher(teacherDto));
