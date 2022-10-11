@@ -120,6 +120,7 @@ public class TeacherService implements ITeacherService{
     @Override
     public ResponseDto<String> updateTeacher(TeacherDto teacherDto) {
         Optional<Teachers> teacher = this.teachersRepository.findById(teacherDto.getDocument());
+
         if(!teacher.isPresent()){
             return new ResponseDto<>("Failed to update the teacher, it doesn't exists", 400, "Error");
         }

@@ -35,6 +35,8 @@ public class StudentService implements IStudentService {
     @Autowired
     private CollegesRepository collegesRepository;
     @Autowired
+    private CoursesRepository coursesRepository;
+    @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private StatsRepository statsRepository;
@@ -140,6 +142,25 @@ public class StudentService implements IStudentService {
         return studentDto;
     }
 
+    @Override
+    public ResponseDto<String> updateStudent(StudentDto studentDto){
+        Optional<Students> studentToUpdate = studentsRepository.findById(studentDto.getDocument());
+
+        if(!studentToUpdate.isPresent()){
+            return new ResponseDto<>("Failed to update, not found", 404, "Error");
+        }
+
+        Students student = studentToUpdate.get();
+        student.setEmail(studentDto.getEmail());
+
+        Optional<Courses> courses = coursesRepository.findFirstByCourseName(studentDto.getCourse());
+        if(!courses.isPresent()) return new ResponseDto<>("Invalid Course", 400, "Error");
+
+        student.setCourses(courses.get());
+        student.setGrade(studentDto.getGrade());
+
+        return new ResponseDto<>("Student Updated successfully", 200, "Ok");
+    }
 
     @Override
     public ResponseDto<PagedResponse<StudentDto>> getStudents(int nPage, String partialDocument, String jwt) {

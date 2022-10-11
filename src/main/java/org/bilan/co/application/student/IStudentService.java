@@ -11,4 +11,5 @@ public interface IStudentService {
     StudentDashboardDto getStudentStatsRecord(String document);
     ResponseDto<StudentDashboardDto> getStudentStatsDashboard(String document);
     ResponseDto<PagedResponse<StudentDto>> getStudents(int nPage, String partialDocument, String jwt);
+    ResponseDto<String> updateStudent(StudentDto studentDto);
 }

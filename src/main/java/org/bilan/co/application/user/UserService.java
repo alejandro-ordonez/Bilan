@@ -27,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -108,7 +109,19 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto<String> updateUserInfo(UserInfoDto userInfoDto, String token) {
-        return null;
+        Optional<UserInfo> userInfoToUpdate = userInfoRepository.findById((userInfoDto.getDocument()));
+
+        if(!userInfoToUpdate.isPresent()){
+            return new ResponseDto<>("Failed to update, not found", 404, "Error");
+        }
+        UserInfo user = userInfoToUpdate.get();
+        user.setIsEnabled(userInfoDto.getIsEnabled());
+        user.setName(userInfoDto.getName());
+        user.setLastName(userInfoDto.getLastName());
+
+        userInfoRepository.save(user);
+
+        return new ResponseDto<>("User updated", 200, "Ok");
     }
 
     @Override
