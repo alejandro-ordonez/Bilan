@@ -30,7 +30,7 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
             "       , CONCAT(c.nombre_establecimiento, ' - ', c.nombre_sede) AS name " +
             "       , COUNT(s.document) AS numberStudents" +
             "    FROM colleges c " +
-            "    JOIN students s " +
+            "    INNER JOIN students s  ON c.id=s.college_id " +
             "   WHERE c.id = :collegeId " +
             "GROUP BY c.id ", nativeQuery = true)
     ICollege singleById(@Param("collegeId") Integer collegeId);
