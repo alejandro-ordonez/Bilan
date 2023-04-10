@@ -90,15 +90,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/", "/management/*", "/actuator/*",
                         "/teacher/enroll",
-                        "/auth/login", "/auth/register/*", "/auth/register/update","/api-docs", "/api-docs/*",
-                        "/swagger-ui/*", "/swagger-ui.html")
+                        "/auth/login", "/auth/register/*", "/auth/register/update")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .headers()
+                .contentSecurityPolicy("script-src 'self' 'nonce-rAnd0m123' 'unsafe-inline' http: https:; " +
+                        "object-src 'none'; base-uri 'none'; " +
+                        "require-trusted-types-for 'script'; " +
+                        "style-src 'self' none;" +
+                        "img-src 'self' none;" +
+                        "frame-src 'self';");
+
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

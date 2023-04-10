@@ -23,10 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -49,10 +46,15 @@ public class EvidenceService implements IEvidenceService {
     public ResponseDto<String> upload(Phase phase, Long tribeId,
                                       MultipartFile file, AuthenticatedUserDto user) {
         UUID newFileId = UUID.randomUUID();
-        String path = String.format("%s/%s", BucketName.BILAN_EVIDENCES.getBucketName(), newFileId);
+        String extension = Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().indexOf('.'));
+        String fileName = String.format("%s%s", newFileId.toString(),extension);
+        log.info("File stored with name: " + fileName);
+
+        String path = String.format("%s/%s", BucketName.BILAN_EVIDENCES.getBucketName(), fileName);
+        log.info("Path: " + path);
         try {
-            fileStore.uploadFile(path, newFileId.toString(), Collections.emptyMap(), file.getInputStream());
-            Evidences evidence = Factories.newEvidence(phase, tribeId, path, newFileId.toString(), user.getDocument(),
+            fileStore.uploadFile(path, fileName, Collections.emptyMap(), file.getInputStream());
+            Evidences evidence = Factories.newEvidence(phase, tribeId, path, fileName, user.getDocument(),
                     file.getContentType());
             evidenceRepository.save(evidence);
             return new ResponseDto<>("Upload successful", HttpStatus.OK.value(), newFileId.toString());

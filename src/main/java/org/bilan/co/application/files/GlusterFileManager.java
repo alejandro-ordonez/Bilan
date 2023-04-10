@@ -29,16 +29,14 @@ public class GlusterFileManager implements IFileManager{
     
     @Override
     public void uploadFile(String path, String fileName, Map<String, String> metadata, InputStream inputStream) {
-
-        File file = new File(basePath+ BucketName.BILAN_EVIDENCES.getBucketName(), fileName);
-
+        Path fullPath = Paths.get(basePath, BucketName.BILAN_EVIDENCES.getBucketName(), fileName);
+        File file = new File(fullPath.toString());
         try {
             FileUtils.copyInputStreamToFile(inputStream, file);
-            FileUtils.getFile(basePath+"/"+path, fileName);
+            FileUtils.getFile(fullPath.toString());
         } catch (IOException e) {
             log.error("Failed to save the file ", e);
         }
-
     }
 
     @Override
