@@ -12,6 +12,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 -- Volcando estructura de base de datos para bilan
+DROP DATABASE IF EXISTS `bilan`;
 CREATE DATABASE IF NOT EXISTS `bilan` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `bilan`;
 

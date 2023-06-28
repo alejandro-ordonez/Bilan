@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-tmp_path="./"
+tmp_path="."
 sql_db_artifacts=("db" "views" "procedures"  
 "roles" "user-info" "teachers" "context" "tribes" "questions" "actions" "answers" "challenges" "privilages" "courses" "departamento-municipio" "colleges" "post-install")
 
