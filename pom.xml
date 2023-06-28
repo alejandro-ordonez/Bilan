@@ -11,7 +11,7 @@
 
     <groupId>org.bilan.co</groupId>
     <artifactId>bilan-backend</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1</version>
     <name>bilan-backend</name>
     <description>Bilan Backend</description>
     <packaging>jar</packaging>

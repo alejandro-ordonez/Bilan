@@ -27,7 +27,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -89,11 +88,26 @@ public class UserService implements IUserService {
 
         UserInfoDto result = parseUser(user);
 
+        UserType userType = result.getUserType();
+
+        if (Objects.requireNonNull(userType) == UserType.Student) {
+            AddStudentExtraProperties(result);
+        }
+
+
         return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
                 .createResponseDto();
     }
 
-    private UserInfoDto parseUser(UserInfo user){
+
+    private void AddStudentExtraProperties(UserInfoDto userInfoDto) {
+        Students student = studentsRepository.getById(userInfoDto.getDocument());
+
+        userInfoDto.getMetadata().put("grade", student.getGrade());
+        userInfoDto.getMetadata().put("course", student.getCourses().getName());
+    }
+
+    private UserInfoDto parseUser(UserInfo user) {
         UserInfoDto result = new UserInfoDto();
         result.setEmail(user.getEmail());
         result.setName(user.getName());
@@ -379,6 +393,15 @@ public class UserService implements IUserService {
 
             if (user == null) {
                 log.error("User couldn't be loaded");
+                return new User("", "", new ArrayList<>());
+            }
+
+            UserInfoDto parsedUser = parseUser(user);
+            boolean userValid = authDto.getUserType().equals(parsedUser.getUserType()) &&
+                    authDto.getDocumentType().equals(parsedUser.getDocumentType());
+
+            if (!userValid) {
+                log.error("User credentials are not correct");
                 return new User("", "", new ArrayList<>());
             }
 

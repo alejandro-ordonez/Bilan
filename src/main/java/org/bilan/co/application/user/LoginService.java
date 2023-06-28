@@ -68,7 +68,6 @@ public class LoginService implements ILoginService {
     }
 
     private void authenticate(String data, String password)  {
-        log.info(password);
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(data, password));
     }
 }
