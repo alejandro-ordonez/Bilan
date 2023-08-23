@@ -21,6 +21,7 @@ public class StatsController {
     @Autowired
     private IStudentStatsService statsService;
 
+    @PreAuthorize("hasAuthority('STUDENT')")
     @GetMapping
     public ResponseEntity<ResponseDto<GameStatsDto>> getStats(@RequestHeader(Constants.AUTHORIZATION) String jwt){
         return  ResponseEntity.ok(statsService.getUserStats(jwt));

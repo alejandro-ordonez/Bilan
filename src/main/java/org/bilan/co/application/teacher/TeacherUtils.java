@@ -2,18 +2,24 @@ package org.bilan.co.application.teacher;
 
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
 import org.bilan.co.domain.dtos.teacher.TeacherDto;
+import org.bilan.co.domain.dtos.user.UserInfoDto;
 import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.enums.UserType;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public final class TeacherUtils {
     private TeacherUtils(){}
 
-    public static TeacherDto parseTeacher(Teachers teacher){
+    public static TeacherDto parseTeacher(Teachers teacher) {
         TeacherDto teacherDto = new TeacherDto();
         teacherDto.setCodDane(teacher.getCodDane());
-        teacherDto.setClassRoomDtoList(teacher.getClassrooms().stream().map(TeacherUtils::parseClassRoom)
-                .collect(Collectors.toList()));
+        teacherDto.setClassRoomDtoList(
+                teacher.getClassrooms()
+                        .stream()
+                        .map(TeacherUtils::parseClassRoom)
+                        .collect(Collectors.toList()));
 
         teacherDto.setCodDaneSede(teacher.getCodDaneSede());
         teacherDto.setCodDaneMinResidencia(teacher.getCodDaneMinResidencia());
@@ -23,7 +29,36 @@ public final class TeacherUtils {
         teacherDto.setName(teacher.getName());
         teacherDto.setLastName(teacher.getLastName());
         teacherDto.setIsEnabled(teacher.getIsEnabled());
-        return  teacherDto;
+        teacherDto.setUserType(UserType.Teacher);
+
+        addTeacherExtraProperties(teacherDto, teacher.getClassrooms());
+        return teacherDto;
+    }
+
+    public static void addTeacherExtraProperties(UserInfoDto userInfoDto, List<Classroom> classrooms) {
+        if (classrooms == null)
+            return;
+
+        StringBuilder grades = new StringBuilder();
+        StringBuilder courses = new StringBuilder();
+        StringBuilder subjects = new StringBuilder();
+
+        for (int i = 0; i < classrooms.size(); i++) {
+            grades.append(classrooms.get(i).getGrade());
+            courses.append(classrooms.get(i).getCourse().getName());
+            subjects.append(classrooms.get(i).getTribe().getName());
+
+            if (i != classrooms.size() - 1) {
+                grades.append(", ");
+                courses.append(", ");
+                subjects.append(", ");
+            }
+        }
+
+
+        userInfoDto.getMetadata().put("grades", grades.toString());
+        userInfoDto.getMetadata().put("courses", courses.toString());
+        userInfoDto.getMetadata().put("subjects", subjects.toString());
     }
 
 

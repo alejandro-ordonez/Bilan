@@ -47,7 +47,7 @@ public class EvidenceService implements IEvidenceService {
                                       MultipartFile file, AuthenticatedUserDto user) {
         UUID newFileId = UUID.randomUUID();
         String extension = Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().indexOf('.'));
-        String fileName = String.format("%s%s", newFileId.toString(),extension);
+        String fileName = String.format("%s%s", newFileId,extension);
         log.info("File stored with name: " + fileName);
 
         String path = String.format("%s/%s", BucketName.BILAN_EVIDENCES.getBucketName(), fileName);
@@ -78,12 +78,22 @@ public class EvidenceService implements IEvidenceService {
 
     @Override
     public ResponseDto<List<IEvidence>> filter(FilterEvidence filter, AuthenticatedUserDto user) {
-        return this.evidenceRepository.filter(filter.getGrade(), filter.getTribeId(), filter.getCourseId(),
-                        filter.getPhase().toString(), user.getDocument())
+        Optional<List<IEvidence>> evidences = this.evidenceRepository.filter(
+                filter.getGrade(),
+                filter.getTribeId(),
+                filter.getCourseId(),
+                filter.getPhase().toString(),
+                user.getDocument());
+
+
+        return evidences
                 .filter(list -> !list.isEmpty())
                 .map(list -> new ResponseDto<>("", HttpStatus.OK.value(), list))
-                .orElse(new ResponseDto<>(Constants.RESOURCE_NOT_FOUND, HttpStatus.NOT_FOUND.value(),
+                .orElse(new ResponseDto<>(
+                        Constants.RESOURCE_NOT_FOUND,
+                        HttpStatus.NOT_FOUND.value(),
                         Collections.emptyList()));
+
     }
 
     @Override

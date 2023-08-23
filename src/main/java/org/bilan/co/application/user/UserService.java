@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
+import org.bilan.co.application.teacher.TeacherUtils;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.common.PagedResponse;
@@ -88,23 +89,44 @@ public class UserService implements IUserService {
 
         UserInfoDto result = parseUser(user);
 
-        UserType userType = result.getUserType();
-
-        if (Objects.requireNonNull(userType) == UserType.Student) {
-            AddStudentExtraProperties(result);
-        }
-
+        addExtraProperties(result);
 
         return new ResponseDtoBuilder<UserInfoDto>().setDescription("Test").setResult(result).setCode(200)
                 .createResponseDto();
     }
 
 
-    private void AddStudentExtraProperties(UserInfoDto userInfoDto) {
+    private void addStudentExtraProperties(UserInfoDto userInfoDto) {
         Students student = studentsRepository.getById(userInfoDto.getDocument());
 
         userInfoDto.getMetadata().put("grade", student.getGrade());
         userInfoDto.getMetadata().put("course", student.getCourses().getName());
+    }
+
+
+    private void addExtraProperties(UserInfoDto userInfoDto) {
+
+        switch (userInfoDto.getUserType()) {
+            case Student:
+                addStudentExtraProperties(userInfoDto);
+                break;
+
+            case Teacher:
+                List<Classroom> classrooms = classroomRepository.getTeacherClassrooms(userInfoDto.getDocument());
+                TeacherUtils.addTeacherExtraProperties(userInfoDto, classrooms);
+                addCodDaneSede(userInfoDto);
+                break;
+
+            case DirectiveTeacher:
+                addCodDaneSede(userInfoDto);
+                break;
+        }
+
+    }
+
+    private void addCodDaneSede(UserInfoDto userInfoDto) {
+        String codDaneSede = teachersRepository.getCodDaneSede(userInfoDto.getDocument());
+        userInfoDto.getMetadata().put("codDaneSede", codDaneSede);
     }
 
     private UserInfoDto parseUser(UserInfo user) {
@@ -117,6 +139,8 @@ public class UserService implements IUserService {
         result.setGrantedAuthorities(getAuthorities(user.getRole()));
         result.setIsEnabled(user.getIsEnabled());
         result.setUserType(UserType.findByRol(user.getRole().getName()));
+
+        addExtraProperties(result);
 
         return result;
     }
