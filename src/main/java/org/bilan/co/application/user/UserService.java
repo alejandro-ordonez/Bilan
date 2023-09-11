@@ -8,13 +8,12 @@ import org.bilan.co.application.teacher.TeacherUtils;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.common.PagedResponse;
-import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.user.EnableUser;
-import org.bilan.co.domain.dtos.user.UserInfoDto;
+import org.bilan.co.domain.dtos.user.*;
 import org.bilan.co.domain.entities.*;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.infraestructure.persistance.*;
+import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -145,17 +144,22 @@ public class UserService implements IUserService {
         return result;
     }
 
+    public static void updateUserEntityFromDto(UserInfo user, UserInfoDto userInfoDto) {
+        user.setIsEnabled(userInfoDto.getIsEnabled());
+        user.setName(userInfoDto.getName());
+        user.setLastName(userInfoDto.getLastName());
+        user.setEmail(user.getEmail());
+    }
+
     @Override
     public ResponseDto<String> updateUserInfo(UserInfoDto userInfoDto, String token) {
         Optional<UserInfo> userInfoToUpdate = userInfoRepository.findById((userInfoDto.getDocument()));
 
-        if(!userInfoToUpdate.isPresent()){
+        if (!userInfoToUpdate.isPresent()) {
             return new ResponseDto<>("Failed to update, not found", 404, "Error");
         }
         UserInfo user = userInfoToUpdate.get();
-        user.setIsEnabled(userInfoDto.getIsEnabled());
-        user.setName(userInfoDto.getName());
-        user.setLastName(userInfoDto.getLastName());
+        updateUserEntityFromDto(user, userInfoDto);
 
         userInfoRepository.save(user);
 
@@ -169,25 +173,25 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResponseDto<String> uploadUsersFromFile(MultipartFile file, UserType userType, String token, String campusCodeDane) {
+    public ResponseDto<UploadFromFileResultDto> uploadUsersFromFile(MultipartFile file, UserType userType, String token, String campusCodeDane) {
 
         Optional<Colleges> c;
+        UploadFromFileResultDto results = new UploadFromFileResultDto();
 
-        if(campusCodeDane == null){
+        if (campusCodeDane == null) {
             AuthenticatedUserDto authenticatedUserDto = jwtTokenUtil.getInfoFromToken(token);
             String codDaneSede = teachersRepository.getCodDaneSede(authenticatedUserDto.getDocument());
             c = collegesRepository.findByCodDaneSede(codDaneSede);
-            if(!c.isPresent()){
+            if (!c.isPresent()) {
                 String message = "The directive teacher does not have a college linked";
-                return new ResponseDto<>(message, 400,"failed");
+                return new ResponseDto<>(message, 400, results);
             }
-        }
-        else {
+        } else {
             c = collegesRepository.findByCodDaneSede(campusCodeDane);
 
         }
-        return c.map(colleges -> loadUsersFromFile(file, userType, colleges)).
-                orElseGet(() -> new ResponseDto<>("College not found", 404, "failed"));
+        return c.map(college -> loadUsersFromFile(file, userType, college)).
+                orElseGet(() -> new ResponseDto<>("College not found", 404, null));
 
     }
 
@@ -246,11 +250,14 @@ public class UserService implements IUserService {
         return new ResponseDto<>("Users retrieved successfully", 200, userInfoDtoPagedResponse);
     }
 
-    private ResponseDto<String> loadUsersFromFile(MultipartFile file, UserType userType, Colleges colleges){
+    private ResponseDto<UploadFromFileResultDto> loadUsersFromFile(MultipartFile file, UserType userType, Colleges colleges) {
 
         LineIterator it = null;
 
-        ResponseDto<String> responseDto;
+        UploadFromFileResultDto responseDto = new UploadFromFileResultDto();
+
+        Teachers currentTeacher;
+        Students currentStudent;
 
         int nLine = 0;
 
@@ -258,53 +265,58 @@ public class UserService implements IUserService {
             File fileToUpload = new File(Objects.requireNonNull(file.getOriginalFilename()));
             FileUtils.copyToFile(file.getInputStream(), fileToUpload);
             it = FileUtils.lineIterator(fileToUpload, "UTF-8");
+            String[] user = new String[0];
 
-            try {
-                String line = it.nextLine();
-                while (it.hasNext()) {
-                    nLine ++;
+            String line = it.nextLine();
+            while (it.hasNext()) {
+
+                try {
+                    nLine++;
                     line = it.nextLine();
-                    String[] user = line.split(",");
+                    user = line.split(",");
 
-                    switch (userType){
+                    switch (userType) {
                         case Student:
-                            processStudent(user, nLine, colleges);
+                            currentStudent = processStudent(user, nLine, colleges);
+                            responseDto.getProcessed().add(new UploadedUserResultDto(currentStudent.getDocument(), UploadResult.OK, Constants.UPLOADED));
                             break;
+
                         case Teacher:
-                            processTeacher(user, nLine, colleges);
+                            currentTeacher = processTeacher(user, nLine, colleges);
+                            responseDto.getProcessed().add(new UploadedUserResultDto(currentTeacher.getDocument(), UploadResult.OK, Constants.UPLOADED));
                             break;
                     }
+                } catch (Exception e) {
+                    String message = "One of the lines was incorrect, it didn't match the expected columns or one of the" +
+                            "arguments were incorrect: " + e.getMessage();
+                    log.error(message);
+                    responseDto.getSkipped().add(new UploadedUserResultDto(user[0], UploadResult.Skipped, String.format(Constants.FAILED, nLine)));
                 }
 
-            } catch (Exception e) {
-                String message = "One of the lines was incorrect, it didn't match the expected columns or one of the" +
-                        "arguments were incorrect: " + e.getMessage();
-                log.error(message);
-                return new ResponseDto<>(message, 500, "");
 
-            } finally {
-                LineIterator.closeQuietly(it);
             }
+            return new ResponseDto<>("The users were added successfully", 200, responseDto);
 
         } catch (IOException e) {
             String message = "Failed to extract the file from request";
             log.error(message, e);
-            return new ResponseDto<>(message, 500, "");
+            return new ResponseDto<>(message, 500, responseDto);
+        } finally {
+            LineIterator.closeQuietly(it);
         }
 
-        return new ResponseDto<>("The users were added successfully", 200, "");
     }
 
 
     @Override
-    public void processTeacher(String[] user, int nLine, Colleges colleges) throws Exception {
-        if(user.length!=5)
+    public Teachers processTeacher(String[] user, int nLine, Colleges colleges) throws Exception {
+        if (user.length != 5)
             throw new Exception("The line was in bad format");
 
         String document = user[0];
 
-        if(!teachersRepository.existsById(document))
-            throw new IllegalArgumentException("Teacher not found: "+ document);
+        if (!teachersRepository.existsById(document))
+            throw new IllegalArgumentException("Teacher not found: " + document);
 
 
         DocumentType documentType = DocumentType.valueOf(user[1]);
@@ -339,12 +351,15 @@ public class UserService implements IUserService {
         teacher.setPositionName("Profesor");
 
         classroomRepository.save(classroom);
+
+        return teacher;
     }
 
     @Override
-    public void processStudent(String[] user, int nLine, Colleges colleges) throws Exception {
-        if(user.length!=6)
-            throw new Exception("The line was in bad format, at: "+nLine);
+    public Students processStudent(String[] user, int nLine, Colleges colleges) throws Exception {
+        if (user.length != 6 || Arrays.stream(user).anyMatch(String::isEmpty))
+            throw new Exception("The line was in bad format, at: " + nLine);
+
 
         String document = user[0];
         DocumentType documentType = DocumentType.valueOf(user[1]);
@@ -377,6 +392,7 @@ public class UserService implements IUserService {
         s.setPositionName("Estudiante");
 
         studentsRepository.save(s);
+        return s;
     }
 
     private void validateGrade(String grade, int nLine){

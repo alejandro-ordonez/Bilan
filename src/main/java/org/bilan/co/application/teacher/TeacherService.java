@@ -2,16 +2,18 @@ package org.bilan.co.application.teacher;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.student.StudentService;
+import org.bilan.co.application.user.UserService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.ClassRoomDto;
 import org.bilan.co.domain.dtos.college.ClassRoomStats;
 import org.bilan.co.domain.dtos.common.PagedResponse;
-import org.bilan.co.domain.dtos.student.StudentDto;
 import org.bilan.co.domain.dtos.student.StudentStatsRecord;
 import org.bilan.co.domain.dtos.teacher.TeacherDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnrollmentDto;
-import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.entities.Classroom;
+import org.bilan.co.domain.entities.Students;
+import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.infraestructure.persistance.ClassroomRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
@@ -75,16 +77,29 @@ public class TeacherService implements ITeacherService{
     public ResponseDto<List<ClassRoomDto>> getClassrooms(String jwt) {
 
         AuthenticatedUserDto user = jwtUtils.getInfoFromToken(jwt);
+        List<ClassRoomDto> classRoomDtos;
 
-        Optional<Teachers> teachers = teachersRepository.findById(user.getDocument());
+        switch (user.getUserType()) {
+            case Admin:
+                classRoomDtos = classroomRepository.findAll()
+                        .stream()
+                        .map(TeacherUtils::parseClassRoom)
+                        .collect(Collectors.toList());
+                break;
 
-        if(!teachers.isPresent())
-            return new ResponseDto<>("The teacher was not found", 404, null);
+            case Teacher:
+                Optional<Teachers> teachers = teachersRepository.findById(user.getDocument());
+                classRoomDtos = teachers.map(value -> value.getClassrooms()
+                                .stream()
+                                .map(TeacherUtils::parseClassRoom)
+                                .collect(Collectors.toList()))
+                        .orElseGet(ArrayList::new);
+                break;
 
-        List<ClassRoomDto> classRoomDtos = teachers.get().getClassrooms()
-                .stream()
-                .map(TeacherUtils::parseClassRoom)
-                .collect(Collectors.toList());
+            default:
+                classRoomDtos = new ArrayList<>();
+                break;
+        }
 
         return new ResponseDto<>("Classrooms retrieved", 200, classRoomDtos);
     }
@@ -127,11 +142,13 @@ public class TeacherService implements ITeacherService{
     public ResponseDto<String> updateTeacher(TeacherDto teacherDto) {
         Optional<Teachers> teacher = this.teachersRepository.findById(teacherDto.getDocument());
 
-        if(!teacher.isPresent()){
+        if (!teacher.isPresent()) {
             return new ResponseDto<>("Failed to update the teacher, it doesn't exists", 400, "Error");
         }
 
         Teachers teacherUpdated = teacher.get();
+        UserService.updateUserEntityFromDto(teacherUpdated, teacherDto);
+
         teacherUpdated.setCodDane(teacherDto.getCodDane());
         teacherUpdated.setCodDaneMinResidencia(teacherDto.getCodDaneMinResidencia());
         teacherUpdated.setEmail(teacherDto.getEmail());

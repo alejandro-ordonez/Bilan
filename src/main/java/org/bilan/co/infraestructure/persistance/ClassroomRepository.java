@@ -14,4 +14,5 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Integer> {
 
     @Query("SELECT c FROM Classroom c WHERE c.teacher.document = :document")
     List<Classroom> getTeacherClassrooms(String document);
+
 }

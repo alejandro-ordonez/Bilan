@@ -1,14 +1,16 @@
 package org.bilan.co.application.student;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bilan.co.application.user.UserService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.student.StudentDashboardDto;
 import org.bilan.co.domain.dtos.student.StudentDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
-import org.bilan.co.domain.dtos.user.UserInfoDto;
-import org.bilan.co.domain.entities.*;
-import org.bilan.co.domain.enums.UserType;
+import org.bilan.co.domain.entities.Courses;
+import org.bilan.co.domain.entities.Evaluation;
+import org.bilan.co.domain.entities.Evidences;
+import org.bilan.co.domain.entities.Students;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
 import org.bilan.co.utils.JwtTokenUtil;
@@ -17,7 +19,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -151,7 +156,7 @@ public class StudentService implements IStudentService {
         }
 
         Students student = studentToUpdate.get();
-        student.setEmail(studentDto.getEmail());
+        UserService.updateUserEntityFromDto(student, studentDto);
 
         Optional<Courses> courses = coursesRepository.findFirstByCourseName(studentDto.getCourse());
         if(!courses.isPresent()) return new ResponseDto<>("Invalid Course", 400, "Error");
