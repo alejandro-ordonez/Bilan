@@ -29,19 +29,19 @@ public class DashboardController {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
-    @PreAuthorize("hasAuthority('MIN_USER')")
+    @PreAuthorize("hasAnyAuthority('MIN_USER', 'ADMIN')")
     @GetMapping
     public ResponseEntity<ResponseDto<GeneralDashboardDto>> statistics() {
         return ResponseEntity.ok(dashboardService.statistics());
     }
 
-    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU')")
+    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'ADMIN')")
     @GetMapping("/state")
     public ResponseEntity<ResponseDto<GeneralDashboardDto>> stateStatistics(@RequestParam String state) {
         return ResponseEntity.ok(dashboardService.stateStatistics(state));
     }
 
-    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU')")
+    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'ADMIN')")
     @GetMapping("/municipality")
     public ResponseEntity<ResponseDto<GeneralDashboardDto>> munStatistics(@RequestParam Integer munId,
                                                                           @RequestParam(defaultValue = "0") Integer page) {
@@ -49,13 +49,13 @@ public class DashboardController {
                 Constants.MAX_SIZE_PAGE)));
     }
 
-    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER')")
+    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'ADMIN')")
     @GetMapping("/college")
     public ResponseEntity<ResponseDto<CollegeDashboardDto>> collegeStatistics(@RequestParam("codDane") String codDane) {
         return ResponseEntity.ok(dashboardService.collegeStatistics(codDane));
     }
 
-    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER')")
+    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER', 'ADMIN')")
     @GetMapping("/grade")
     public ResponseEntity<ResponseDto<GradeDashboardDto>> courseGradeStatistics(@RequestParam Integer collegeId,
                                                                                 @RequestParam String grade,
@@ -63,7 +63,7 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.courseGradeStatistics(collegeId, grade, courseId));
     }
 
-    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER', 'STUDENT')")
+    @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER', 'STUDENT', 'ADMIN')")
     @GetMapping("/student")
     public ResponseEntity<ResponseDto<StudentDashboardDto>> studentStatistics(@RequestParam String document) {
         return ResponseEntity.ok(dashboardService.studentStatistics(document));
