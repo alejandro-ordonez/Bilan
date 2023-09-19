@@ -25,25 +25,23 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
     @Query("SELECT c FROM Colleges c WHERE c.campusCodeDane = :codDane")
     Optional<Colleges> findByCodDaneSede(String codDane);
 
-    @Query(value = "" +
-            "  SELECT c.id AS id " +
+    @Query(value = "  SELECT c.id AS id " +
             "       , CONCAT(c.nombre_establecimiento, ' - ', c.nombre_sede) AS name " +
             "       , COUNT(s.document) AS numberStudents" +
             "    FROM colleges c " +
-            "    INNER JOIN students s  ON c.id=s.college_id " +
+            "    LEFT JOIN students s  ON c.id=s.college_id " +
             "   WHERE c.id = :collegeId " +
             "GROUP BY c.id ", nativeQuery = true)
     ICollege singleById(@Param("collegeId") Integer collegeId);
 
-    @Query(value = "" +
-            "  SELECT DISTINCT" +
+    @Query(value = "  SELECT DISTINCT" +
             "         c.id AS id " +
             "       , CONCAT(c.nombre_establecimiento, ' - ', c.nombre_sede) AS name " +
             "    FROM colleges c " +
             "    JOIN departamento_municipio dm " +
             "      ON dm.id = c.dep_mun_id " +
             "   WHERE dm.id = :munId " +
-            "GROUP BY c.codigo_dane " +
+            "   GROUP BY c.codigo_dane_sede  " +
             "ORDER BY c.id ", nativeQuery = true)
     @Cacheable(CACHE_COLLEGES_BY_MUN)
     List<ICollege> findByMunId(@Param("munId") Integer munId);

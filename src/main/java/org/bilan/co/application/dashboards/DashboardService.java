@@ -7,6 +7,7 @@ import org.bilan.co.domain.dtos.dashboard.GeneralDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.GradeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.StudentDashboardDto;
 import org.bilan.co.domain.entities.Colleges;
+import org.bilan.co.domain.entities.Courses;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.projections.ICollege;
 import org.bilan.co.domain.projections.IMunicipality;
@@ -30,16 +31,20 @@ public class DashboardService implements IDashboardService {
     private final TeachersRepository teachersRepository;
     private final StudentsRepository studentsRepository;
     private final CollegesRepository collegesRepository;
+
+    private final CoursesRepository coursesRepository;
     private final StateMunicipalityRepository stateMunicipalityRepository;
 
     public DashboardService(DashboardRepository dashboardRepository, TeachersRepository teachersRepository,
                             StudentsRepository studentsRepository, CollegesRepository collegesRepository,
+                            CoursesRepository coursesRepository,
                             StateMunicipalityRepository stateMunicipalityRepository) {
         this.dashboardRepository = dashboardRepository;
         this.teachersRepository = teachersRepository;
         this.studentsRepository = studentsRepository;
         this.collegesRepository = collegesRepository;
         this.stateMunicipalityRepository = stateMunicipalityRepository;
+        this.coursesRepository = coursesRepository;
     }
 
     @Override
@@ -71,7 +76,7 @@ public class DashboardService implements IDashboardService {
     }
 
     @Override
-    public ResponseDto<GradeDashboardDto> courseGradeStatistics(Integer collegeId, String grade, Integer courseId) {
+    public ResponseDto<GradeDashboardDto> courseGradeStatistics(String collegeId, String grade, String courseId) {
         return this.buildCourseGrade(collegeId, grade, courseId)
                 .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
@@ -200,19 +205,29 @@ public class DashboardService implements IDashboardService {
         return Optional.empty();
     }
 
-    private Optional<GradeDashboardDto> buildCourseGrade(Integer collegeId, String grade, Integer courseId) {
+    private Optional<GradeDashboardDto> buildCourseGrade(String collegeId, String grade, String courseId) {
+        Optional<Colleges> college = collegesRepository.findByCodDaneSede(collegeId);
+        if (college.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Optional<Courses> c = coursesRepository.findFirstByCourseName(courseId);
+
+        if (c.isEmpty()) {
+            return Optional.empty();
+        }
 
         CompletableFuture<List<Students>> students =
-                supplyAsync(() -> this.studentsRepository.findStudentsByCollegeAndGrade(collegeId, grade, courseId));
+                supplyAsync(() -> this.studentsRepository.findStudentsByCollegeAndGrade(college.get().getId(), grade, c.get().getId()));
 
         CompletableFuture<List<Object[]>> logins =
-                supplyAsync(() -> this.dashboardRepository.loginCourseGrade(collegeId, grade, courseId));
+                supplyAsync(() -> this.dashboardRepository.loginCourseGrade(college.get().getId(), grade, c.get().getId()));
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(() -> this.dashboardRepository.statistics(collegeId, grade, courseId));
+                supplyAsync(() -> this.dashboardRepository.statistics(college.get().getId(), grade, c.get().getId()));
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(() -> this.dashboardRepository.statisticsPerformance(collegeId, grade, courseId));
+                supplyAsync(() -> this.dashboardRepository.statisticsPerformance(college.get().getId(), grade, c.get().getId()));
 
         try {
             return CompletableFuture
