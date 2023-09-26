@@ -207,7 +207,7 @@ public class DashboardService implements IDashboardService {
 
     private Optional<GradeDashboardDto> buildCourseGrade(String collegeId, String grade, String courseId) {
         Optional<Colleges> college = collegesRepository.findByCodDaneSede(collegeId);
-        if (college.isEmpty()) {
+        if (!college.isPresent()) {
             return Optional.empty();
         }
 

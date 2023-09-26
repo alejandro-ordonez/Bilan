@@ -5,6 +5,7 @@ import org.bilan.co.application.general.IGeneralInfoService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.general.CityDto;
 import org.bilan.co.domain.dtos.general.GradeCourseDto;
+import org.bilan.co.domain.dtos.general.StateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +24,8 @@ public class GeneralInfo {
     IGeneralInfoService generalInfoService;
 
     @GetMapping("states")
-    public ResponseEntity<ResponseDto<List<String>>> getStates() {
-        ResponseDto<List<String>> response = generalInfoService.getStates();
+    public ResponseEntity<ResponseDto<List<StateDto>>> getStates() {
+        ResponseDto<List<StateDto>> response = generalInfoService.getStates();
         return ResponseEntity.status(response.getCode()).body(response);
     }
 

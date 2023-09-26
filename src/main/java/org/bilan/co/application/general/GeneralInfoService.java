@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.general.CityDto;
 import org.bilan.co.domain.dtos.general.GradeCourseDto;
+import org.bilan.co.domain.dtos.general.StateDto;
 import org.bilan.co.domain.entities.Courses;
+import org.bilan.co.domain.entities.StateMunicipality;
 import org.bilan.co.infraestructure.persistance.CoursesRepository;
 import org.bilan.co.infraestructure.persistance.StateMunicipalityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,13 +29,26 @@ public class GeneralInfoService implements IGeneralInfoService {
     CoursesRepository coursesRepository;
 
     @Override
-    public ResponseDto<List<String>> getStates() {
-        List<String> states = stateMunicipalityRepository.states();
+    public ResponseDto<List<StateDto>> getStates() {
+        Map<String, List<StateMunicipality>> states = stateMunicipalityRepository.findAll()
+                .stream()
+                .collect(Collectors.groupingBy(StateMunicipality::getState));
+
+        List<StateDto> result = new ArrayList<>();
+
+        for (Map.Entry<String, List<StateMunicipality>> entry : states.entrySet()) {
+            List<CityDto> cities = entry.getValue()
+                    .stream()
+                    .map(sm -> new CityDto(sm.getId(), sm.getMunicipality()))
+                    .toList();
+            result.add(new StateDto(entry.getKey(), cities));
+        }
+
 
         return new ResponseDto<>(
                 "States returned",
-                states.size() > 0 ? 200 : 204,
-                states
+                result.size() > 0 ? 200 : 204,
+                result
         );
     }
 
