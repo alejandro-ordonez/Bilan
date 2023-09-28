@@ -51,13 +51,13 @@ public class DashboardController {
 
     @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'ADMIN')")
     @GetMapping("/college")
-    public ResponseEntity<ResponseDto<CollegeDashboardDto>> collegeStatistics(@RequestParam("codDane") String codDane) {
-        return ResponseEntity.ok(dashboardService.collegeStatistics(codDane));
+    public ResponseEntity<ResponseDto<CollegeDashboardDto>> collegeStatistics(@RequestParam("collegeId") int collegeId) {
+        return ResponseEntity.ok(dashboardService.collegeStatistics(collegeId));
     }
 
     @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER', 'ADMIN')")
     @GetMapping("/grade")
-    public ResponseEntity<ResponseDto<GradeDashboardDto>> courseGradeStatistics(@RequestParam String collegeId,
+    public ResponseEntity<ResponseDto<GradeDashboardDto>> courseGradeStatistics(@RequestParam int collegeId,
                                                                                 @RequestParam String grade,
                                                                                 @RequestParam String courseId) {
         return ResponseEntity.ok(dashboardService.courseGradeStatistics(collegeId, grade, courseId));

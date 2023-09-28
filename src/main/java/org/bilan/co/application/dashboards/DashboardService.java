@@ -6,7 +6,6 @@ import org.bilan.co.domain.dtos.dashboard.CollegeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.GeneralDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.GradeDashboardDto;
 import org.bilan.co.domain.dtos.dashboard.StudentDashboardDto;
-import org.bilan.co.domain.entities.Colleges;
 import org.bilan.co.domain.entities.Courses;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.projections.ICollege;
@@ -69,14 +68,14 @@ public class DashboardService implements IDashboardService {
     }
 
     @Override
-    public ResponseDto<CollegeDashboardDto> collegeStatistics(String codDane) {
-        return this.buildCollege(codDane)
+    public ResponseDto<CollegeDashboardDto> collegeStatistics(int collegeId) {
+        return this.buildCollege(collegeId)
                 .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
     }
 
     @Override
-    public ResponseDto<GradeDashboardDto> courseGradeStatistics(String collegeId, String grade, String courseId) {
+    public ResponseDto<GradeDashboardDto> courseGradeStatistics(int collegeId, String grade, String courseId) {
         return this.buildCourseGrade(collegeId, grade, courseId)
                 .map(dashboard -> new ResponseDto<>("Dashboard", 200, dashboard))
                 .orElse(new ResponseDto<>("Dashboard Not Found", 404, null));
@@ -173,22 +172,19 @@ public class DashboardService implements IDashboardService {
         return Optional.empty();
     }
 
-    private Optional<CollegeDashboardDto> buildCollege(String codDane) {
-        Colleges colleges = collegesRepository.collegeByCampusCodeDane(codDane);
-        if(colleges == null){
-            return Optional.empty();
-        }
+    private Optional<CollegeDashboardDto> buildCollege(int collegeId) {
+
         CompletableFuture<ICollege> college =
-                supplyAsync(() -> this.collegesRepository.singleById(colleges.getId()));
+                supplyAsync(() -> this.collegesRepository.singleById(collegeId));
 
         CompletableFuture<List<Object[]>> logins =
-                supplyAsync(() -> this.dashboardRepository.loginCollege(colleges.getId()));
+                supplyAsync(() -> this.dashboardRepository.loginCollege(collegeId));
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(() -> this.dashboardRepository.statisticsCollege(colleges.getId()));
+                supplyAsync(() -> this.dashboardRepository.statisticsCollege(collegeId));
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(() -> this.dashboardRepository.statisticsCollegePerformance(colleges.getId()));
+                supplyAsync(() -> this.dashboardRepository.statisticsCollegePerformance(collegeId));
 
         try {
             return CompletableFuture
@@ -205,11 +201,7 @@ public class DashboardService implements IDashboardService {
         return Optional.empty();
     }
 
-    private Optional<GradeDashboardDto> buildCourseGrade(String collegeId, String grade, String courseId) {
-        Optional<Colleges> college = collegesRepository.findByCodDaneSede(collegeId);
-        if (!college.isPresent()) {
-            return Optional.empty();
-        }
+    private Optional<GradeDashboardDto> buildCourseGrade(int collegeId, String grade, String courseId) {
 
         Optional<Courses> c = coursesRepository.findFirstByCourseName(courseId);
 
@@ -218,16 +210,16 @@ public class DashboardService implements IDashboardService {
         }
 
         CompletableFuture<List<Students>> students =
-                supplyAsync(() -> this.studentsRepository.findStudentsByCollegeAndGrade(college.get().getId(), grade, c.get().getId()));
+                supplyAsync(() -> this.studentsRepository.findStudentsByCollegeAndGrade(collegeId, grade, c.get().getId()));
 
         CompletableFuture<List<Object[]>> logins =
-                supplyAsync(() -> this.dashboardRepository.loginCourseGrade(college.get().getId(), grade, c.get().getId()));
+                supplyAsync(() -> this.dashboardRepository.loginCourseGrade(collegeId, grade, c.get().getId()));
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(() -> this.dashboardRepository.statistics(college.get().getId(), grade, c.get().getId()));
+                supplyAsync(() -> this.dashboardRepository.statistics(collegeId, grade, c.get().getId()));
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(() -> this.dashboardRepository.statisticsPerformance(college.get().getId(), grade, c.get().getId()));
+                supplyAsync(() -> this.dashboardRepository.statisticsPerformance(collegeId, grade, c.get().getId()));
 
         try {
             return CompletableFuture

@@ -15,9 +15,9 @@ public interface IDashboardService {
 
     ResponseDto<GeneralDashboardDto> municipalityStatistics(Integer munId, PageRequest page);
 
-    ResponseDto<CollegeDashboardDto> collegeStatistics(String college);
+    ResponseDto<CollegeDashboardDto> collegeStatistics(int collegeId);
 
-    ResponseDto<GradeDashboardDto> courseGradeStatistics(String collegeId, String grade, String courseId);
+    ResponseDto<GradeDashboardDto> courseGradeStatistics(int collegeId, String grade, String courseId);
 
     ResponseDto<StudentDashboardDto> studentStatistics(String document);
 }
