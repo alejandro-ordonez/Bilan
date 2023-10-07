@@ -126,6 +126,9 @@ public class UserService implements IUserService {
     private void addCodDaneSede(UserInfoDto userInfoDto) {
         String codDaneSede = teachersRepository.getCodDaneSede(userInfoDto.getDocument());
         userInfoDto.getMetadata().put("codDaneSede", codDaneSede);
+
+        Optional<Colleges> college = collegesRepository.findByCodDaneSede(codDaneSede);
+        college.ifPresent(colleges -> userInfoDto.getMetadata().put("collegeId", colleges.getId().toString()));
     }
 
     private UserInfoDto parseUser(UserInfo user) {
