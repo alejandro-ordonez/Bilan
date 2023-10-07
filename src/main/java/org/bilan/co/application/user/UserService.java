@@ -128,7 +128,11 @@ public class UserService implements IUserService {
         userInfoDto.getMetadata().put("codDaneSede", codDaneSede);
 
         Optional<Colleges> college = collegesRepository.findByCodDaneSede(codDaneSede);
-        college.ifPresent(colleges -> userInfoDto.getMetadata().put("collegeId", colleges.getId().toString()));
+        if (college.isPresent()) {
+            userInfoDto.getMetadata().put("cityId", college.get().getStateMunicipality().getId().toString());
+            userInfoDto.getMetadata().put("collegeId", college.get().getId().toString());
+            userInfoDto.getMetadata().put("state", college.get().getStateMunicipality().getState());
+        }
     }
 
     private UserInfoDto parseUser(UserInfo user) {
