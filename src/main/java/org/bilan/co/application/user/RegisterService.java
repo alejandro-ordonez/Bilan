@@ -35,6 +35,7 @@ public class RegisterService implements IRegisterService {
     private final SimatEstudianteClient simatEstudianteClient;
     private final SimatMatriculaClient simatMatriculaClient;
     private final UserInfoRepository userInfoRepository;
+    private final SecEduRepository secEduRepository;
     private final MinUserRepository minUserRepository;
     private final CollegesRepository collegesRepository;
     private final PasswordEncoder passwordEncoder;
@@ -44,6 +45,7 @@ public class RegisterService implements IRegisterService {
                            PasswordEncoder passwordEncoder,
                            UserInfoRepository userInfoRepository,
                            MinUserRepository minUserRepository,
+                           SecEduRepository secEduRepository,
                            CollegesRepository collegesRepository) {
 
         this.teachersRepository = teachersRepository;
@@ -54,6 +56,7 @@ public class RegisterService implements IRegisterService {
         this.userInfoRepository = userInfoRepository;
         this.minUserRepository = minUserRepository;
         this.collegesRepository = collegesRepository;
+        this.secEduRepository = secEduRepository;
 
     }
 
@@ -85,7 +88,10 @@ public class RegisterService implements IRegisterService {
 
         if (Objects.isNull(student)) {
             return userNotFound();
-        } else if (!student.getConfirmed()) {
+        } else if (student.getDocumentType() != authDto.getDocumentType())
+            return userNotFound();
+
+        if (!student.getConfirmed()) {
             return userRequireUpdate();
         }
 
@@ -300,14 +306,15 @@ public class RegisterService implements IRegisterService {
     }
 
     private ResponseDto<UserState> createSecEdu(RegisterUserDto registerUserDto) {
-        UserInfo userInfo = createBaseUser(UserInfo.class, registerUserDto);
+        SecEduUser userInfo = createBaseUser(SecEduUser.class, registerUserDto);
 
         Roles roles = new Roles();
         roles.setId(4);
 
         userInfo.setRole(roles);
+        userInfo.setState(registerUserDto.getSelectedState());
 
-        userInfoRepository.save(userInfo);
+        secEduRepository.save(userInfo);
         return new ResponseDto<>("Sec Edu registered successfully", HttpStatus.OK.value(),
                 UserState.UserRegistered);
     }

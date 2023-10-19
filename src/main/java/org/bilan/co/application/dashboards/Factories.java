@@ -235,7 +235,10 @@ final class Factories {
                 .sum() / (float) Constants.TOTAL_QUESTIONS_BY_GRADE;
 
         return new StudentDashboardDto((int) (perCompletionAllTribes * 100),
-                (int) (perCompletionGame * 100), 0, summary);
+                String.format("%s %s", info.getStudent().getName(), info.getStudent().getLastName()),
+                (int) (perCompletionGame * 100),
+                0,
+                summary);
     }
 
     /**

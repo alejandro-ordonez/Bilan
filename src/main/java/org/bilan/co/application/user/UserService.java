@@ -51,6 +51,8 @@ public class UserService implements IUserService {
     @Autowired
     private CoursesRepository coursesRepository;
     @Autowired
+    private SecEduRepository secEduRepository;
+    @Autowired
     private TribesRepository tribesRepository;
     @Autowired
     private ClassroomRepository classroomRepository;
@@ -119,6 +121,9 @@ public class UserService implements IUserService {
             case DirectiveTeacher:
                 addCodDaneSede(userInfoDto);
                 break;
+
+            case SecEdu:
+                addState(userInfoDto);
         }
 
     }
@@ -133,6 +138,11 @@ public class UserService implements IUserService {
             userInfoDto.getMetadata().put("collegeId", college.get().getId().toString());
             userInfoDto.getMetadata().put("state", college.get().getStateMunicipality().getState());
         }
+    }
+
+    private void addState(UserInfoDto userInfoDto) {
+        Optional<String> state = secEduRepository.getStateFromUser(userInfoDto.getDocument());
+        state.ifPresent(s -> userInfoDto.getMetadata().put("state", s));
     }
 
     private UserInfoDto parseUser(UserInfo user) {
@@ -209,36 +219,23 @@ public class UserService implements IUserService {
 
         Page<UserInfo> query;
 
-        List<Integer> queryRole;
-        switch (userDto.getUserType()){
-            case DirectiveTeacher:
-                queryRole = Collections.singletonList(UserType.Teacher.getId());
-                break;
-
-            case Teacher:
-                queryRole = Collections.singletonList(UserType.Student.getId());
-                break;
-
-            case SecEdu:
-                queryRole = Arrays.asList(UserType.DirectiveTeacher.getId(), UserType.Teacher.getId());
-                break;
-
-            case Admin:
-                queryRole = Arrays.asList(
-                        UserType.MinUser.getId(),
-                        UserType.Admin.getId(),
-                        UserType.DirectiveTeacher.getId()
-                );
-                break;
-
-            default:
-                throw new IllegalArgumentException("Invalid user Type");
-        }
+        List<Integer> queryRole = switch (userDto.getUserType()) {
+            case DirectiveTeacher -> Collections.singletonList(UserType.Teacher.getId());
+            case Teacher -> Collections.singletonList(UserType.Student.getId());
+            case SecEdu -> Arrays.asList(UserType.DirectiveTeacher.getId(), UserType.Teacher.getId());
+            case Admin -> Arrays.asList(
+                    UserType.MinUser.getId(),
+                    UserType.Admin.getId(),
+                    UserType.SecEdu.getId(),
+                    UserType.DirectiveTeacher.getId()
+            );
+            default -> throw new IllegalArgumentException("Invalid user Type");
+        };
         String purgedDocument = partialDocument.trim();
-        if(purgedDocument.isEmpty())
-                query = userInfoRepository.getUsers(PageRequest.of(nPage, 10), userDto.getDocument(), queryRole);
+        if (purgedDocument.isEmpty())
+            query = userInfoRepository.getUsers(PageRequest.of(nPage, 10), userDto.getDocument(), queryRole);
 
-        else{
+        else {
             query = userInfoRepository.searchUsersWithDocument(
                     PageRequest.of(nPage, 10), partialDocument, userDto.getDocument(), queryRole);
         }

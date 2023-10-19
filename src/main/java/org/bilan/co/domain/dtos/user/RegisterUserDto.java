@@ -17,6 +17,7 @@ public class RegisterUserDto extends AuthDto {
     private String grade;
     private String codDane;
     private String codMunicipio;
+    private String selectedState;
 
     public RegisterUserDto(String document, DocumentType documentType, UserType userType, String password, String name,
                            String lastName, String email, String grade, Integer course) {
