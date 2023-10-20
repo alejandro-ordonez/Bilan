@@ -1,10 +1,10 @@
 package org.bilan.co.domain.entities;
 
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import java.util.List;
 
 @Table(name = "departamento_municipio")

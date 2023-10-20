@@ -1,8 +1,7 @@
 package org.bilan.co.domain.entities;
 
+import jakarta.persistence.*;
 import lombok.Data;
-
-import javax.persistence.*;
 
 @Table(name = "classrooms")
 @Entity
@@ -10,7 +9,7 @@ import javax.persistence.*;
 public class Classroom {
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne

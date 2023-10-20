@@ -1,12 +1,11 @@
 package org.bilan.co.domain.entities;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bilan.co.domain.enums.UserType;
-
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @Entity
 @Data

@@ -1,8 +1,8 @@
 package org.bilan.co.domain.entities;
 
+import jakarta.persistence.*;
 import lombok.Data;
 
-import javax.persistence.*;
 import java.util.Collection;
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class Roles {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;

@@ -1,6 +1,7 @@
 package org.bilan.co.application.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.IActionsService;
 import org.bilan.co.domain.dtos.ActionsPoints;
@@ -17,7 +18,6 @@ import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 

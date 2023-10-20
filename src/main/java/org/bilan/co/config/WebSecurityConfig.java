@@ -10,7 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -30,7 +31,7 @@ import java.util.Collections;
 @Slf4j
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity()
 public class WebSecurityConfig {
 
     @Autowired
@@ -42,15 +43,8 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    @Autowired
-    public AuthenticationManager authenticationManagerBean(HttpSecurity http, PasswordEncoder passwordEncoder,
-                                                           UserDetailsService userDetailService)
-            throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(userDetailService)
-                .passwordEncoder(passwordEncoder)
-                .and()
-                .build();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
 
@@ -79,30 +73,24 @@ public class WebSecurityConfig {
     @Autowired
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtRequestFilter jwtRequestFilter) throws Exception {
         httpSecurity
-                .cors()
-                .configurationSource(corsConfigurationSource())
-                .and()
-                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .disable()
-                .authorizeRequests()
-                .antMatchers("/", "/management/*", "/actuator/*",
-                        "/teacher/enroll",
-                        "/auth/*", "/auth/register/*", "/auth/register/update")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .headers()
-                .contentSecurityPolicy("script-src 'self' 'nonce-rAnd0m123' 'unsafe-inline' http: https:; " +
-                        "object-src 'none'; base-uri 'none'; " +
-                        "require-trusted-types-for 'script'; " +
-                        "style-src 'self' none;" +
-                        "img-src 'self' none;" +
-                        "frame-src 'self';");
+                .cors(customizer -> customizer.configurationSource(corsConfigurationSource()))
+                .csrf(customizer -> customizer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).disable())
+                .authorizeHttpRequests(authorize ->
+                        authorize.requestMatchers("/", "/management/*", "/actuator/*",
+                                        "/teacher/enroll",
+                                        "/auth/*", "/auth/register/*", "/auth/register/update").permitAll()
+                                .anyRequest()
+                                .authenticated())
+                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(customizer ->
+                        customizer.contentSecurityPolicy(csp ->
+                                csp.policyDirectives("script-src 'self' 'nonce-rAnd0m123' 'unsafe-inline' http: https:; " +
+                                        "object-src 'none'; base-uri 'none'; " +
+                                        "require-trusted-types-for 'script'; " +
+                                        "style-src 'self' none;" +
+                                        "img-src 'self' none;" +
+                                        "frame-src 'self';")));
 
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();

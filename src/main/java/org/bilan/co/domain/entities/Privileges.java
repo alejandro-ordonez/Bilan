@@ -1,8 +1,8 @@
 package org.bilan.co.domain.entities;
 
+import jakarta.persistence.*;
 import lombok.Data;
 
-import javax.persistence.*;
 import java.util.Collection;
 
 @Entity
@@ -10,7 +10,7 @@ import java.util.Collection;
 public class Privileges {
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;

@@ -1,10 +1,10 @@
 package org.bilan.co.domain.dtos.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.Max;
 import lombok.Data;
 import org.bilan.co.domain.dtos.StudentChallengesDto;
 
-import javax.validation.constraints.Max;
 import java.util.Date;
 import java.util.List;
 @Data

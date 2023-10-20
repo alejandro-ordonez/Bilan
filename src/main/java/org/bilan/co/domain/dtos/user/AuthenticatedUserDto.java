@@ -1,6 +1,7 @@
 package org.bilan.co.domain.dtos.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,6 @@ import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @Data

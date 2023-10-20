@@ -13,8 +13,7 @@ import java.util.Optional;
 @Repository
 public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
 
-    @Query(value = "" +
-            "SELECT s.document AS document" +
+    @Query(value = "SELECT s.document AS document" +
             "     , ui.name AS name" +
             "     , ui.last_name AS lastName" +
             "     , e.created_at AS uploadedDate" +
@@ -44,12 +43,12 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
 
     @Query("SELECT COUNT(e) FROM Evidences e " +
             "WHERE e.idStudent.document=:document AND " +
-            "e.evaluations.size>=1")
+            "e.evaluations.size()>=1")
     Integer findUploadedAndEvaluated(String document);
 
     @Query("SELECT e FROM Evidences e " +
             "WHERE e.idStudent.document=:document AND " +
-            "e.evaluations.size>=1")
+            "e.evaluations.size()>=1")
     List<Evidences> getEvidencesEvaluated(String document);
 
     Optional<Evidences> findByFileName(String fileName);

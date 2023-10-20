@@ -1,10 +1,9 @@
 package org.bilan.co.domain.dtos.user;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 public class RegisterUserDto extends AuthDto {
