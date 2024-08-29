@@ -1,0 +1,1 @@
+./mvnw -B package --update-snapshots --no-transfer-progress --file pom.xml  "-Dmaven.test.skip=true" -Pdev

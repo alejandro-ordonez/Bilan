@@ -1,0 +1,1 @@
+scp .\target\bilan-backend-1.jar root@172.19.0.91:/home/app/bilan-back/bilan-backend-1.0.jar
