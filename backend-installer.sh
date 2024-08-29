@@ -23,11 +23,11 @@ check_package() {
 }
 
 check_file_exists(){
-    if [ -f "$file_path" ]; then
-        echo "The file '$file_path' exists."
+    if [ -f "$1" ]; then
+        echo "The file '$1' exists."
         return 0
     else
-        echo "The file '$file_path' does not exist."
+        echo "The file '$1' does not exist."
         return 1
     fi
 }
