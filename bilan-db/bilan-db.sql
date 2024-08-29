@@ -158,6 +158,15 @@ CREATE TABLE IF NOT EXISTS `min_user` (
   CONSTRAINT `FK6q7psgtyo18h2fdr8pqowp44s` FOREIGN KEY (`document`) REFERENCES `user_info` (`document`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- bilan.min_user definition
+DROP TABLE IF EXISTS `sec_edu_user`;
+CREATE TABLE IF NOT EXISTS `sec_edu_user` (
+  `document` varchar(255) NOT NULL,
+  `state` varchar(255) NOT NULL,
+  PRIMARY KEY (`document`),
+  CONSTRAINT `FKSecEduUser_UserInfo` FOREIGN KEY (`document`) REFERENCES `user_info` (`document`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- bilan.post definition
 DROP TABLE IF EXISTS `post`;
 CREATE TABLE IF NOT EXISTS `post` (
