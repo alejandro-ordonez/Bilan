@@ -36,8 +36,9 @@ create_folder_if_not_exists(){
     if [ -d "$1" ]; then 
         echo "The folder '$1' exists." 
     else 
-        echo "The folder '$1' does not exist." fi
+        echo "The folder '$1' does not exist." 
         mkdir $1
+    fi
 }
 ############################################################
 
