@@ -31,6 +31,14 @@ check_file_exists(){
         return 1
     fi
 }
+
+create_folder_if_not_exists(){
+    if [ -d "$1" ]; then 
+        echo "The folder '$1' exists." 
+    else 
+        echo "The folder '$1' does not exist." fi
+        mkdir $1
+}
 ############################################################
 
 check_sudo
@@ -128,6 +136,9 @@ else
 fi
 
 echo "Copying output files..."
+create_folder_if_not_exists /var/bilan
+create_folder_if_not_exists /var/bilan/target
+
 cp ./target/bilan-backend-1.0.jar /var/bilan/target
 echo ""
 ################################################
