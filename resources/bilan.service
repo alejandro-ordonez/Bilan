@@ -3,7 +3,7 @@ Description=bilan
 After=syslog.target
 
 [Service]
-ExecStart=/root/.sdkman/candidates/java/current/bin/java -jar /var/bilan/target/bilan-backend-1.0.jar
+ExecStart=/opt/sdkman/candidates/java/current/bin/java -jar /var/bilan/target/bilan-backend-1.0.jar
 # Environment Variables
 Environment="SERVER_PORT="
 Environment="SPRING_DATASOURCE_URL="

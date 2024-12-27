@@ -79,8 +79,9 @@ SDKMAN="sdk"
 if check_package $SDKMAN; then
     echo "Skipping $SDKMAN, it's already isntalled"
 else
+    export SDKMAN_DIR="/opt/sdkman"
     curl -s "https://get.sdkman.io" | bash
-    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    source "$SDKMAN_DIR/bin/sdkman-init.sh"
     echo "sdkman installed"
 fi
 
