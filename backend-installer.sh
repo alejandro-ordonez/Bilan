@@ -188,5 +188,19 @@ echo "Preparing..."
 sleep 10s
 echo "Status:"
 systemctl status bilan.service
+
+# Define the port and protocol 
+PORT=5000 
+PROTO=tcp 
+
+# Check if the port is already open 
+if firewall-cmd --list-ports | grep -q "$PORT/$PROTO"; then 
+    echo "Port $PORT/$PROTO is already open." 
+else 
+    echo "Opening port $PORT/$PROTO..." 
+    sudo firewall-cmd --zone=public --add-port=$PORT/$PROTO --permanent 
+    sudo firewall-cmd --reload 
+    echo "Port $PORT/$PROTO has been opened and firewall reloaded." 
+fi
 ################################################
 
