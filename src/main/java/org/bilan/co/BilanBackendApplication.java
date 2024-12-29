@@ -49,6 +49,7 @@ public class BilanBackendApplication extends SpringBootServletInitializer {
 
 		userInfo.setRole(role);
 		userInfo.setIsEnabled(true);
+		userInfo.setConfirmed(false);
 
 		userInfoRepository.save(userInfo);
 	}
