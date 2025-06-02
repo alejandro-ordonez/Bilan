@@ -12,6 +12,7 @@ import org.bilan.co.domain.dtos.user.UserInfoDto;
 import org.bilan.co.domain.dtos.user.enums.ImportType;
 import org.bilan.co.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -70,6 +71,18 @@ public class UserController {
     ) {
         ResponseDto<PagedResponse<ImportRequestDto>> result = userImportService.getUserRequests(jwt, nPage);
         return ResponseEntity.status(result.getCode()).body(result.getResult());
+    }
+
+    @GetMapping(path = "/import/rejected")
+    public ResponseEntity<byte[]> downloadRejectedUsers(@RequestHeader(Constants.AUTHORIZATION) String jwt,
+                                                        @RequestParam("importId") String importId) {
+
+        return this.userImportService.downloadRejectUsers(importId)
+                .map(data -> ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, data.getValue2())
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + importId + ".csv")
+                        .body(data.getValue1()))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER', 'DIRECT_TEACHER')")

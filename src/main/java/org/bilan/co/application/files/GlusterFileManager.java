@@ -97,6 +97,16 @@ public class GlusterFileManager implements IFileManager{
     }
 
     @Override
+    public byte[] downloadRejected(String importId, BucketName bucket) {
+
+        Path path = Paths.get(
+                bucket.getBucketName(),
+                Constants.FAILED_PATH);
+
+        return downloadFile(path.toString(), importId + ".csv");
+    }
+
+    @Override
     public <T> T getFromJsonFile(String path, TypeReference<T> reference) {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -111,7 +121,7 @@ public class GlusterFileManager implements IFileManager{
 
     @Override
     public byte[] downloadFile(String path, String fileName) {
-        Path filePath = Paths.get(basePath, path);
+        Path filePath = Paths.get(basePath, path, fileName);
         try {
             log.debug("Looking for: {}", filePath);
             if(!Files.exists(filePath))
