@@ -43,12 +43,12 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
 
     @Query("SELECT COUNT(e) FROM Evidences e " +
             "WHERE e.idStudent.document=:document AND " +
-            "e.evaluations.size()>=1")
+            "SIZE(e.evaluations) >=1")
     Integer findUploadedAndEvaluated(String document);
 
     @Query("SELECT e FROM Evidences e " +
             "WHERE e.idStudent.document=:document AND " +
-            "e.evaluations.size()>=1")
+            "SIZE(e.evaluations) >=1")
     List<Evidences> getEvidencesEvaluated(String document);
 
     Optional<Evidences> findByFileName(String fileName);

@@ -10,7 +10,6 @@ import org.bilan.co.domain.dtos.teacher.EvaluationDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.entities.Evidences;
 import org.bilan.co.domain.entities.Teachers;
-import org.bilan.co.domain.enums.BucketName;
 import org.bilan.co.domain.enums.Phase;
 import org.bilan.co.domain.projections.IEvidence;
 import org.bilan.co.domain.utils.Tuple;
@@ -48,15 +47,16 @@ public class EvidenceService implements IEvidenceService {
         UUID newFileId = UUID.randomUUID();
         String extension = Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().indexOf('.'));
         String fileName = String.format("%s%s", newFileId,extension);
-        log.info("File stored with name: " + fileName);
 
-        String path = String.format("%s/%s", BucketName.BILAN_EVIDENCES.getBucketName(), fileName);
-        log.info("Path: " + path);
         try {
-            fileStore.uploadFile(path, fileName, Collections.emptyMap(), file.getInputStream());
+            String path = fileStore.uploadEvidence(fileName, file.getInputStream());
+            log.info("File stored: {}", path);
+
             Evidences evidence = Factories.newEvidence(phase, tribeId, path, fileName, user.getDocument(),
                     file.getContentType());
+
             evidenceRepository.save(evidence);
+
             return new ResponseDto<>("Upload successful", HttpStatus.OK.value(), newFileId.toString());
         } catch (IOException e) {
             return new ResponseDto<>("Something was wrong by uploading the file",

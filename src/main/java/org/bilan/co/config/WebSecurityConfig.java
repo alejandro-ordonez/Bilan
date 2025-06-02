@@ -70,7 +70,6 @@ public class WebSecurityConfig {
 
 
     @Bean
-    @Autowired
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtRequestFilter jwtRequestFilter) throws Exception {
         httpSecurity
                 .cors(customizer -> customizer.configurationSource(corsConfigurationSource()))

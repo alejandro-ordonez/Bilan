@@ -187,7 +187,7 @@ echo ""
 echo "Preparing..."
 sleep 10s
 echo "Status:"
-systemctl status bilan.service
+systemctl status bilan.service --no-pager
 
 # Define the port and protocol 
 PORT=5000 

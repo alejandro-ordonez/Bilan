@@ -2,18 +2,17 @@ package org.bilan.co.application.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 import org.bilan.co.application.teacher.TeacherUtils;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.common.PagedResponse;
-import org.bilan.co.domain.dtos.user.*;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.domain.dtos.user.EnableUser;
+import org.bilan.co.domain.dtos.user.UserInfoDto;
 import org.bilan.co.domain.entities.*;
 import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 import org.bilan.co.infraestructure.persistance.*;
-import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,9 +24,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.validation.Validator;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,6 +60,9 @@ public class UserService implements IUserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private Validator validator;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -189,28 +190,6 @@ public class UserService implements IUserService {
         return new ResponseDto<>("User state changed", 200, user.getEnabled());
     }
 
-    @Override
-    public ResponseDto<UploadFromFileResultDto> uploadUsersFromFile(MultipartFile file, UserType userType, String token, String campusCodeDane) {
-
-        Optional<Colleges> c;
-        UploadFromFileResultDto results = new UploadFromFileResultDto();
-
-        if (campusCodeDane == null) {
-            AuthenticatedUserDto authenticatedUserDto = jwtTokenUtil.getInfoFromToken(token);
-            String codDaneSede = teachersRepository.getCodDaneSede(authenticatedUserDto.getDocument());
-            c = collegesRepository.findByCodDaneSede(codDaneSede);
-            if (!c.isPresent()) {
-                String message = "The directive teacher does not have a college linked";
-                return new ResponseDto<>(message, 400, results);
-            }
-        } else {
-            c = collegesRepository.findByCodDaneSede(campusCodeDane);
-
-        }
-        return c.map(college -> loadUsersFromFile(file, userType, college)).
-                orElseGet(() -> new ResponseDto<>("College not found", 404, null));
-
-    }
 
     @Override
     public ResponseDto<PagedResponse<UserInfoDto>> getUsersAdmin(Integer nPage, String partialDocument, String jwt) {
@@ -254,65 +233,6 @@ public class UserService implements IUserService {
         return new ResponseDto<>("Users retrieved successfully", 200, userInfoDtoPagedResponse);
     }
 
-    private ResponseDto<UploadFromFileResultDto> loadUsersFromFile(MultipartFile file, UserType userType, Colleges colleges) {
-
-        LineIterator it = null;
-
-        UploadFromFileResultDto responseDto = new UploadFromFileResultDto();
-
-        Teachers currentTeacher;
-        Students currentStudent;
-
-        int nLine = 0;
-
-        try {
-            File fileToUpload = new File(Objects.requireNonNull(file.getOriginalFilename()));
-            FileUtils.copyToFile(file.getInputStream(), fileToUpload);
-            it = FileUtils.lineIterator(fileToUpload, "UTF-8");
-            String[] user = new String[0];
-
-            String line = it.nextLine();
-            while (it.hasNext()) {
-
-                try {
-                    nLine++;
-                    line = it.nextLine();
-                    user = line.split(",");
-
-                    switch (userType) {
-                        case Student:
-                            currentStudent = processStudent(user, nLine, colleges);
-                            responseDto.getProcessed().add(new UploadedUserResultDto(currentStudent.getDocument(), UploadResult.OK, Constants.UPLOADED));
-                            break;
-
-                        case Teacher:
-                            currentTeacher = processTeacher(user, nLine, colleges);
-                            responseDto.getProcessed().add(new UploadedUserResultDto(currentTeacher.getDocument(), UploadResult.OK, Constants.UPLOADED));
-                            break;
-                    }
-                } catch (Exception e) {
-                    String message = "One of the lines was incorrect, it didn't match the expected columns or one of the" +
-                            "arguments were incorrect: " + e.getMessage();
-                    log.error(message);
-                    responseDto.getSkipped().add(new UploadedUserResultDto(user[0], UploadResult.Skipped, String.format(Constants.FAILED, nLine)));
-                }
-
-
-            }
-            return new ResponseDto<>("The users were added successfully", 200, responseDto);
-
-        } catch (IOException e) {
-            String message = "Failed to extract the file from request";
-            log.error(message, e);
-            return new ResponseDto<>(message, 500, responseDto);
-        } finally {
-            LineIterator.closeQuietly(it);
-        }
-
-    }
-
-
-    @Override
     public Teachers processTeacher(String[] user, int nLine, Colleges colleges) throws Exception {
         if (user.length != 5)
             throw new Exception("The line was in bad format");
@@ -359,45 +279,7 @@ public class UserService implements IUserService {
         return teacher;
     }
 
-    @Override
-    public Students processStudent(String[] user, int nLine, Colleges colleges) throws Exception {
-        if (user.length != 6 || Arrays.stream(user).anyMatch(String::isEmpty))
-            throw new Exception("The line was in bad format, at: " + nLine);
 
-
-        String document = user[0];
-        DocumentType documentType = DocumentType.valueOf(user[1]);
-        String name = user[2];
-        String lastName = user[3];
-        String grade = user[4];
-        String courseString = user[5];
-
-        validateGrade(grade, nLine);
-
-        Courses courses = getCourse(courseString, nLine);
-
-        Roles roles = new Roles();
-        roles.setId(1);
-
-        Students s = new Students();
-        s.setDocument(document);
-        s.setDocumentType(documentType);
-        s.setName(name);
-        s.setLastName(lastName);
-        s.setGrade(grade);
-        s.setCourses(courses);
-        s.setRole(roles);
-        s.setColleges(colleges);
-        s.setPassword(passwordEncoder.encode(document));
-        s.setIsEnabled(true);
-        s.setConfirmed(false);
-
-        s.setEmail("");
-        s.setPositionName("Estudiante");
-
-        studentsRepository.save(s);
-        return s;
-    }
 
     private void validateGrade(String grade, int nLine){
         if(!(grade.equals("10")||grade.equals("11")))

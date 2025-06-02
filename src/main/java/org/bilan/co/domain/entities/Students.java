@@ -10,6 +10,7 @@ import org.bilan.co.domain.enums.DocumentType;
 import org.bilan.co.domain.enums.UserType;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -18,12 +19,13 @@ import java.util.List;
  */
 @Entity
 @XmlRootElement
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @ToString
 @Data
 @NoArgsConstructor
 public class Students extends UserInfo implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Column(name = "cod_grade")

@@ -1,8 +1,8 @@
 package org.bilan.co.application;
 
+import com.github.dozermapper.core.Mapper;
 import org.bilan.co.domain.dtos.ActionDto;
 import org.bilan.co.infraestructure.persistance.ActionsRepository;
-import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

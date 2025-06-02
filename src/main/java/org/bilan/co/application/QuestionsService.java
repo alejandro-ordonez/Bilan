@@ -1,5 +1,6 @@
 package org.bilan.co.application;
 
+import com.github.dozermapper.core.Mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.game.AnswerDto;
@@ -13,9 +14,7 @@ import org.bilan.co.infraestructure.persistance.AnswersRepository;
 import org.bilan.co.infraestructure.persistance.QuestionsRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.utils.JwtTokenUtil;
-import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

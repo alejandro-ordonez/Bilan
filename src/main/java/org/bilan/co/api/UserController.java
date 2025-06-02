@@ -1,13 +1,15 @@
 package org.bilan.co.api;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bilan.co.application.user.IUserImportService;
 import org.bilan.co.application.user.IUserService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.user.EnableUser;
-import org.bilan.co.domain.dtos.user.UploadFromFileResultDto;
+import org.bilan.co.domain.dtos.user.ImportRequestDto;
+import org.bilan.co.domain.dtos.user.ImportResultDto;
 import org.bilan.co.domain.dtos.user.UserInfoDto;
-import org.bilan.co.domain.enums.UserType;
+import org.bilan.co.domain.dtos.user.enums.ImportType;
 import org.bilan.co.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,6 +25,9 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private IUserImportService userImportService;
 
     @GetMapping("/info")
     public ResponseEntity<ResponseDto<UserInfoDto>> getUserInfo(@RequestHeader(Constants.AUTHORIZATION) String jwt) {
@@ -42,16 +47,29 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('DIRECT_TEACHER', 'ADMIN')")
-    @PostMapping(path = "/load",
+    @PostMapping(path = "/import",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDto<UploadFromFileResultDto>> uploadUsersFromFile(@RequestPart("file") MultipartFile file,
-                                                                                    @RequestParam("userType") UserType userType,
-                                                                                    @RequestParam(value = "campusCodeDane", required = false) String campusCode,
-                                                                                    @RequestHeader(Constants.AUTHORIZATION) String jwt) {
+    public ResponseEntity<ResponseDto<ImportResultDto>> uploadUsersFromFile(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam("importType") ImportType importType,
+            @RequestParam(value = "campusCodeDane", required = false) String campusCode,
+            @RequestHeader(Constants.AUTHORIZATION) String jwt) {
 
-        ResponseDto<UploadFromFileResultDto> result = userService.uploadUsersFromFile(file, userType, jwt, campusCode);
+        ResponseDto<ImportResultDto> result = userImportService
+                .importUsers(file, importType, campusCode, jwt);
+
         return ResponseEntity.status(result.getCode()).body(result);
+    }
+
+    @PreAuthorize("hasAnyAuthority('DIRECT_TEACHER', 'ADMIN')")
+    @GetMapping(path = "/import")
+    public ResponseEntity<PagedResponse<ImportRequestDto>> getUserImportRequest(
+            @RequestHeader(Constants.AUTHORIZATION) String jwt,
+            @RequestParam("page") Integer nPage
+    ) {
+        ResponseDto<PagedResponse<ImportRequestDto>> result = userImportService.getUserRequests(jwt, nPage);
+        return ResponseEntity.status(result.getCode()).body(result.getResult());
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER', 'DIRECT_TEACHER')")

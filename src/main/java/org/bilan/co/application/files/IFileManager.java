@@ -1,11 +1,23 @@
 package org.bilan.co.application.files;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.bilan.co.domain.dtos.user.ImportResultDto;
+import org.bilan.co.domain.dtos.user.StagedImportRequestDto;
+
 import java.io.InputStream;
-import java.util.Map;
+import java.nio.file.Path;
 
 public interface IFileManager {
-    void uploadFile(String path, String fileName,
-                    Map<String, String> metadata, InputStream inputStream);
+    String uploadFile(Path path, InputStream inputStream);
 
+    String uploadEvidence(String fileName, InputStream inputStream);
+
+    String uploadTeacherEnrollment(String fileName, InputStream inputStream);
+
+    <T> String saveProcessedImport(StagedImportRequestDto<T> request);
+
+    String saveRejectedImport(ImportResultDto request);
+
+    <T> T getFromJsonFile(String path, TypeReference<T> reference);
     byte[] downloadFile(String path, String fileName);
 }

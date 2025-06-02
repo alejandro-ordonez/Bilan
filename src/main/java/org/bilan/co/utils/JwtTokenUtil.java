@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,8 +21,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtTokenUtil {
+public class JwtTokenUtil implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = -2550185165626007488L;
 
     public static final String DOCUMENT = "Document";
@@ -46,7 +49,11 @@ public class JwtTokenUtil {
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
+        String tokenCleaned = token;
+        if (token.startsWith("Bearer "))
+            tokenCleaned = token.replace("Bearer ", "");
+
+        final Claims claims = getAllClaimsFromToken(tokenCleaned);
         return claimsResolver.apply(claims);
     }
 

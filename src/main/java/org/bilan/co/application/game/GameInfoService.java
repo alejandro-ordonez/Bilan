@@ -1,5 +1,6 @@
 package org.bilan.co.application.game;
 
+import com.github.dozermapper.core.Mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ActionDto;
 import org.bilan.co.domain.dtos.TribeDto;
@@ -8,7 +9,6 @@ import org.bilan.co.domain.dtos.game.GameInfoDto;
 import org.bilan.co.infraestructure.persistance.ActionsRepository;
 import org.bilan.co.infraestructure.persistance.ChallengesRepository;
 import org.bilan.co.infraestructure.persistance.TribesRepository;
-import org.dozer.Mapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

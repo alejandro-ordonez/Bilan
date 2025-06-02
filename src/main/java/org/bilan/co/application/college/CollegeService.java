@@ -1,5 +1,6 @@
 package org.bilan.co.application.college;
 
+import com.github.dozermapper.core.Mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.CollegeDto;
@@ -7,7 +8,6 @@ import org.bilan.co.domain.dtos.course.GradeCoursesDto;
 import org.bilan.co.domain.projections.ICourse;
 import org.bilan.co.infraestructure.persistance.CollegesRepository;
 import org.bilan.co.infraestructure.persistance.CoursesRepository;
-import org.dozer.Mapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 

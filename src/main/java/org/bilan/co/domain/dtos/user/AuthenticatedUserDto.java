@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.bilan.co.domain.dtos.BasicInfo;
 import org.bilan.co.domain.enums.DocumentType;
@@ -12,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

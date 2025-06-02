@@ -1,5 +1,6 @@
 package org.bilan.co.application.teacher;
 
+import com.github.dozermapper.core.Mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.student.StudentService;
 import org.bilan.co.application.user.UserService;
@@ -18,7 +19,6 @@ import org.bilan.co.infraestructure.persistance.ClassroomRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.utils.JwtTokenUtil;
-import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

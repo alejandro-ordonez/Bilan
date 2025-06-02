@@ -129,7 +129,7 @@ public class InsertTestUsers {
         colleges.setId(31989);
 
         try {
-            userService.processStudent(student,1, colleges);
+            //userService.processStudent(student,1, colleges);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -150,7 +150,7 @@ public class InsertTestUsers {
         colleges.setId(31989);
 
         try {
-            userService.processTeacher(teacher, 1, colleges);
+            //userService.processTeacher(teacher, 1, colleges);
         } catch (Exception e) {
             e.printStackTrace();
         }
