@@ -1,0 +1,166 @@
+package org.bilan.co.application.user;
+
+import lombok.extern.slf4j.Slf4j;
+import org.bilan.co.application.files.IFileManager;
+import org.bilan.co.domain.dtos.ResponseDto;
+import org.bilan.co.domain.dtos.common.PagedResponse;
+import org.bilan.co.domain.dtos.user.*;
+import org.bilan.co.domain.dtos.user.enums.*;
+import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.enums.BucketName;
+import org.bilan.co.domain.utils.Tuple;
+import org.bilan.co.infraestructure.persistance.*;
+import org.bilan.co.utils.Constants;
+import org.bilan.co.utils.JwtTokenUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.Validator;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Slf4j
+public class UserImportService implements IUserImportService {
+
+    @Autowired
+    private IFileManager fileManager;
+
+    @Autowired
+    private UserInfoRepository userInfoRepository;
+
+    @Autowired
+    private ImportRequestRepository importRequestRepository;
+
+    @Autowired
+    private JwtTokenUtil jwt;
+
+    @Autowired
+    private CollegesRepository collegesRepository;
+
+    @Autowired
+    private TeachersRepository teachersRepository;
+
+    @Override
+    @Async
+    public ResponseDto<ImportResultDto> importUsers(MultipartFile file, ImportType importType, String campusCodeDane, String token) {
+        var extension = org.bilan.co.utils.FileUtils.getExtension(file);
+
+        if(!extension.equals(Constants.CSV))
+            return new ResponseDto<>("File type not valid", 400, new ImportResultDto(ImportStatus.Rejected));
+
+        Optional<Colleges> collegeQuery;
+
+        if (campusCodeDane == null) {
+            AuthenticatedUserDto authenticatedUserDto = jwt.getInfoFromToken(token);
+            String codDaneSede = teachersRepository.getCodDaneSede(authenticatedUserDto.getDocument());
+            collegeQuery = collegesRepository.findByCodDaneSede(codDaneSede);
+
+            if (collegeQuery.isEmpty()) {
+                String message = "The directive teacher does not have a college linked";
+                log.error(message);
+                return new ResponseDto<>(message, 400, new ImportResultDto(ImportStatus.Rejected));
+            }
+        } else {
+            collegeQuery = collegesRepository.findByCodDaneSede(campusCodeDane);
+        }
+
+        // Can be empty only if you are not importing a list of teachers
+        if (collegeQuery.isEmpty() && importType != ImportType.TeacherImport) {
+            String message = "The college couldn't be determined";
+            log.error(message);
+            return new ResponseDto<>(message, 400, new ImportResultDto(ImportStatus.Rejected));
+        }
+
+        // Upload file to be verified in the next stage using jobs
+        var importRequest = new ImportRequests();
+
+        String requestorDocument = jwt.getUsernameFromToken(token);
+        UserInfo requestor = new UserInfo();
+        requestor.setDocument(requestorDocument);
+
+        importRequest.setRequestor(requestor);
+        importRequest.setStatus(ImportStatus.ReadyForVerification);
+
+        if (collegeQuery.isEmpty())
+            importRequest.setCollegeId(null);
+        else
+            importRequest.setCollegeId(collegeQuery.get().getId());
+
+        importRequestRepository.save(importRequest);
+
+        var bucket = switch (importType) {
+            case TeacherImport -> BucketName.BILAN_TEACHER;
+            case StudentImport -> BucketName.BILAN_STUDENT_IMPORT;
+            case TeacherEnrollment -> BucketName.BILAN_TEACHER_ENROLLMENT;
+            case CollegesImport -> BucketName.BILAN_COLLEGE_IMPORT;
+        };
+
+        try {
+            var uploadResult = fileManager.stageImportFile(file.getInputStream(), bucket, importRequest.getImportId(), extension);
+            if (uploadResult) {
+                var result = new ImportResultDto(importRequest.getStatus());
+                result.setImportId(importRequest.getImportId());
+                return new ResponseDto<>(Constants.Ok, 200, result);
+            } else
+                return new ResponseDto<>("Failed to read the file", 400, new ImportResultDto(ImportStatus.Rejected));
+
+        } catch (IOException e) {
+            return new ResponseDto<>("Failed to read the file", 400, new ImportResultDto(ImportStatus.Rejected));
+        }
+    }
+
+    @Override
+    public ResponseDto<PagedResponse<ImportRequestDto>> getUserRequests(String token, int pageNumber) {
+        AuthenticatedUserDto user = jwt.getInfoFromToken(token);
+        Page<ImportRequests> query = importRequestRepository.getRequests(
+                PageRequest.of(pageNumber, 10), user.getDocument()
+        );
+
+        List<ImportRequestDto> requests = query.stream()
+                .map(request -> {
+                    ImportRequestDto dto = new ImportRequestDto();
+                    dto.setCollegeId(request.getCollegeId());
+                    dto.setRequestId(request.getImportId());
+                    dto.setImportType(request.getType());
+                    dto.setStatus(request.getStatus());
+                    dto.setProcessed(request.getProcessed());
+                    dto.setRejected(request.getRejected());
+                    return dto;
+                })
+                .toList();
+
+        PagedResponse<ImportRequestDto> pagedResponse = PagedResponse.<ImportRequestDto>builder()
+                .nPages(query.getTotalPages())
+                .data(requests)
+                .build();
+
+        return ResponseDto.<PagedResponse<ImportRequestDto>>builder()
+                .code(200)
+                .result(pagedResponse)
+                .build();
+    }
+
+    @Override
+    public Optional<Tuple<byte[], String>> downloadRejectUsers(String importId) {
+        Optional<ImportRequests> request = importRequestRepository.findById(importId);
+
+        if (request.isEmpty())
+            return Optional.empty();
+
+        var bucket = switch (request.get().getType()) {
+            case StudentImport -> BucketName.BILAN_STUDENT_IMPORT;
+            case TeacherEnrollment -> BucketName.BILAN_TEACHER_ENROLLMENT;
+            case TeacherImport -> BucketName.BILAN_TEACHER;
+            default -> throw new IllegalArgumentException();
+        };
+
+        return request.map(r -> Tuple.of(fileManager.downloadRejected(r.getImportId(),
+                bucket), "text/csv"));
+    }
+}

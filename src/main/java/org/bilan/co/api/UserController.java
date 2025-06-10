@@ -52,7 +52,7 @@ public class UserController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDto<ImportResultDto>> uploadUsersFromFile(
-            @RequestPart("file") MultipartFile file,
+            @RequestParam("file")MultipartFile file,
             @RequestParam("importType") ImportType importType,
             @RequestParam(value = "campusCodeDane", required = false) String campusCode,
             @RequestHeader(Constants.AUTHORIZATION) String jwt) {

@@ -6,14 +6,16 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.files.IFileManager;
-import org.bilan.co.domain.dtos.user.ImportRecordDto;
 import org.bilan.co.domain.dtos.user.StagedImportRequestDto;
 import org.bilan.co.domain.dtos.user.StudentImportDto;
 import org.bilan.co.domain.dtos.user.TeacherEnrollDto;
 import org.bilan.co.domain.dtos.user.enums.ImportStatus;
 import org.bilan.co.domain.dtos.user.enums.ImportType;
 import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.enums.BucketName;
+import org.bilan.co.domain.utils.TransformersUtil;
 import org.bilan.co.infraestructure.persistance.*;
+import org.bilan.co.utils.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.scheduling.JobScheduler;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class UserImportJob {
+public class UserImportJobScheduler {
 
     private final Logger jobLogger;
     @Autowired
@@ -53,11 +55,9 @@ public class UserImportJob {
     private ClassroomRepository classrooms;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @PersistenceContext
-    private EntityManager entityManager;
 
-    public UserImportJob() {
-        jobLogger = new JobRunrDashboardLogger(LoggerFactory.getLogger(UserImportJob.class));
+    public UserImportJobScheduler() {
+        jobLogger = new JobRunrDashboardLogger(LoggerFactory.getLogger(UserImportJobScheduler.class));
     }
 
     @NotNull
@@ -87,21 +87,7 @@ public class UserImportJob {
     }
 
     public void processQueuedImport() {
-        var pendingRequests = importRequestRepository.getPendingRequests().stream()
-                .collect(Collectors.groupingBy(
-                        ImportRequests::getType,
-                        Collectors.mapping(
-                                ImportRequests::getImportId,
-                                Collectors.toList()
-                        )
-                ))
-                .entrySet()
-                .stream()
-                .map(entry -> new ImportRecordDto(
-                        entry.getKey(),
-                        entry.getValue()
-                ))
-                .toList();
+        var pendingRequests = TransformersUtil.getRequestsDto(importRequestRepository.getPendingRequests());
 
         if (pendingRequests.isEmpty())
             return;
@@ -131,14 +117,15 @@ public class UserImportJob {
             if (importRequest.isEmpty())
                 throw new IllegalArgumentException("Invalid request");
 
-            var payloadPath = importRequest.get().getAcceptedFilePath();
-            var payload = fileManager.getFromJsonFile(payloadPath, new TypeReference<StagedImportRequestDto<StudentImportDto>>() {
-            });
+            var bucket = BucketName.getFromImportType(importRequest.get().getType());
+            var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
+
+            var payload = fileManager.getFromJsonFile(payloadPath.toString(),
+                    new TypeReference<StagedImportRequestDto<StudentImportDto>>() {});
 
             // Failed to read the file, marking as failed
             if (payload == null) {
                 importRequest.get().setStatus(ImportStatus.Failed);
-                importRequest.get().setAcceptedFilePath(null);
                 importRequest.get().setModified(LocalDateTime.now());
                 importRequestRepository.save(importRequest.get());
 
@@ -198,13 +185,14 @@ public class UserImportJob {
             if (importRequest.isEmpty())
                 throw new IllegalArgumentException("Invalid request");
 
-            StagedImportRequestDto<TeacherEnrollDto> payload = fileManager
-                    .getFromJsonFile(importRequest.get().getAcceptedFilePath(), new TypeReference<>() {
-                    });
+            var bucket = BucketName.getFromImportType(importRequest.get().getType());
+            var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
+
+            var payload = fileManager.getFromJsonFile(payloadPath.toString(),
+                    new TypeReference<StagedImportRequestDto<TeacherEnrollDto>>() {});
 
             if (payload == null) {
                 importRequest.get().setStatus(ImportStatus.Failed);
-                importRequest.get().setAcceptedFilePath(null);
                 importRequest.get().setModified(LocalDateTime.now());
                 importRequestRepository.save(importRequest.get());
                 continue;

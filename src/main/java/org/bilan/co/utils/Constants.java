@@ -18,12 +18,16 @@ public final class Constants {
     public static final String ADMIN = "Administrador";
     public static final String DIREC_TEACHER = "Docente Directivo";
     public static final String DEFAULT_FILE_PATH = "/bilan";
+    public static final String STAGED_PATH = "Staged";
     public static final String FAILED_PATH = "Failed";
+    public static final String QUEUED_PATH = "Queued";
     public static final String SUCCESS_PATH = "Success";
     public static final String ENV_FILE_PATH = "bilan.storage.path";
     public static final String UPLOADED = "UPLOADED";
     public static final String FAILED = "Failed to upload, line: %d";
     public static final String Ok = "Ok";
+    public static final String JSON = ".json";
+    public static final String CSV = ".csv";
 
     private Constants() {
     }

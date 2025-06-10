@@ -13,11 +13,9 @@ import java.util.function.Function;
 @Builder
 @Data
 public class ImportRequest<T> {
-    private final File file;
-    private final String requestorId;
-    private final int collegeId;
+    private final String requestId;
+    private final ImportType importType;
     private final int expectedColumns;
-    private final ImportType type;
     private final Function<String[], T> converter;
     private final Function<T, List<String>> validation;
     private final BucketName bucket;

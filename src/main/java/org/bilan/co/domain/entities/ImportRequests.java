@@ -35,10 +35,6 @@ public class ImportRequests {
 
     int rejected;
 
-    String acceptedFilePath;
-
-    String rejectedFilePath;
-
     LocalDateTime created = LocalDateTime.now();
 
     LocalDateTime modified;

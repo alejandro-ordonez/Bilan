@@ -3,8 +3,12 @@ package org.bilan.co.application.files;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.util.http.fileupload.FileItemIterator;
+import org.apache.tomcat.util.http.fileupload.FileItemStream;
 import org.bilan.co.domain.dtos.user.ImportResultDto;
 import org.bilan.co.domain.dtos.user.StagedImportRequestDto;
 import org.bilan.co.domain.dtos.user.enums.RejectedUser;
@@ -16,6 +20,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,7 +32,40 @@ public class GlusterFileManager implements IFileManager{
         basePath = getBasePath(env);
         log.debug("File path configured to {}", basePath);
     }
-    
+
+    @Override
+    public Path buildPath(BucketName bucket, String subFolder, String fileName, String extension) {
+        return Paths.get(
+                basePath,
+                bucket.getBucketName(),
+                fileName,
+                extension
+        );
+    }
+
+    @Override
+    public boolean stageImportFile(InputStream file, BucketName bucket, String fileName, String extension) {
+        var filePath = Constants.STAGED_PATH + fileName;
+        return uploadFile(file, bucket, filePath, extension);
+    }
+
+    @Override
+    public boolean uploadFile(InputStream file, BucketName bucket, String fileName, String extension) {
+        Path path = Paths.get(
+                basePath,
+                bucket.getBucketName(),
+                fileName,
+                extension
+                );
+        try{
+            Files.copy(file, path, StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            log.error("Failed to copy the file");
+            return false;
+        }
+    }
+
     @Override
     public String uploadFile(Path path, InputStream inputStream) {
         File file = new File(path.toString());
@@ -54,7 +92,7 @@ public class GlusterFileManager implements IFileManager{
     }
 
     @Override
-    public <T> String saveProcessedImport(StagedImportRequestDto<T> importDto) {
+    public <T> void saveVerifiedUsers(StagedImportRequestDto<T> importDto) {
         // Save valid users to be processed.
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -64,14 +102,13 @@ public class GlusterFileManager implements IFileManager{
             Path fullPath = Paths.get(
                     basePath,
                     importDto.getBucket().getBucketName(),
-                    Constants.SUCCESS_PATH,
+                    Constants.QUEUED_PATH,
                     importDto.getImportRequestId() + ".json");
 
-            return uploadFile(fullPath, stream);
+            uploadFile(fullPath, stream);
 
         } catch (JsonProcessingException e) {
             log.error("Failed to store to store the json file {}", e.getMessage());
-            return null;
         }
     }
 
@@ -133,7 +170,6 @@ public class GlusterFileManager implements IFileManager{
         }
 
     }
-
 
     private String getBasePath(Environment env){
         String path = env.getProperty(Constants.ENV_FILE_PATH);
