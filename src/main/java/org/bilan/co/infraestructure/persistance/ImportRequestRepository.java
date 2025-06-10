@@ -20,4 +20,10 @@ public interface ImportRequestRepository extends JpaRepository<ImportRequests, S
             "WHERE (r.status = ImportStatus.ApprovedWithErrors OR r.status = ImportStatus.Queued) OR " +
             "(r.status = ImportStatus.Processing AND TIMESTAMPDIFF(MINUTE, r.modified, CURRENT_TIMESTAMP) > 10 ) ")
     List<ImportRequests> getPendingRequests();
+
+    @Query("SELECT r " +
+            "FROM ImportRequests r " +
+            "WHERE (r.status = ImportStatus.ReadyForVerification OR r.status = ImportStatus.Queued) OR " +
+            "(r.status = ImportStatus.Processing AND TIMESTAMPDIFF(MINUTE, r.modified, CURRENT_TIMESTAMP) > 10 ) ")
+    List<ImportRequests> getReadyForVerification();
 }

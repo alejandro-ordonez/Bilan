@@ -6,6 +6,7 @@ import org.bilan.co.domain.dtos.user.enums.ImportType;
 import org.bilan.co.domain.enums.BucketName;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
 

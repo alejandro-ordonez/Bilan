@@ -1,11 +1,12 @@
 package org.bilan.co.domain.dtos.user.enums;
 
 public enum ImportStatus {
-    Ok,
+    ReadyForVerification,
+    Verifying,
     ApprovedWithErrors,
     Queued,
-    Verifying,
-    Rejected,
     Processing,
+    Ok,
+    Rejected,
     Failed
 }

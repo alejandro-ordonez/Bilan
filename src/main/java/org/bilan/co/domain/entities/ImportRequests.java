@@ -29,7 +29,7 @@ public class ImportRequests {
     @Enumerated(EnumType.STRING)
     ImportType type;
 
-    int collegeId;
+    Integer collegeId;
 
     int processed;
 
