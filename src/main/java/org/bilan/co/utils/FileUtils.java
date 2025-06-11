@@ -8,7 +8,7 @@ public class FileUtils {
         String originalFilename = file.getOriginalFilename();
 
         if (originalFilename != null && originalFilename.contains(".")) {
-            return originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+            return originalFilename.substring(originalFilename.lastIndexOf("."));
         }
         return ""; // Return empty string if no extension is found
     }

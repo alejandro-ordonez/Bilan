@@ -1,15 +1,13 @@
 package org.bilan.co.application.user;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 import org.bilan.co.application.files.IFileManager;
 import org.bilan.co.domain.dtos.user.*;
 import org.bilan.co.domain.dtos.user.enums.*;
 import org.bilan.co.domain.entities.Courses;
 import org.bilan.co.domain.entities.ImportRequests;
 import org.bilan.co.domain.entities.Tribes;
-import org.bilan.co.domain.entities.UserInfo;
 import org.bilan.co.domain.enums.BucketName;
 import org.bilan.co.domain.utils.TransformersUtil;
 import org.bilan.co.domain.utils.Tuple;
@@ -20,6 +18,7 @@ import org.bilan.co.infraestructure.persistance.TribesRepository;
 import org.bilan.co.utils.Constants;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.scheduling.JobScheduler;
+import org.jobrunr.scheduling.cron.Cron;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +28,10 @@ import org.springframework.validation.Validator;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -62,8 +60,22 @@ public class ImportVerifierJob {
     @Autowired
     private CoursesRepository courses;
 
+    private Map<String, Courses> availableCourses;
+
     public ImportVerifierJob(){
-        jobLogger = new JobRunrDashboardLogger(LoggerFactory.getLogger(UserImportJobScheduler.class));
+        jobLogger = new JobRunrDashboardLogger(LoggerFactory.getLogger(ImportProcessorJob.class));
+    }
+
+    @PostConstruct
+    public void scheduleImportJob() {
+        availableCourses = courses.findAll()
+                        .stream()
+                        .collect(Collectors.toMap(Courses::getName, course -> course));
+
+        jobScheduler.scheduleRecurrently(
+                "process-ready-for-verification",
+                Cron.every30seconds(),
+                this::processReadyForVerification);
     }
 
     /**
@@ -81,7 +93,7 @@ public class ImportVerifierJob {
                 (entry) -> selectVerifier(entry.getImportType(), entry.getImportIds()));
     }
 
-    private void selectVerifier(ImportType importType, List<String> requests){
+    public void selectVerifier(ImportType importType, List<String> requests){
         switch (importType){
             case TeacherImport -> verifyTeacherImports(requests);
             case TeacherEnrollment -> verifyTeacherEnrollmentImports(requests);
@@ -89,7 +101,7 @@ public class ImportVerifierJob {
         }
     }
 
-    private void verifyTeacherImports(List<String> importIds){
+    public void verifyTeacherImports(List<String> importIds){
         for(var requestId : importIds){
             var requestQuery = importRequestRepository.findById(requestId);
 
@@ -103,6 +115,8 @@ public class ImportVerifierJob {
             ImportRequest<TeacherInfoImportDto> importRequest = ImportRequest.
                     <TeacherInfoImportDto>builder()
                     .requestId(requestId)
+                    .collegeId(request.getCollegeId())
+                    .requestorId(request.getRequestor().getDocument())
                     .importType(request.getType())
                     .expectedColumns(TeacherImportIndexes.values().length)
                     .converter(TeacherInfoImportDto::readFromStringArray)
@@ -118,7 +132,7 @@ public class ImportVerifierJob {
         }
     }
 
-    private void verifyTeacherEnrollmentImports(List<String> importIds){
+    public void verifyTeacherEnrollmentImports(List<String> importIds){
         for(var requestId : importIds){
             var requestQuery = importRequestRepository.findById(requestId);
 
@@ -132,6 +146,8 @@ public class ImportVerifierJob {
             ImportRequest<TeacherEnrollDto> importRequest = ImportRequest.
                     <TeacherEnrollDto>builder()
                     .requestId(requestId)
+                    .collegeId(request.getCollegeId())
+                    .requestorId(request.getRequestor().getDocument())
                     .importType(request.getType())
                     .expectedColumns(TeacherEnrollmentIndexes.values().length)
                     .validation(this::validateTeacherEnroll)
@@ -148,7 +164,7 @@ public class ImportVerifierJob {
         }
     }
 
-    private void verifyStudentImports(List<String> importIds){
+    public void verifyStudentImports(List<String> importIds){
         for(var requestId : importIds){
             var requestQuery = importRequestRepository.findById(requestId);
 
@@ -162,11 +178,13 @@ public class ImportVerifierJob {
             ImportRequest<StudentImportDto> importRequest = ImportRequest.
                     <StudentImportDto>builder()
                     .requestId(requestId)
+                    .collegeId(request.getCollegeId())
+                    .requestorId(request.getRequestor().getDocument())
                     .importType(request.getType())
                     .expectedColumns(StudentImportIndexes.values().length)
                     .validation(this::validateStudent)
                     .converter(StudentImportDto::readFromStringArray)
-                    .bucket(BucketName.BILAN_TEACHER)
+                    .bucket(BucketName.BILAN_STUDENT_IMPORT)
                     .build();
 
             var result = processImport(importRequest);
@@ -178,7 +196,7 @@ public class ImportVerifierJob {
         }
     }
 
-    private List<String> validateTeacherEnroll(TeacherEnrollDto teacher){
+    public List<String> validateTeacherEnroll(TeacherEnrollDto teacher){
 
         List<String> errors = new ArrayList<>();
 
@@ -187,9 +205,9 @@ public class ImportVerifierJob {
         if(tribe.isEmpty())
             errors.add("La asignatura es incorrecta");
 
-        Optional<Courses> course = courses.findFirstByCourseName(teacher.getCourse());
+        Courses course = availableCourses.getOrDefault(teacher.getCourse(), null);
 
-        if(course.isEmpty())
+        if(course == null)
             errors.add("El curso es incorrecto");
 
         if(!teachersRepository.existsById(teacher.getDocument()))
@@ -199,19 +217,20 @@ public class ImportVerifierJob {
     }
 
 
-    private List<String> validateStudent(StudentImportDto student){
+    public List<String> validateStudent(StudentImportDto student){
         List<String> errors = new ArrayList<>();
 
-        Optional<Courses> course = courses.findFirstByCourseName(student.getCourse());
 
-        if(course.isEmpty())
+        Courses course = availableCourses.getOrDefault(student.getCourse(), null);
+
+        if(course == null)
             errors.add("El curso es incorrecto");
 
         return  errors;
     }
 
 
-    private <T extends ImportIdentifier> ImportResultDto processImport(ImportRequest<T> request){
+    public <T extends ImportIdentifier> ImportResultDto processImport(ImportRequest<T> request){
 
         Tuple<ImportResultDto, List<T>> result = processFile(request);
 
@@ -226,6 +245,7 @@ public class ImportVerifierJob {
                 request.getImportType());
 
         importDto.setBucket(request.getBucket());
+        importDto.setCollegeId(request.getCollegeId());
         importDto.addProcessed(processed);
 
         log.info("{}: Users to be processed: {}, rejected: {}",
@@ -243,14 +263,19 @@ public class ImportVerifierJob {
         return importResult;
     }
 
-    private <T extends ImportIdentifier> Tuple<ImportResultDto, List<T>> processFile(ImportRequest<T> request){
+    public <T extends ImportIdentifier> Tuple<ImportResultDto, List<T>> processFile(ImportRequest<T> request){
 
         ImportResultDto importResult = new ImportResultDto(ImportStatus.Verifying);
         importResult.setBucket(request.getBucket());
 
         List<T> results = new ArrayList<>();
 
-        var path = fileManager.buildPath(request.getBucket(), Constants.STAGED_PATH, request.getRequestId(), Constants.CSV);
+        var path = fileManager.buildPath(
+                request.getBucket(),
+                Constants.STAGED_PATH,
+                request.getRequestId(),
+                Constants.CSV
+                );
 
         var index = new AtomicInteger();
 

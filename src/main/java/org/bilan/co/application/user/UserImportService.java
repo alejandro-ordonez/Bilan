@@ -85,6 +85,7 @@ public class UserImportService implements IUserImportService {
         requestor.setDocument(requestorDocument);
 
         importRequest.setRequestor(requestor);
+        importRequest.setType(importType);
         importRequest.setStatus(ImportStatus.ReadyForVerification);
 
         if (collegeQuery.isEmpty())
@@ -107,10 +108,15 @@ public class UserImportService implements IUserImportService {
                 var result = new ImportResultDto(importRequest.getStatus());
                 result.setImportId(importRequest.getImportId());
                 return new ResponseDto<>(Constants.Ok, 200, result);
-            } else
+            } else{
+                importRequest.setStatus(ImportStatus.Rejected);
+                importRequestRepository.save(importRequest);
                 return new ResponseDto<>("Failed to read the file", 400, new ImportResultDto(ImportStatus.Rejected));
+            }
 
         } catch (IOException e) {
+            importRequest.setStatus(ImportStatus.Rejected);
+            importRequestRepository.save(importRequest);
             return new ResponseDto<>("Failed to read the file", 400, new ImportResultDto(ImportStatus.Rejected));
         }
     }

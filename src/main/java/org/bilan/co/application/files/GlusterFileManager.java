@@ -38,14 +38,14 @@ public class GlusterFileManager implements IFileManager{
         return Paths.get(
                 basePath,
                 bucket.getBucketName(),
-                fileName,
-                extension
+                subFolder,
+                fileName + extension
         );
     }
 
     @Override
     public boolean stageImportFile(InputStream file, BucketName bucket, String fileName, String extension) {
-        var filePath = Constants.STAGED_PATH + fileName;
+        var filePath = Constants.STAGED_PATH + "\\" + fileName;
         return uploadFile(file, bucket, filePath, extension);
     }
 
@@ -54,10 +54,11 @@ public class GlusterFileManager implements IFileManager{
         Path path = Paths.get(
                 basePath,
                 bucket.getBucketName(),
-                fileName,
-                extension
+                fileName + extension
                 );
         try{
+            // Create parent directories if they don't exist
+            Files.createDirectories(path.getParent());
             Files.copy(file, path, StandardCopyOption.REPLACE_EXISTING);
             return true;
         } catch (IOException e) {

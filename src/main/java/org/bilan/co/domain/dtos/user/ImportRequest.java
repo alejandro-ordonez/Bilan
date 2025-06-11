@@ -14,6 +14,8 @@ import java.util.function.Function;
 @Data
 public class ImportRequest<T> {
     private final String requestId;
+    private final Integer collegeId;
+    private final String requestorId;
     private final ImportType importType;
     private final int expectedColumns;
     private final Function<String[], T> converter;
