@@ -8,14 +8,14 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class RejectedUser {
+public class RejectedRow {
     String identifier;
     int lineInFile;
     String line;
 
     List<String> errors = new ArrayList<>();
 
-    public RejectedUser(String identifier, int lineInFile, String line) {
+    public RejectedRow(String identifier, int lineInFile, String line) {
         this.identifier = identifier;
         this.lineInFile = lineInFile;
         this.line = line;

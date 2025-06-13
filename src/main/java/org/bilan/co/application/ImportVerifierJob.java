@@ -1,8 +1,11 @@
-package org.bilan.co.application.user;
+package org.bilan.co.application;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.files.IFileManager;
+import org.bilan.co.domain.dtos.ImportIdentifier;
+import org.bilan.co.domain.dtos.college.CollegeImportDto;
+import org.bilan.co.domain.dtos.college.enums.CollegeImportIndexes;
 import org.bilan.co.domain.dtos.user.*;
 import org.bilan.co.domain.dtos.user.enums.*;
 import org.bilan.co.domain.entities.Courses;
@@ -11,10 +14,7 @@ import org.bilan.co.domain.entities.Tribes;
 import org.bilan.co.domain.enums.BucketName;
 import org.bilan.co.domain.utils.TransformersUtil;
 import org.bilan.co.domain.utils.Tuple;
-import org.bilan.co.infraestructure.persistance.CoursesRepository;
-import org.bilan.co.infraestructure.persistance.ImportRequestRepository;
-import org.bilan.co.infraestructure.persistance.TeachersRepository;
-import org.bilan.co.infraestructure.persistance.TribesRepository;
+import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.utils.Constants;
 import org.jobrunr.jobs.context.JobRunrDashboardLogger;
 import org.jobrunr.scheduling.JobScheduler;
@@ -28,7 +28,10 @@ import org.springframework.validation.Validator;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -59,6 +62,9 @@ public class ImportVerifierJob {
 
     @Autowired
     private CoursesRepository courses;
+
+    @Autowired
+    private StateMunicipalityRepository municipalityRepository;
 
     private Map<String, Courses> availableCourses;
 
@@ -98,6 +104,7 @@ public class ImportVerifierJob {
             case TeacherImport -> verifyTeacherImports(requests);
             case TeacherEnrollment -> verifyTeacherEnrollmentImports(requests);
             case StudentImport -> verifyStudentImports(requests);
+            case CollegesImport -> verifyCollegeImport(requests);
         }
     }
 
@@ -196,6 +203,38 @@ public class ImportVerifierJob {
         }
     }
 
+    public void verifyCollegeImport(List<String> importIds) {
+        for (var requestId : importIds) {
+            var requestQuery = importRequestRepository.findById(requestId);
+
+            if (requestQuery.isEmpty())
+                continue;
+
+            ImportRequests request = requestQuery.get();
+            request.setStatus(ImportStatus.Verifying);
+            importRequestRepository.save(request);
+
+            ImportRequest<CollegeImportDto> importRequest = ImportRequest.
+                    <CollegeImportDto>builder()
+                    .requestId(requestId)
+                    .collegeId(request.getCollegeId())
+                    .requestorId(request.getRequestor().getDocument())
+                    .importType(request.getType())
+                    .validation(this::validateCollege)
+                    .expectedColumns(CollegeImportIndexes.values().length)
+                    .converter(CollegeImportDto::readFromStringArray)
+                    .bucket(BucketName.BILAN_COLLEGE_IMPORT)
+                    .build();
+
+            var result = processImport(importRequest);
+            request.setStatus(result.getStatus());
+            request.setProcessed(result.getAcceptedCount());
+            request.setRejected(result.getRejectedCount());
+
+            importRequestRepository.save(request);
+        }
+    }
+
     public List<String> validateTeacherEnroll(TeacherEnrollDto teacher){
 
         List<String> errors = new ArrayList<>();
@@ -216,10 +255,8 @@ public class ImportVerifierJob {
         return errors;
     }
 
-
     public List<String> validateStudent(StudentImportDto student){
         List<String> errors = new ArrayList<>();
-
 
         Courses course = availableCourses.getOrDefault(student.getCourse(), null);
 
@@ -227,6 +264,18 @@ public class ImportVerifierJob {
             errors.add("El curso es incorrecto");
 
         return  errors;
+    }
+
+
+    public List<String> validateCollege(CollegeImportDto college) {
+        var errors = new ArrayList<String>();
+
+        var municipality = municipalityRepository.findByCodDane(college.getCodDaneMunicipality());
+
+        if (municipality.isEmpty())
+            errors.add("El municipio no pudo ser encontrado, verifique el código dane");
+
+        return errors;
     }
 
 
@@ -251,13 +300,13 @@ public class ImportVerifierJob {
         log.info("{}: Users to be processed: {}, rejected: {}",
                 importDto.getImportType().name(),
                 result.getValue2().size(),
-                importResult.getRejectedUsers().size());
+                importResult.getRejectedRows().size());
 
         // Saves the file to be processed by the queue.
         fileManager.saveVerifiedUsers(importDto);
 
         // Save file to be corrected:
-        if (!importResult.getRejectedUsers().isEmpty())
+        if (!importResult.getRejectedRows().isEmpty())
             fileManager.saveRejectedImport(importResult);
 
         return importResult;
@@ -288,9 +337,9 @@ public class ImportVerifierJob {
                 user = line.split(",");
 
                 if(user.length != request.getExpectedColumns()){
-                    RejectedUser rejectedUser = new RejectedUser("", lineNumber, line);
-                    rejectedUser.addError("Error num. columnas", "No están todas las columnas esperadas");
-                    importResult.addRejected(rejectedUser);
+                    RejectedRow rejectedRow = new RejectedRow("", lineNumber, line);
+                    rejectedRow.addError("Error num. columnas", "No están todas las columnas esperadas");
+                    importResult.addRejected(rejectedRow);
                     return;
                 }
 
@@ -300,23 +349,23 @@ public class ImportVerifierJob {
                     parsed = request.getConverter().apply(user);
                 }catch (IllegalArgumentException e) {
                     log.error("Failed to parse");
-                    RejectedUser rejectedUser = new RejectedUser("", lineNumber, line);
-                    rejectedUser.addError("Error", "La linea no pudo ser convertida");
-                    importResult.addRejected(rejectedUser);
+                    RejectedRow rejectedRow = new RejectedRow("", lineNumber, line);
+                    rejectedRow.addError("Error", "La linea no pudo ser convertida");
+                    importResult.addRejected(rejectedRow);
                     return;
                 }
 
                 Errors errors = validator.validateObject(parsed);
 
                 if(errors.hasErrors()){
-                    RejectedUser rejectedUser = new RejectedUser(parsed.getDocument(), lineNumber, line);
-                    rejectedUser.setErrors(errors.getAllErrors()
+                    RejectedRow rejectedRow = new RejectedRow(parsed.getIdentifier(), lineNumber, line);
+                    rejectedRow.setErrors(errors.getAllErrors()
                             .stream()
                             .map(error ->
                                     "[ %s: %s ]".formatted(error.getObjectName(), error.getDefaultMessage())
                             ).toList());
 
-                    importResult.addRejected(rejectedUser);
+                    importResult.addRejected(rejectedRow);
 
                     return;
                 }
@@ -328,9 +377,9 @@ public class ImportVerifierJob {
 
                     if(!validation.isEmpty()){
                         log.error("El profesor no es válido");
-                        RejectedUser rejectedUser = new RejectedUser(parsed.getDocument(), lineNumber, line);
-                        rejectedUser.getErrors().addAll(validation);
-                        importResult.addRejected(rejectedUser);
+                        RejectedRow rejectedRow = new RejectedRow(parsed.getIdentifier(), lineNumber, line);
+                        rejectedRow.getErrors().addAll(validation);
+                        importResult.addRejected(rejectedRow);
                     }
                 }
 
@@ -343,10 +392,10 @@ public class ImportVerifierJob {
 
         importResult.setAcceptedCount(results.size());
 
-        if(!importResult.getRejectedUsers().isEmpty() && !results.isEmpty())
+        if (!importResult.getRejectedRows().isEmpty() && !results.isEmpty())
             importResult.setStatus(ImportStatus.ApprovedWithErrors);
 
-        else if(!importResult.getRejectedUsers().isEmpty())
+        else if (!importResult.getRejectedRows().isEmpty())
             importResult.setStatus(ImportStatus.Rejected);
 
         else

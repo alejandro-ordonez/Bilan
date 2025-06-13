@@ -1,15 +1,24 @@
-package org.bilan.co.application.user;
+package org.bilan.co.application;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.files.IFileManager;
+import org.bilan.co.application.user.IUserImportService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.common.PagedResponse;
-import org.bilan.co.domain.dtos.user.*;
-import org.bilan.co.domain.dtos.user.enums.*;
-import org.bilan.co.domain.entities.*;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
+import org.bilan.co.domain.dtos.user.ImportRequestDto;
+import org.bilan.co.domain.dtos.user.ImportResultDto;
+import org.bilan.co.domain.dtos.user.enums.ImportStatus;
+import org.bilan.co.domain.dtos.user.enums.ImportType;
+import org.bilan.co.domain.entities.Colleges;
+import org.bilan.co.domain.entities.ImportRequests;
+import org.bilan.co.domain.entities.UserInfo;
 import org.bilan.co.domain.enums.BucketName;
 import org.bilan.co.domain.utils.Tuple;
-import org.bilan.co.infraestructure.persistance.*;
+import org.bilan.co.infraestructure.persistance.CollegesRepository;
+import org.bilan.co.infraestructure.persistance.ImportRequestRepository;
+import org.bilan.co.infraestructure.persistance.TeachersRepository;
+import org.bilan.co.infraestructure.persistance.UserInfoRepository;
 import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -26,7 +34,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class UserImportService implements IUserImportService {
+public class ImportService implements IUserImportService {
 
     @Autowired
     private IFileManager fileManager;
@@ -56,7 +64,10 @@ public class UserImportService implements IUserImportService {
 
         Optional<Colleges> collegeQuery;
 
-        if (campusCodeDane == null) {
+        if (importType == ImportType.TeacherImport || importType == ImportType.CollegesImport)
+            collegeQuery = Optional.empty();
+
+        else if (campusCodeDane == null) {
             AuthenticatedUserDto authenticatedUserDto = jwt.getInfoFromToken(token);
             String codDaneSede = teachersRepository.getCodDaneSede(authenticatedUserDto.getDocument());
             collegeQuery = collegesRepository.findByCodDaneSede(codDaneSede);
@@ -71,7 +82,7 @@ public class UserImportService implements IUserImportService {
         }
 
         // Can be empty only if you are not importing a list of teachers
-        if (collegeQuery.isEmpty() && importType != ImportType.TeacherImport) {
+        if (collegeQuery.isEmpty() && importType != ImportType.TeacherImport && importType != ImportType.CollegesImport) {
             String message = "The college couldn't be determined";
             log.error(message);
             return new ResponseDto<>(message, 400, new ImportResultDto(ImportStatus.Rejected));

@@ -1,14 +1,63 @@
 package org.bilan.co.domain.dtos.user;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.NotImplementedException;
+import lombok.NoArgsConstructor;
+import org.bilan.co.domain.dtos.ImportIdentifier;
+import org.bilan.co.domain.dtos.user.enums.TeacherImportIndexes;
+import org.bilan.co.domain.enums.DocumentType;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TeacherInfoImportDto extends ImportIdentifier {
 
+    @NotNull
+    protected DocumentType documentType;
+
+    @NotEmpty(message = "El documento no puede estar vacío")
+    @Pattern(regexp = "[1-9][0-9]{5,12}")
+    String document;
+
+    @Pattern(regexp = "/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/")
+    private String email;
+
+    @NotEmpty()
+    private String name;
+
+    @NotEmpty()
+    private String lastName;
+
+    @NotEmpty()
+    private String profession;
+
     public static TeacherInfoImportDto readFromStringArray(String[] values){
-        throw new NotImplementedException();
+        var document = values[TeacherImportIndexes.Document.ordinal()];
+        var documentType = DocumentType.valueOf(values[TeacherImportIndexes.DocumentType.ordinal()]);
+        var email = values[TeacherImportIndexes.Email.ordinal()];
+        var name = values[TeacherImportIndexes.Name.ordinal()];
+        var lastName = values[TeacherImportIndexes.LastName.ordinal()];
+        var profession = values[TeacherImportIndexes.Profession.ordinal()];
+
+        var teacher = new TeacherInfoImportDto();
+
+        teacher.document = document;
+        teacher.documentType = documentType;
+        teacher.email = email;
+        teacher.name = name;
+        teacher.lastName = lastName;
+        teacher.profession = profession;
+
+        return teacher;
+    }
+
+    @Override
+    public String getIdentifier() {
+        return document;
     }
 }

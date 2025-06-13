@@ -3,15 +3,11 @@ package org.bilan.co.application.files;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.tomcat.util.http.fileupload.FileItemIterator;
-import org.apache.tomcat.util.http.fileupload.FileItemStream;
 import org.bilan.co.domain.dtos.user.ImportResultDto;
 import org.bilan.co.domain.dtos.user.StagedImportRequestDto;
-import org.bilan.co.domain.dtos.user.enums.RejectedUser;
+import org.bilan.co.domain.dtos.user.enums.RejectedRow;
 import org.bilan.co.domain.enums.BucketName;
 import org.bilan.co.utils.Constants;
 import org.springframework.core.env.Environment;
@@ -116,7 +112,7 @@ public class GlusterFileManager implements IFileManager{
     @Override
     public String saveRejectedImport(ImportResultDto importResult) {
         // Nothing to write
-        if (importResult.getRejectedUsers().isEmpty())
+        if (importResult.getRejectedRows().isEmpty())
             return null;
 
         Path fullPath = Paths.get(
@@ -125,9 +121,9 @@ public class GlusterFileManager implements IFileManager{
                 Constants.FAILED_PATH,
                 importResult.getImportId() + ".csv");
 
-        String output = importResult.getRejectedUsers()
+        String output = importResult.getRejectedRows()
                 .stream()
-                .map(RejectedUser::getLine)
+                .map(RejectedRow::getLine)
                 .collect(Collectors.joining("\n"));
 
         InputStream stream = new ByteArrayInputStream(output.getBytes());

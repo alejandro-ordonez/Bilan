@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StateMunicipalityRepository extends JpaRepository<StateMunicipality, Integer> {
@@ -17,8 +18,11 @@ public interface StateMunicipalityRepository extends JpaRepository<StateMunicipa
             "ORDER BY c.state")
     List<String> states();
 
-    @Query(value = "" +
-            "  SELECT DISTINCT dm.id   " +
+    @Query("SELECT mun FROM StateMunicipality mun " +
+            "WHERE mun.codDaneMunicipality = :codDane")
+    Optional<StateMunicipality> findByCodDane(String codDane);
+
+    @Query(value = "  SELECT DISTINCT dm.id   " +
             "      , dm.municipio AS name " +
             "   FROM departamento_municipio dm  " +
             "  WHERE dm.departamento = :state   " +

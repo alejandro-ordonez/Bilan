@@ -1,12 +1,14 @@
-package org.bilan.co.application.user;
+package org.bilan.co.application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.files.IFileManager;
+import org.bilan.co.domain.dtos.college.CollegeImportDto;
 import org.bilan.co.domain.dtos.user.StagedImportRequestDto;
 import org.bilan.co.domain.dtos.user.StudentImportDto;
 import org.bilan.co.domain.dtos.user.TeacherEnrollDto;
+import org.bilan.co.domain.dtos.user.TeacherInfoImportDto;
 import org.bilan.co.domain.dtos.user.enums.ImportStatus;
 import org.bilan.co.domain.dtos.user.enums.ImportType;
 import org.bilan.co.domain.entities.*;
@@ -25,10 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,9 +48,15 @@ public class ImportProcessorJob {
     @Autowired
     private StudentsRepository studentsRepository;
     @Autowired
+    private UserInfoRepository usersRepository;
+    @Autowired
     private TribesRepository tribes;
     @Autowired
     private ClassroomRepository classrooms;
+    @Autowired
+    private CollegesRepository collegesRepository;
+    @Autowired
+    private StateMunicipalityRepository statesRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -111,8 +116,9 @@ public class ImportProcessorJob {
     public void selectProcess(ImportType type, List<String> requests) {
         switch (type) {
             case StudentImport -> processStudentImports(requests);
-            case TeacherImport -> processTeacherImport(requests);
+            case TeacherImport -> processTeacherImports(requests);
             case TeacherEnrollment -> processTeacherEnrollmentImports(requests);
+            case CollegesImport -> processCollegeImports(requests);
         }
     }
 
@@ -180,9 +186,140 @@ public class ImportProcessorJob {
         studentsRepository.saveAll(approvedStudents);
     }
 
-    public void processTeacherImport(List<String> requests) {
 
+    public void processTeacherImports(List<String> requests) {
+        jobLogger.info("Processing Teacher imports: {}", requests.size());
+
+        for (String importId : requests) {
+            var importRequest = importRequestRepository.findById(importId);
+
+            if (importRequest.isEmpty())
+                throw new IllegalArgumentException("Invalid request");
+
+            var bucket = BucketName.getFromImportType(importRequest.get().getType());
+            var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
+
+            var payload = fileManager.getFromJsonFile(payloadPath.toString(),
+                    new TypeReference<StagedImportRequestDto<TeacherInfoImportDto>>() {
+                    });
+
+            // Failed to read the file, marking as failed
+            if (payload == null) {
+                importRequest.get().setStatus(ImportStatus.Failed);
+                importRequest.get().setModified(LocalDateTime.now());
+                importRequestRepository.save(importRequest.get());
+
+                continue;
+            }
+
+            importRequest.get().setStatus(ImportStatus.Processing);
+            importRequest.get().setModified(LocalDateTime.now());
+            importRequestRepository.save(importRequest.get());
+
+            try {
+                processTeacherImport(payload);
+                importRequest.get().setStatus(ImportStatus.Ok);
+            } catch (Exception e) {
+                jobLogger.error("Something went wrong when processing the import {}", importRequest.get().getImportId());
+                importRequest.get().setStatus(ImportStatus.Failed);
+            }
+
+            importRequestRepository.save(importRequest.get());
+        }
     }
+
+    public void processTeacherImport(StagedImportRequestDto<TeacherInfoImportDto> request) {
+        List<UserInfo> teachers = new ArrayList<>();
+
+        for (var teacherInfo : request.getProcessed()) {
+            UserInfo teacher = new UserInfo();
+
+            teacher.setDocument(teacherInfo.getDocument());
+            teacher.setDocumentType(teacherInfo.getDocumentType());
+            teacher.setName(teacherInfo.getName());
+            teacher.setLastName(teacherInfo.getLastName());
+            teacher.setPositionName(teacherInfo.getProfession());
+            teacher.setCreatedAt(new Date());
+            teacher.setModifiedAt(new Date());
+
+            Roles role = new Roles();
+            role.setId(2);
+
+            teachers.add(teacher);
+        }
+
+        usersRepository.saveAll(teachers);
+    }
+
+
+    public void processCollegeImports(List<String> requests) {
+        jobLogger.info("Processing College imports: {}", requests.size());
+
+        for (String importId : requests) {
+            var importRequest = importRequestRepository.findById(importId);
+
+            if (importRequest.isEmpty())
+                throw new IllegalArgumentException("Invalid request");
+
+            var bucket = BucketName.getFromImportType(importRequest.get().getType());
+            var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
+
+            var payload = fileManager.getFromJsonFile(payloadPath.toString(),
+                    new TypeReference<StagedImportRequestDto<StudentImportDto>>() {
+                    });
+
+            // Failed to read the file, marking as failed
+            if (payload == null) {
+                importRequest.get().setStatus(ImportStatus.Failed);
+                importRequest.get().setModified(LocalDateTime.now());
+                importRequestRepository.save(importRequest.get());
+
+                continue;
+            }
+
+            importRequest.get().setStatus(ImportStatus.Processing);
+            importRequest.get().setModified(LocalDateTime.now());
+            importRequestRepository.save(importRequest.get());
+
+            try {
+                processStudentImport(payload);
+                importRequest.get().setStatus(ImportStatus.Ok);
+            } catch (Exception e) {
+                jobLogger.error("Something went wrong when processing the import {}", importRequest.get().getImportId());
+                importRequest.get().setStatus(ImportStatus.Failed);
+            }
+
+            importRequestRepository.save(importRequest.get());
+        }
+    }
+
+    public void processCollegeImport(StagedImportRequestDto<CollegeImportDto> request) {
+        List<Colleges> colleges = new ArrayList<>();
+
+        for (var collegeInfo : request.getProcessed()) {
+
+            var existing = collegesRepository.findByCodDaneSede(collegeInfo.getCodDaneSede());
+
+            if (existing.isPresent())
+                continue;
+
+            var municipality = statesRepository.findByCodDane(collegeInfo.getCodDaneMunicipality());
+            if (municipality.isEmpty())
+                continue;
+
+            Colleges college = new Colleges();
+            college.setName(collegeInfo.getName());
+            college.setCampusCodeDane(collegeInfo.getCodDaneSede());
+            college.setCampusName(collegeInfo.getCampusName());
+            college.setSecretaria(municipality.get().getState());
+            college.setStateMunicipality(municipality.get());
+
+            colleges.add(college);
+        }
+
+        collegesRepository.saveAll(colleges);
+    }
+
 
     public void processTeacherEnrollmentImports(List<String> requests) {
         jobLogger.info("Processing Teacher enrollment imports: {}", requests.size());
