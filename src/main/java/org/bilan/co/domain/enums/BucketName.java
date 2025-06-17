@@ -30,7 +30,12 @@ public enum BucketName {
     /**
      * Use this folder to store the colleges import
      */
-    BILAN_COLLEGE_IMPORT("bilan-colleges-import");
+    BILAN_COLLEGE_IMPORT("bilan-colleges-import"),
+
+    /**
+     * Use this folder to store all statistics after finishing a cycle
+     */
+    BILAN_GAME_CYCLES("bilan-game-cycles");
 
     private final String bucketName;
 

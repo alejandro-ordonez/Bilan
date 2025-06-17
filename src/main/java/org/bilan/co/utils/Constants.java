@@ -5,6 +5,9 @@ public final class Constants {
     public static final String AUTHORIZATION = "Authorization";
 
     public static final String CACHE_COLLEGES_BY_MUN = "colleges-mun";
+    public static final String STATES = "states";
+    public static final String CITIES = "states";
+    public static final String COURSES = "states";
 
     public static final int TOTAL_PHASES = 15;
     public static final int MAX_SIZE_PAGE = 20;
@@ -28,6 +31,8 @@ public final class Constants {
     public static final String Ok = "Ok";
     public static final String JSON = ".json";
     public static final String CSV = ".csv";
+    public static final String GENERAL_STATISTICS = "general-statistics";
+    public static final String STATE_STATISTICS = "state-statistics";
 
     private Constants() {
     }

@@ -11,9 +11,4 @@ public class ConfigController {
     public String redirectToSwagger() {
         return "redirect:/swagger-ui.html";
     }
-
-    @GetMapping("/reset-game")
-    public byte[] resetGame(){
-        return null;
-    }
 }

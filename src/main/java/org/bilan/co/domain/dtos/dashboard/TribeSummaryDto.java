@@ -16,4 +16,8 @@ public class TribeSummaryDto {
     private String logins;
     private Integer performanceActivityScore;
     private Integer performanceGameScore;
+
+    public String toCommaSeparated(){
+        return title + "," + name + "," + logins + "," + performanceActivityScore + "," + performanceGameScore;
+    }
 }

@@ -30,5 +30,8 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, String> {
             "AND NOT u.document = :document AND u.role.id IN (:roles)")
     Page<UserInfo> searchUsersWithDocument(Pageable page, String partialDocument, String document, List<Integer> roles);
 
-
+    @Query("UPDATE UserInfo u " +
+            "SET u.isEnabled = false " +
+            "WHERE u.role.id <> 5")
+    void disableAllUsers();
 }

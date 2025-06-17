@@ -71,4 +71,7 @@ public class UserInfo {
 
     @OneToMany(mappedBy = "requestor", fetch = FetchType.LAZY)
     private List<ImportRequests> importRequests;
+
+    @OneToMany(mappedBy = "closingRequestedBy", fetch = FetchType.LAZY)
+    private List<GameCycles> closedCycles;
 }
