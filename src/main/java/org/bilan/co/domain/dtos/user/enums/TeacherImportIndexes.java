@@ -6,5 +6,4 @@ public enum TeacherImportIndexes {
     Email,
     Name,
     LastName,
-    Profession
 }

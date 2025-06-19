@@ -1,5 +1,6 @@
 package org.bilan.co.domain.dtos.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.bilan.co.domain.dtos.user.enums.ImportStatus;
 import org.bilan.co.domain.dtos.user.enums.RejectedRow;
@@ -15,7 +16,12 @@ public class ImportResultDto {
     int acceptedCount;
     boolean hasRejectedFile;
     List<RejectedRow> rejectedRows = new ArrayList<>();
+
+    @JsonIgnore
     private BucketName bucket;
+
+    @JsonIgnore
+    private String headers;
 
     public ImportResultDto(ImportStatus status) {
         this.status = status;

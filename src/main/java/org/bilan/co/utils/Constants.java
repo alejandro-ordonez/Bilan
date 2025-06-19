@@ -1,5 +1,7 @@
 package org.bilan.co.utils;
 
+import java.util.List;
+
 public final class Constants {
     public static final String RESOURCE_NOT_FOUND = "Resource not found";
     public static final String AUTHORIZATION = "Authorization";
@@ -33,6 +35,12 @@ public final class Constants {
     public static final String CSV = ".csv";
     public static final String GENERAL_STATISTICS = "general-statistics";
     public static final String STATE_STATISTICS = "state-statistics";
+
+    // Headers
+    public static final String StudentImportHeaders = String.join(", ","Documento", "Tipo de documento", "Nombre", "Apellido", "Grado", "Curso");
+    public static final String TeacherImportHeaders = String.join(", ","Documento", "Tipo de documento", "Email", "Nombre", "Apellido");
+    public static final String TeacherEnrollmentHeaders = String.join(", ","Documento", "Tipo de documento", "Grado", "Curso", "Tribu");
+    public static final String CollegeImportHeaders = String.join(", ","Departamento", "Cod dane municipio", "Nombre", "Cod dane sede", "Nombre sede");
 
     private Constants() {
     }

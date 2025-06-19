@@ -21,4 +21,5 @@ public class ImportRequest<T> {
     private final Function<String[], T> converter;
     private final Function<T, List<String>> validation;
     private final BucketName bucket;
+    private final String headers;
 }

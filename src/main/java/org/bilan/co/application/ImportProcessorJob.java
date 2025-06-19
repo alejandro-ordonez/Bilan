@@ -238,13 +238,18 @@ public class ImportProcessorJob {
             teacher.setDocumentType(teacherInfo.getDocumentType());
             teacher.setName(teacherInfo.getName());
             teacher.setLastName(teacherInfo.getLastName());
-            teacher.setPositionName(teacherInfo.getProfession());
+            teacher.setEmail(teacherInfo.getEmail());
+            teacher.setIsEnabled(false);
+            teacher.setPositionName(Constants.TEACHER);
             teacher.setCreatedAt(new Date());
             teacher.setModifiedAt(new Date());
+            teacher.setConfirmed(false);
+            teacher.setPassword(passwordEncoder.encode(teacher.getDocument()));
 
             Roles role = new Roles();
             role.setId(2);
 
+            teacher.setRole(role);
             teachers.add(teacher);
         }
 
@@ -265,7 +270,7 @@ public class ImportProcessorJob {
             var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
 
             var payload = fileManager.getFromJsonFile(payloadPath.toString(),
-                    new TypeReference<StagedImportRequestDto<StudentImportDto>>() {
+                    new TypeReference<StagedImportRequestDto<CollegeImportDto>>() {
                     });
 
             // Failed to read the file, marking as failed
@@ -282,7 +287,7 @@ public class ImportProcessorJob {
             importRequestRepository.save(importRequest.get());
 
             try {
-                processStudentImport(payload);
+                processCollegeImport(payload);
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
                 jobLogger.error("Something went wrong when processing the import {}", importRequest.get().getImportId());

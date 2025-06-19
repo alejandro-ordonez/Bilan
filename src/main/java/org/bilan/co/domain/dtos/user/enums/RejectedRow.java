@@ -24,4 +24,8 @@ public class RejectedRow {
     public void addError(String title, String message) {
         this.errors.add("[%s: %s]".formatted(title, message));
     }
+
+    public String getLineWithErrors(){
+        return line + ", " + String.join(",", errors);
+    }
 }

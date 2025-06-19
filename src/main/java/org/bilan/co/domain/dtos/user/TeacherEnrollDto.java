@@ -37,6 +37,7 @@ public class TeacherEnrollDto extends ImportIdentifier {
         teacher.setDocumentType(documentType);
         teacher.setGrade(values[TeacherEnrollmentIndexes.Grade.ordinal()]);
         teacher.setCourse(values[TeacherEnrollmentIndexes.Course.ordinal()]);
+        teacher.setTribe(values[TeacherEnrollmentIndexes.Tribe.ordinal()]);
 
         return teacher;
     }

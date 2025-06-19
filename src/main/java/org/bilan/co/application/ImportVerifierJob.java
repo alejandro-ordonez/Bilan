@@ -22,6 +22,7 @@ import org.jobrunr.scheduling.cron.Cron;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -127,6 +128,7 @@ public class ImportVerifierJob {
                     .importType(request.getType())
                     .expectedColumns(TeacherImportIndexes.values().length)
                     .converter(TeacherInfoImportDto::readFromStringArray)
+                    .headers(Constants.TeacherImportHeaders)
                     .bucket(BucketName.BILAN_TEACHER)
                     .build();
 
@@ -159,6 +161,7 @@ public class ImportVerifierJob {
                     .expectedColumns(TeacherEnrollmentIndexes.values().length)
                     .validation(this::validateTeacherEnroll)
                     .converter(TeacherEnrollDto::readFromStringArray)
+                    .headers(Constants.TeacherEnrollmentHeaders)
                     .bucket(BucketName.BILAN_TEACHER_ENROLLMENT)
                     .build();
 
@@ -191,6 +194,7 @@ public class ImportVerifierJob {
                     .expectedColumns(StudentImportIndexes.values().length)
                     .validation(this::validateStudent)
                     .converter(StudentImportDto::readFromStringArray)
+                    .headers(Constants.StudentImportHeaders)
                     .bucket(BucketName.BILAN_STUDENT_IMPORT)
                     .build();
 
@@ -223,6 +227,7 @@ public class ImportVerifierJob {
                     .validation(this::validateCollege)
                     .expectedColumns(CollegeImportIndexes.values().length)
                     .converter(CollegeImportDto::readFromStringArray)
+                    .headers(Constants.CollegeImportHeaders)
                     .bucket(BucketName.BILAN_COLLEGE_IMPORT)
                     .build();
 
@@ -294,7 +299,10 @@ public class ImportVerifierJob {
                 request.getImportType());
 
         importDto.setBucket(request.getBucket());
-        importDto.setCollegeId(request.getCollegeId());
+
+        if(request.getImportType() != ImportType.TeacherImport && request.getImportType() != ImportType.CollegesImport)
+            importDto.setCollegeId(request.getCollegeId());
+
         importDto.addProcessed(processed);
 
         log.info("{}: Users to be processed: {}, rejected: {}",
@@ -316,6 +324,8 @@ public class ImportVerifierJob {
 
         ImportResultDto importResult = new ImportResultDto(ImportStatus.Verifying);
         importResult.setBucket(request.getBucket());
+        importResult.setImportId(request.getRequestId());
+        importResult.setHeaders(request.getHeaders());
 
         List<T> results = new ArrayList<>();
 
@@ -329,7 +339,7 @@ public class ImportVerifierJob {
         var index = new AtomicInteger();
 
         try (Stream<String> lines = Files.lines(path)) {
-            lines.forEach(line -> {
+            lines.skip(1).forEach(line -> {
                 // Process each line
                 int lineNumber = index.getAndIncrement();
                 String[] user;
@@ -361,8 +371,7 @@ public class ImportVerifierJob {
                     RejectedRow rejectedRow = new RejectedRow(parsed.getIdentifier(), lineNumber, line);
                     rejectedRow.setErrors(errors.getAllErrors()
                             .stream()
-                            .map(error ->
-                                    "[ %s: %s ]".formatted(error.getObjectName(), error.getDefaultMessage())
+                            .map(DefaultMessageSourceResolvable::getDefaultMessage
                             ).toList());
 
                     importResult.addRejected(rejectedRow);
@@ -376,10 +385,11 @@ public class ImportVerifierJob {
                     var validation = specialValidation.apply(parsed);
 
                     if(!validation.isEmpty()){
-                        log.error("El profesor no es válido");
+                        log.error("El registro no es válido");
                         RejectedRow rejectedRow = new RejectedRow(parsed.getIdentifier(), lineNumber, line);
                         rejectedRow.getErrors().addAll(validation);
                         importResult.addRejected(rejectedRow);
+                        return;
                     }
                 }
 

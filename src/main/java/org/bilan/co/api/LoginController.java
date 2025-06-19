@@ -37,7 +37,6 @@ public class LoginController {
                     .build();
         }
 
-
         return loginService.doLogin(login);
     }
 }

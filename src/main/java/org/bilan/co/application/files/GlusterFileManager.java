@@ -121,9 +121,11 @@ public class GlusterFileManager implements IFileManager{
                 Constants.FAILED_PATH,
                 importResult.getImportId() + ".csv");
 
-        String output = importResult.getRejectedRows()
+        String output = importResult.getHeaders() + ", Errores" + "\n";
+
+        output += importResult.getRejectedRows()
                 .stream()
-                .map(RejectedRow::getLine)
+                .map(RejectedRow::getLineWithErrors)
                 .collect(Collectors.joining("\n"));
 
         InputStream stream = new ByteArrayInputStream(output.getBytes());

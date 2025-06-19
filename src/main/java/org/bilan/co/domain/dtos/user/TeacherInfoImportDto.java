@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.bilan.co.domain.dtos.ImportIdentifier;
 import org.bilan.co.domain.dtos.user.enums.TeacherImportIndexes;
 import org.bilan.co.domain.enums.DocumentType;
+import org.bilan.co.utils.Constants;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -24,7 +25,7 @@ public class TeacherInfoImportDto extends ImportIdentifier {
     @Pattern(regexp = "[1-9][0-9]{5,12}")
     String document;
 
-    @Pattern(regexp = "/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/")
+    @Pattern(regexp = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}", message = "El correo no cumple el formato")
     private String email;
 
     @NotEmpty()
@@ -33,16 +34,12 @@ public class TeacherInfoImportDto extends ImportIdentifier {
     @NotEmpty()
     private String lastName;
 
-    @NotEmpty()
-    private String profession;
-
     public static TeacherInfoImportDto readFromStringArray(String[] values){
         var document = values[TeacherImportIndexes.Document.ordinal()];
         var documentType = DocumentType.valueOf(values[TeacherImportIndexes.DocumentType.ordinal()]);
         var email = values[TeacherImportIndexes.Email.ordinal()];
         var name = values[TeacherImportIndexes.Name.ordinal()];
         var lastName = values[TeacherImportIndexes.LastName.ordinal()];
-        var profession = values[TeacherImportIndexes.Profession.ordinal()];
 
         var teacher = new TeacherInfoImportDto();
 
@@ -51,7 +48,6 @@ public class TeacherInfoImportDto extends ImportIdentifier {
         teacher.email = email;
         teacher.name = name;
         teacher.lastName = lastName;
-        teacher.profession = profession;
 
         return teacher;
     }
