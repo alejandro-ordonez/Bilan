@@ -19,7 +19,8 @@ public class CachingConfig {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
                 new ConcurrentMapCache("colleges"),
-                new ConcurrentMapCache(Constants.CACHE_COLLEGES_BY_MUN)));
+                new ConcurrentMapCache(Constants.CACHE_COLLEGES_BY_MUN),
+                new ConcurrentMapCache(Constants.STATES)));
         return cacheManager;
     }
 }
