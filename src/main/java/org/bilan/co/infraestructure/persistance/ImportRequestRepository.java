@@ -11,7 +11,9 @@ import java.util.List;
 public interface ImportRequestRepository extends JpaRepository<ImportRequests, String> {
 
     @Query("SELECT r FROM ImportRequests r " +
-            "WHERE :requestor IS NULL OR r.requestor.document = :requestor")
+            "WHERE :requestor IS NULL OR r.requestor.document = :requestor " +
+            "ORDER BY r.created DESC"
+    )
     Page<ImportRequests> getRequests(Pageable page, String requestor);
 
 

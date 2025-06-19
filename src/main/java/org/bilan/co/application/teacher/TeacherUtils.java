@@ -14,15 +14,15 @@ public final class TeacherUtils {
 
     public static TeacherDto parseTeacher(Teachers teacher) {
         TeacherDto teacherDto = new TeacherDto();
-        teacherDto.setCodDane(teacher.getCodDane());
+        teacherDto.setCodDane(teacher.getCollege().getCampusCodeDane());
         teacherDto.setClassRoomDtoList(
                 teacher.getClassrooms()
                         .stream()
                         .map(TeacherUtils::parseClassRoom)
                         .collect(Collectors.toList()));
 
-        teacherDto.setCodDaneSede(teacher.getCodDaneSede());
-        teacherDto.setCodDaneMinResidencia(teacher.getCodDaneMinResidencia());
+        teacherDto.setCodDaneSede(teacher.getCollege().getCampusCodeDane());
+        teacherDto.setCodDaneMinResidencia(teacher.getCollege().getStateMunicipality().getCodDaneMunicipality());
         teacherDto.setDocument(teacher.getDocument());
         teacherDto.setDocumentType(teacher.getDocumentType());
         teacherDto.setEmail(teacher.getEmail());

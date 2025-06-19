@@ -13,9 +13,11 @@ import org.bilan.co.domain.dtos.teacher.TeacherDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.EnrollmentDto;
 import org.bilan.co.domain.entities.Classroom;
+import org.bilan.co.domain.entities.Colleges;
 import org.bilan.co.domain.entities.Students;
 import org.bilan.co.domain.entities.Teachers;
 import org.bilan.co.infraestructure.persistance.ClassroomRepository;
+import org.bilan.co.infraestructure.persistance.CollegesRepository;
 import org.bilan.co.infraestructure.persistance.StudentsRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.utils.JwtTokenUtil;
@@ -39,6 +41,8 @@ public class TeacherService implements ITeacherService{
     private StudentsRepository studentsRepository;
     @Autowired
     private ClassroomRepository classroomRepository;
+    @Autowired
+    private CollegesRepository collegesRepository;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
@@ -142,15 +146,17 @@ public class TeacherService implements ITeacherService{
     public ResponseDto<String> updateTeacher(TeacherDto teacherDto) {
         Optional<Teachers> teacher = this.teachersRepository.findById(teacherDto.getDocument());
 
-        if (!teacher.isPresent()) {
+        if (teacher.isEmpty()) {
             return new ResponseDto<>("Failed to update the teacher, it doesn't exists", 400, "Error");
         }
 
         Teachers teacherUpdated = teacher.get();
         UserService.updateUserEntityFromDto(teacherUpdated, teacherDto);
 
-        teacherUpdated.setCodDane(teacherDto.getCodDane());
-        teacherUpdated.setCodDaneMinResidencia(teacherDto.getCodDaneMinResidencia());
+        Optional<Colleges> college = collegesRepository.findByCodDaneSede(teacherDto.getCodDaneSede());
+
+        college.ifPresent(teacherUpdated::setCollege);
+
         teacherUpdated.setEmail(teacherDto.getEmail());
 
         List<Classroom> classrooms = teacherDto.getClassRoomDtoList()
@@ -180,11 +186,11 @@ public class TeacherService implements ITeacherService{
 
         if(purgedDocument.isEmpty())
             query = teachersRepository.getTeachersFromCodDaneSede(PageRequest.of(nPage, 10),
-                    authenticatedUserDto.getDocument(), teacher.get().getCodDaneSede());
+                    authenticatedUserDto.getDocument(), teacher.get().getCollege().getCampusCodeDane());
 
         else
             query = teachersRepository.searchTeacherWithDocument(
-                    PageRequest.of(nPage, 10), authenticatedUserDto.getDocument(), partialDocument, teacher.get().getCodDaneSede());
+                    PageRequest.of(nPage, 10), authenticatedUserDto.getDocument(), partialDocument, teacher.get().getCollege().getCampusCodeDane());
 
         PagedResponse<TeacherDto> teacherResponse = new PagedResponse<>();
         teacherResponse.setNPages(query.getTotalPages());

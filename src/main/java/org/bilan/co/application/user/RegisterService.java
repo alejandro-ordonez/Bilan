@@ -327,18 +327,15 @@ public class RegisterService implements IRegisterService {
         }
 
         teacher = createBaseUser(Teachers.class, regUserDto);
-        teacher.setCodDane(regUserDto.getCodDane());
-
 
         Optional<Colleges> college = collegesRepository.findByCodDaneSede(regUserDto.getCodDane());
-        if(!college.isPresent()) {
+        if (college.isEmpty()) {
             return new ResponseDto<>("College not found",
                     HttpStatus.BAD_REQUEST.value(), UserState.UserNotRegistered);
         }
         Roles role = new Roles();
 
-        teacher.setCodDaneSede(college.get().getCampusCodeDane());
-        teacher.setCodDaneMinResidencia(college.get().getStateMunicipality().getCodDaneMunicipality());
+        teacher.setCollege(college.get());
 
         if(regUserDto.getUserType().equals(UserType.DirectiveTeacher)){
             teacher.setPositionName(Constants.DIREC_TEACHER);

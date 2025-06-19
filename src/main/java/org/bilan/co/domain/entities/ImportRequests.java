@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.bilan.co.domain.dtos.user.ImportRequestDto;
 import org.bilan.co.domain.dtos.user.enums.ImportStatus;
 import org.bilan.co.domain.dtos.user.enums.ImportType;
 
@@ -38,4 +39,17 @@ public class ImportRequests {
     LocalDateTime created = LocalDateTime.now();
 
     LocalDateTime modified;
+
+    public ImportRequestDto toDto() {
+        ImportRequestDto dto = new ImportRequestDto();
+        dto.setCollegeId(this.collegeId);
+        dto.setRequestId(this.importId);
+        dto.setImportType(this.type);
+        dto.setStatus(this.status);
+        dto.setProcessed(this.processed);
+        dto.setRejected(this.rejected);
+        dto.setCreated(this.created);
+        dto.setRequestorId(this.requestor.getDocument());
+        return dto;
+    }
 }

@@ -59,6 +59,9 @@ public class ImportVerifierJob {
     private TeachersRepository teachersRepository;
 
     @Autowired
+    private ClassroomRepository classroomRepository;
+
+    @Autowired
     private TribesRepository tribes;
 
     @Autowired
@@ -159,7 +162,7 @@ public class ImportVerifierJob {
                     .requestorId(request.getRequestor().getDocument())
                     .importType(request.getType())
                     .expectedColumns(TeacherEnrollmentIndexes.values().length)
-                    .validation(this::validateTeacherEnroll)
+                    .validation((enrollment) -> this.validateTeacherEnroll(enrollment, request.getCollegeId()))
                     .converter(TeacherEnrollDto::readFromStringArray)
                     .headers(Constants.TeacherEnrollmentHeaders)
                     .bucket(BucketName.BILAN_TEACHER_ENROLLMENT)
@@ -240,7 +243,7 @@ public class ImportVerifierJob {
         }
     }
 
-    public List<String> validateTeacherEnroll(TeacherEnrollDto teacher){
+    public List<String> validateTeacherEnroll(TeacherEnrollDto teacher, int collegeId) {
 
         List<String> errors = new ArrayList<>();
 
@@ -256,6 +259,20 @@ public class ImportVerifierJob {
 
         if(!teachersRepository.existsById(teacher.getDocument()))
             errors.add("El profesor no existe");
+
+        if (tribe.isPresent() && course != null) {
+            var alreadyExists = classroomRepository.classRoomExists(
+                    teacher.getDocument(),
+                    collegeId,
+                    tribe.get().getId(),
+                    course.getId(),
+                    teacher.getGrade()
+            );
+
+            if (alreadyExists == 1)
+                errors.add("El profesor ya se encuentra asignado");
+        }
+
 
         return errors;
     }
@@ -291,8 +308,11 @@ public class ImportVerifierJob {
         ImportResultDto importResult = result.getValue1();
         List<T> processed = result.getValue2();
 
-        if (importResult.getStatus().equals(ImportStatus.Rejected))
+        if (importResult.getStatus().equals(ImportStatus.Rejected)) {
+            fileManager.saveRejectedImport(importResult);
             return importResult;
+        }
+
 
         StagedImportRequestDto<T> importDto = new StagedImportRequestDto<>(
                 request.getRequestId(),

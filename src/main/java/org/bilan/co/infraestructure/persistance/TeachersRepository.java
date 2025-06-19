@@ -1,10 +1,11 @@
 package org.bilan.co.infraestructure.persistance;
 
-import org.bilan.co.domain.entities.Students;
+import org.bilan.co.domain.entities.Colleges;
 import org.bilan.co.domain.entities.Teachers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
@@ -28,16 +29,21 @@ public interface TeachersRepository extends JpaRepository<Teachers, String> {
             "   AND NOT EXISTS (SELECT e2.id FROM evaluation e2 WHERE e2.evidences_id = e.id)", nativeQuery = true)
     Optional<Teachers> findTeacherByStudentAndEvidence(Long evidenceId, String teacherId, String studentId);
 
-    @Query("SELECT t.codDaneSede FROM Teachers t WHERE t.document = :document")
+    @Query("SELECT t.college.campusCodeDane FROM Teachers t WHERE t.document = :document")
     String getCodDaneSede(String document);
 
 
     @Query(value =  "SELECT t FROM Teachers t " +
             "WHERE t.document LIKE CONCAT('%', :partialDocument, '%') " +
-            "AND NOT t.document = :document AND t.codDaneSede = :codDaneSede")
+            "AND NOT t.document = :document AND t.college.campusCodeDane = :codDaneSede")
     Page<Teachers> searchTeacherWithDocument(Pageable page, String document, String partialDocument, String codDaneSede);
 
     @Query(value =  "SELECT t FROM Teachers t " +
-            "WHERE NOT t.document = :document AND t.codDaneSede = :codDaneSede")
+            "WHERE NOT t.document = :document AND t.college.campusCodeDane = :codDaneSede")
     Page<Teachers> getTeachersFromCodDaneSede(Pageable page, String document, String codDaneSede);
+
+    @Modifying
+    @Query("UPDATE Teachers t SET t.college = :college WHERE t.document = :document")
+    void updateTeacherCollege(String document, Colleges college);
+
 }

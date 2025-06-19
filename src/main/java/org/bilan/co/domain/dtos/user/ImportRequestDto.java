@@ -5,15 +5,21 @@ import lombok.NoArgsConstructor;
 import org.bilan.co.domain.dtos.user.enums.ImportStatus;
 import org.bilan.co.domain.dtos.user.enums.ImportType;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 public class ImportRequestDto {
     ImportStatus status;
     ImportType importType;
-    int collegeId;
+    Integer collegeId;
     int processed;
     int rejected;
-    String rejectedFilePath;
     private String requestId;
     private String requestorId;
+    private LocalDateTime created;
+
+    public ImportRequestDto(ImportStatus status) {
+        this.status = status;
+    }
 }

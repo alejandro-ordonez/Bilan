@@ -7,7 +7,6 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.user.EnableUser;
 import org.bilan.co.domain.dtos.user.ImportRequestDto;
-import org.bilan.co.domain.dtos.user.ImportResultDto;
 import org.bilan.co.domain.dtos.user.UserInfoDto;
 import org.bilan.co.domain.dtos.user.enums.ImportType;
 import org.bilan.co.utils.Constants;
@@ -51,13 +50,13 @@ public class UserController {
     @PostMapping(path = "/import",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDto<ImportResultDto>> uploadUsersFromFile(
+    public ResponseEntity<ResponseDto<ImportRequestDto>> uploadUsersFromFile(
             @RequestParam("file")MultipartFile file,
             @RequestParam("importType") ImportType importType,
             @RequestParam(value = "campusCodeDane", required = false) String campusCode,
             @RequestHeader(Constants.AUTHORIZATION) String jwt) {
 
-        ResponseDto<ImportResultDto> result = userImportService
+        ResponseDto<ImportRequestDto> result = userImportService
                 .importUsers(file, importType, campusCode, jwt);
 
         return ResponseEntity.status(result.getCode()).body(result);

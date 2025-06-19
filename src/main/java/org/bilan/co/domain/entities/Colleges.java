@@ -37,6 +37,9 @@ public class Colleges {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "colleges")
     private List<Students> students;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "college")
+    private List<Teachers> teachers;
+
     public String getCollegeCampusName() {
         return this.getName() + " - " + this.getCampusName();
     }

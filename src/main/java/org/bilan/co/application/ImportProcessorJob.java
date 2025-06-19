@@ -2,6 +2,7 @@ package org.bilan.co.application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.bilan.co.application.files.IFileManager;
 import org.bilan.co.domain.dtos.college.CollegeImportDto;
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -48,6 +51,8 @@ public class ImportProcessorJob {
     @Autowired
     private StudentsRepository studentsRepository;
     @Autowired
+    private TeachersRepository teachersRepository;
+    @Autowired
     private UserInfoRepository usersRepository;
     @Autowired
     private TribesRepository tribes;
@@ -59,6 +64,8 @@ public class ImportProcessorJob {
     private StateMunicipalityRepository statesRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     private Map<String, Courses> availableCourses;
 
@@ -154,7 +161,7 @@ public class ImportProcessorJob {
                 processStudentImport(payload);
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
-                jobLogger.error("Something went wrong when processing the import {}", importRequest.get().getImportId());
+                jobLogger.error("Something went wrong when processing the student import {}", importRequest.get().getImportId());
                 importRequest.get().setStatus(ImportStatus.Failed);
             }
 
@@ -162,6 +169,7 @@ public class ImportProcessorJob {
         }
     }
 
+    @Transactional
     public void processStudentImport(StagedImportRequestDto<StudentImportDto> request) {
         List<Students> approvedStudents = new ArrayList<>();
 
@@ -220,7 +228,7 @@ public class ImportProcessorJob {
                 processTeacherImport(payload);
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
-                jobLogger.error("Something went wrong when processing the import {}", importRequest.get().getImportId());
+                jobLogger.error("Something went wrong when processing the teacher import {}", importRequest.get().getImportId());
                 importRequest.get().setStatus(ImportStatus.Failed);
             }
 
@@ -228,11 +236,12 @@ public class ImportProcessorJob {
         }
     }
 
+    @Transactional
     public void processTeacherImport(StagedImportRequestDto<TeacherInfoImportDto> request) {
-        List<UserInfo> teachers = new ArrayList<>();
+        List<Teachers> teachers = new ArrayList<>();
 
         for (var teacherInfo : request.getProcessed()) {
-            UserInfo teacher = new UserInfo();
+            Teachers teacher = new Teachers();
 
             teacher.setDocument(teacherInfo.getDocument());
             teacher.setDocumentType(teacherInfo.getDocumentType());
@@ -251,12 +260,16 @@ public class ImportProcessorJob {
 
             teacher.setRole(role);
             teachers.add(teacher);
+
+            // These will be set on the enrollment
+            teacher.setCollege(null);
         }
 
-        usersRepository.saveAll(teachers);
+        teachersRepository.saveAll(teachers);
     }
 
 
+    @Transactional
     public void processCollegeImports(List<String> requests) {
         jobLogger.info("Processing College imports: {}", requests.size());
 
@@ -290,7 +303,7 @@ public class ImportProcessorJob {
                 processCollegeImport(payload);
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
-                jobLogger.error("Something went wrong when processing the import {}", importRequest.get().getImportId());
+                jobLogger.error("Something went wrong when processing the college import {}", importRequest.get().getImportId());
                 importRequest.get().setStatus(ImportStatus.Failed);
             }
 
@@ -353,10 +366,15 @@ public class ImportProcessorJob {
             importRequestRepository.save(importRequest.get());
 
             try {
-                processTeacherEnroll(payload);
+
+                TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+                transactionTemplate.executeWithoutResult(status -> {
+                    processTeacherEnroll(payload);
+                });
+
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
-                jobLogger.error("Something went wrong when processing the import {}", importRequest.get().getImportId());
+                jobLogger.error("Something went wrong when processing the teacher enroll import {}", importRequest.get().getImportId());
                 importRequest.get().setStatus(ImportStatus.Failed);
             }
 
@@ -374,9 +392,7 @@ public class ImportProcessorJob {
 
         for (var teacher : request.getProcessed()) {
 
-            Teachers teacherEntity = new Teachers();
-            teacherEntity.setDocument(teacher.getDocument());
-            teacherEntity.setDocumentType(teacher.getDocumentType());
+            Teachers teacherEntity = teachersRepository.getReferenceById(teacher.getDocument());
 
             Optional<Tribes> tribe = tribes.getByName(teacher.getTribe());
             if (tribe.isEmpty())
@@ -387,14 +403,14 @@ public class ImportProcessorJob {
             if(course == null)
                 throw new IllegalArgumentException("Invalid course");
 
+            teachersRepository.updateTeacherCollege(teacherEntity.getDocument(), college.get());
+
             Classroom classroom = new Classroom();
             classroom.setTeacher(teacherEntity);
             classroom.setCollege(college.get());
             classroom.setCourse(course);
+            classroom.setGrade(teacher.getGrade());
             classroom.setTribe(tribe.get());
-
-            teacherEntity.setEmail("");
-            teacherEntity.setPositionName("Profesor");
 
             approvedTeachers.add(classroom);
         }

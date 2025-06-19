@@ -7,7 +7,6 @@ import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.dtos.user.ImportRequestDto;
-import org.bilan.co.domain.dtos.user.ImportResultDto;
 import org.bilan.co.domain.dtos.user.enums.ImportStatus;
 import org.bilan.co.domain.dtos.user.enums.ImportType;
 import org.bilan.co.domain.entities.Colleges;
@@ -56,11 +55,11 @@ public class ImportService implements IUserImportService {
 
     @Override
     @Async
-    public ResponseDto<ImportResultDto> importUsers(MultipartFile file, ImportType importType, String campusCodeDane, String token) {
+    public ResponseDto<ImportRequestDto> importUsers(MultipartFile file, ImportType importType, String campusCodeDane, String token) {
         var extension = org.bilan.co.utils.FileUtils.getExtension(file);
 
         if(!extension.equals(Constants.CSV))
-            return new ResponseDto<>("File type not valid", 400, new ImportResultDto(ImportStatus.Rejected));
+            return new ResponseDto<>("File type not valid", 400, new ImportRequestDto(ImportStatus.Rejected));
 
         Optional<Colleges> collegeQuery;
 
@@ -75,7 +74,7 @@ public class ImportService implements IUserImportService {
             if (collegeQuery.isEmpty()) {
                 String message = "The directive teacher does not have a college linked";
                 log.error(message);
-                return new ResponseDto<>(message, 400, new ImportResultDto(ImportStatus.Rejected));
+                return new ResponseDto<>(message, 400, new ImportRequestDto(ImportStatus.Rejected));
             }
         } else {
             collegeQuery = collegesRepository.findByCodDaneSede(campusCodeDane);
@@ -85,7 +84,7 @@ public class ImportService implements IUserImportService {
         if (collegeQuery.isEmpty() && importType != ImportType.TeacherImport && importType != ImportType.CollegesImport) {
             String message = "The college couldn't be determined";
             log.error(message);
-            return new ResponseDto<>(message, 400, new ImportResultDto(ImportStatus.Rejected));
+            return new ResponseDto<>(message, 400, new ImportRequestDto(ImportStatus.Rejected));
         }
 
         // Upload file to be verified in the next stage using jobs
@@ -116,19 +115,17 @@ public class ImportService implements IUserImportService {
         try {
             var uploadResult = fileManager.stageImportFile(file.getInputStream(), bucket, importRequest.getImportId(), extension);
             if (uploadResult) {
-                var result = new ImportResultDto(importRequest.getStatus());
-                result.setImportId(importRequest.getImportId());
-                return new ResponseDto<>(Constants.Ok, 200, result);
+                return new ResponseDto<>(Constants.Ok, 200, importRequest.toDto());
             } else{
                 importRequest.setStatus(ImportStatus.Rejected);
                 importRequestRepository.save(importRequest);
-                return new ResponseDto<>("Failed to read the file", 400, new ImportResultDto(ImportStatus.Rejected));
+                return new ResponseDto<>("Failed to read the file", 400, new ImportRequestDto(ImportStatus.Rejected));
             }
 
         } catch (IOException e) {
             importRequest.setStatus(ImportStatus.Rejected);
             importRequestRepository.save(importRequest);
-            return new ResponseDto<>("Failed to read the file", 400, new ImportResultDto(ImportStatus.Rejected));
+            return new ResponseDto<>("Failed to read the file", 400, new ImportRequestDto(ImportStatus.Rejected));
         }
     }
 
@@ -140,16 +137,7 @@ public class ImportService implements IUserImportService {
         );
 
         List<ImportRequestDto> requests = query.stream()
-                .map(request -> {
-                    ImportRequestDto dto = new ImportRequestDto();
-                    dto.setCollegeId(request.getCollegeId());
-                    dto.setRequestId(request.getImportId());
-                    dto.setImportType(request.getType());
-                    dto.setStatus(request.getStatus());
-                    dto.setProcessed(request.getProcessed());
-                    dto.setRejected(request.getRejected());
-                    return dto;
-                })
+                .map(ImportRequests::toDto)
                 .toList();
 
         PagedResponse<ImportRequestDto> pagedResponse = PagedResponse.<ImportRequestDto>builder()
