@@ -210,12 +210,11 @@ CREATE TABLE IF NOT EXISTS `students` (
 -- bilan.teachers definition
 DROP TABLE IF EXISTS `teachers`;
 CREATE TABLE IF NOT EXISTS `teachers` (
-  `cod_dane` varchar(255) DEFAULT NULL,
-  `cod_dane_mun_residencia` varchar(255) DEFAULT NULL,
-  `cod_dane_sede` varchar(255) DEFAULT NULL,
+  `college_id` int NULL,
   `document` varchar(255) NOT NULL,
   PRIMARY KEY (`document`),
-  CONSTRAINT `FKlvgrwciawxqmm7hr4spwieg2p` FOREIGN KEY (`document`) REFERENCES `user_info` (`document`)
+  CONSTRAINT `FKlvgrwciawxqmm7hr4spwieg2p` FOREIGN KEY (`document`) REFERENCES `user_info` (`document`),
+  CONSTRAINT `FK5m8jbc0pre8wg5u8wfgylnfv556` FOREIGN KEY (`college_id`) REFERENCES `colleges` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- bilan.tribes definition
@@ -429,3 +428,27 @@ CREATE TABLE IF NOT EXISTS `resolved_answer_by` (
   CONSTRAINT `FKrruieb4c86a65e2x8kpb6wt6n` FOREIGN KEY (`id_question`) REFERENCES `questions` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `import_requests`;
+CREATE TABLE import_requests (
+    import_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    requestor_document VARCHAR(50) NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    college_id INT,
+    processed INT,
+    rejected INT,
+    created DATETIME,
+    modified DATETIME,
+    FOREIGN KEY (requestor_document) REFERENCES user_info(document)
+);
+
+
+DROP TABLE IF EXISTS `game_cycles`;
+CREATE TABLE game_cycles (
+    game_id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NULL,
+    closing_requested_by VARCHAR(50) NULL,
+    game_status VARCHAR(255) NOT NULL,
+    FOREIGN KEY (closing_requested_by) REFERENCES user_info(document)
+);
