@@ -159,10 +159,9 @@ public class GlusterFileManager implements IFileManager{
     public byte[] downloadReportFile(String cycleId, String fileName) {
         Path path = Paths.get(
                 BucketName.BILAN_GAME_CYCLES.getBucketName(),
-                cycleId,
-                fileName);
+                cycleId);
 
-        return downloadFile(path.toString(), fileName + "csv");
+        return downloadFile(path.toString(), fileName);
     }
 
     @Override

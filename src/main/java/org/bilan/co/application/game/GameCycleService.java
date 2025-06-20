@@ -320,7 +320,7 @@ public class GameCycleService implements IGameCycleService{
                 .stream()
                 .map(cycle -> {
                     var dto = mapper.convertValue(cycle, GameCycleDto.class);
-                    dto.setFileNames(List.of(Constants.GENERAL_STATISTICS, Constants.STATE_STATISTICS));
+                    dto.setFileNames(List.of(Constants.GENERAL_STATISTICS + Constants.CSV, Constants.STATE_STATISTICS + Constants.CSV));
                     return dto;
                 }).toList();
 

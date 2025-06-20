@@ -43,6 +43,7 @@ public class GameCycleController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/report")
     public ResponseEntity<byte[]> downloadReport(@RequestParam("cycleId") String cycleId,
                                                  @RequestParam("fileName") String fileName) {
         var report = gameCycleService.getReportFile(cycleId, fileName);
