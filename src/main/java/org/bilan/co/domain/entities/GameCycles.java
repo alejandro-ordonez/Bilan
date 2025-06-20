@@ -15,6 +15,8 @@ public class GameCycles {
     String gameId;
     Date startDate;
     Date endDate;
+
+    @Enumerated(EnumType.STRING)
     GameCycleStatus gameStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -156,12 +156,24 @@ public class GlusterFileManager implements IFileManager{
     }
 
     @Override
+    public byte[] downloadReportFile(String cycleId, String fileName) {
+        Path path = Paths.get(
+                BucketName.BILAN_GAME_CYCLES.getBucketName(),
+                cycleId,
+                fileName);
+
+        return downloadFile(path.toString(), fileName + "csv");
+    }
+
+    @Override
     public byte[] downloadFile(String path, String fileName) {
         Path filePath = Paths.get(basePath, path, fileName);
         try {
             log.debug("Looking for: {}", filePath);
+
             if(!Files.exists(filePath))
                 throw new FileNotFoundException();
+
             return Files.readAllBytes(filePath);
         } catch (IOException e) {
             log.error("Failed to read the file");

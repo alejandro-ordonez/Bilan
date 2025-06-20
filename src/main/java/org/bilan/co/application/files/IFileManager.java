@@ -1,7 +1,6 @@
 package org.bilan.co.application.files;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import jakarta.servlet.http.HttpServletRequest;
 import org.bilan.co.domain.dtos.user.ImportResultDto;
 import org.bilan.co.domain.dtos.user.StagedImportRequestDto;
 import org.bilan.co.domain.enums.BucketName;
@@ -30,6 +29,8 @@ public interface IFileManager {
     byte[] downloadRejected(String importId, BucketName bucket);
 
     <T> T getFromJsonFile(String path, TypeReference<T> reference);
+
+    byte[] downloadReportFile(String cycleId, String fileName);
 
     byte[] downloadFile(String path, String fileName);
 }

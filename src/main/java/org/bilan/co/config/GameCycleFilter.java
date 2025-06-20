@@ -7,8 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.bilan.co.application.game.IGameCycleService;
 import org.bilan.co.domain.dtos.game.GameCycleDto;
+import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.enums.GameCycleStatus;
-import org.bilan.co.utils.Constants;
+import org.bilan.co.domain.enums.UserType;
+import org.bilan.co.utils.JwtTokenUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -28,6 +30,9 @@ public class GameCycleFilter extends OncePerRequestFilter {
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private JwtTokenUtil jwt;
+
     private GameCycleDto currentCycle;
 
     @PostConstruct
@@ -43,8 +48,10 @@ public class GameCycleFilter extends OncePerRequestFilter {
 
         // Allow if user has a specific role
         if (currentCycle.getGameStatus() == GameCycleStatus.ProcessingClosing && auth != null && auth.isAuthenticated()) {
-            boolean isPrivileged = auth.getAuthorities().stream()
-                    .anyMatch(granted -> granted.getAuthority().equals(Constants.ADMIN));
+            String bearerToken = request.getHeader("Authorization");
+            AuthenticatedUserDto user = jwt.getInfoFromToken((bearerToken));
+
+            var isPrivileged = user.getUserType() == UserType.Admin;
 
             if (isPrivileged) {
                 filterChain.doFilter(request, response);

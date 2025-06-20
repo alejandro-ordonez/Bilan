@@ -329,7 +329,6 @@ public class ImportProcessorJob {
             college.setName(collegeInfo.getName());
             college.setCampusCodeDane(collegeInfo.getCodDaneSede());
             college.setCampusName(collegeInfo.getCampusName());
-            college.setSecretaria(municipality.get().getState());
             college.setStateMunicipality(municipality.get());
 
             colleges.add(college);

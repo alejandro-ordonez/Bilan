@@ -9,13 +9,16 @@ import org.bilan.co.domain.dtos.college.enums.CollegeImportIndexes;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class CollegeImportDto extends ImportIdentifier {
-    @NotEmpty
+    @NotEmpty(message = "Cod dane municipio no puede estar vacío")
     private String codDaneMunicipality;
-    @NotEmpty
+
+    @NotEmpty(message = "Nombre del colegio no puede estar vacío")
     private String name;
-    @NotEmpty
+
+    @NotEmpty(message = "Código dane de la sede no puede estar vacío")
     private String codDaneSede;
-    @NotEmpty
+
+    @NotEmpty(message = "Nombre de la sede no puede estar vacío")
     private String campusName;
 
 

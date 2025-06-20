@@ -10,11 +10,14 @@ import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.common.PagedResponse;
 import org.bilan.co.domain.dtos.game.GameCycleDto;
 import org.bilan.co.domain.entities.GameCycles;
+import org.bilan.co.domain.entities.UserInfo;
 import org.bilan.co.domain.enums.BucketName;
 import org.bilan.co.domain.enums.GameCycleStatus;
+import org.bilan.co.domain.utils.Tuple;
 import org.bilan.co.infraestructure.persistance.*;
 import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
 import org.bilan.co.utils.Constants;
+import org.bilan.co.utils.JwtTokenUtil;
 import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +26,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -70,8 +73,14 @@ public class GameCycleService implements IGameCycleService{
     @Autowired
     private ResolvedAnswerByRepository resolvedAnswerByRepository;
 
+    @Autowired
+    private JwtTokenUtil jwt;
+
     @Override
-    public ResponseDto<GameCycleDto> resetGame() {
+    public ResponseDto<GameCycleDto> resetGame(String jwtToken) {
+        var user = jwt.getInfoFromToken(jwtToken);
+        log.info("Reset requested by: {}", user.getDocument());
+
         var gameCycle = gameCycleRepository.getActiveCycle();
 
         if (gameCycle.isEmpty())
@@ -86,10 +95,10 @@ public class GameCycleService implements IGameCycleService{
         gameCycleRepository.save((gameCycle.get()));
 
         // launch the job
-        jobScheduler.enqueue(() -> resetGameJob(gameCycle.get().getGameId()));
+        jobScheduler.enqueue(() -> resetGameJob(gameCycle.get().getGameId(), user.getDocument()));
 
         var mapper = new ObjectMapper();
-        var dto = mapper.convertValue(gameCycle, GameCycleDto.class);
+        var dto = mapper.convertValue(gameCycle.get(), GameCycleDto.class);
 
         return new ResponseDtoBuilder<GameCycleDto>()
                 .setCode(200)
@@ -99,11 +108,10 @@ public class GameCycleService implements IGameCycleService{
     }
 
 
-
-    public void resetGameJob(String cycleId){
+    public void resetGameJob(String cycleId, String document) {
 
         var cycle = gameCycleRepository.findById(cycleId);
-        if(cycle.isEmpty())
+        if (cycle.isEmpty())
             return;
 
         // Save the files
@@ -111,7 +119,7 @@ public class GameCycleService implements IGameCycleService{
         var stateStatisticsSuccess = writeStateStatisticsReport(cycleId);
 
         // Failed to get the statistics
-        if(!generalStatisticsSuccess || !stateStatisticsSuccess){
+        if (!generalStatisticsSuccess || !stateStatisticsSuccess) {
             cycle.get().setGameStatus(GameCycleStatus.Active);
             gameCycleRepository.save(cycle.get());
             return;
@@ -128,6 +136,12 @@ public class GameCycleService implements IGameCycleService{
 
         // Set the cycle as closed
         cycle.get().setGameStatus(GameCycleStatus.Closed);
+
+        UserInfo user = new UserInfo();
+        user.setDocument(document);
+
+        cycle.get().setClosingRequestedBy(user);
+        cycle.get().setEndDate(new Date());
         gameCycleRepository.save(cycle.get());
     }
 
@@ -143,6 +157,17 @@ public class GameCycleService implements IGameCycleService{
                 cycleId,
                 Constants.STATE_STATISTICS,
                 Constants.CSV);
+
+        var parentPath = statesStatisticsPath.getParent();
+        if (parentPath != null && !Files.exists(parentPath)) {
+            try {
+                Files.createDirectories(parentPath);
+            } catch (IOException e) {
+                log.error("Failed to created directories for state statistics");
+                return false;
+            }
+        }
+
 
         try (var writer = Files.newBufferedWriter(statesStatisticsPath, StandardOpenOption.CREATE,
                 StandardOpenOption.WRITE,
@@ -193,10 +218,10 @@ public class GameCycleService implements IGameCycleService{
     }
 
     public boolean writeGeneralStatisticsReport(String cycleId){
-        var generalStatisticspath = fileManager.buildPath(
+        var generalStatisticsPath = fileManager.buildPath(
                 BucketName.BILAN_GAME_CYCLES,
                 cycleId,
-                Constants.STATE_STATISTICS,
+                Constants.GENERAL_STATISTICS,
                 Constants.CSV);
 
         // Get statistics for each type
@@ -206,9 +231,19 @@ public class GameCycleService implements IGameCycleService{
         if(statistics == null)
             return false;
 
-        try (var writer = Files.newBufferedWriter(generalStatisticspath, StandardOpenOption.CREATE,
+        var parentPath = generalStatisticsPath.getParent();
+        if (parentPath != null && !Files.exists(parentPath)) {
+            try {
+                Files.createDirectories(parentPath);
+            } catch (IOException e) {
+                log.error("Failed to created directories for ");
+                return false;
+            }
+        }
+
+        try (var writer = Files.newBufferedWriter(generalStatisticsPath, StandardOpenOption.CREATE,
                 StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING)){
+                StandardOpenOption.TRUNCATE_EXISTING)) {
 
             //title + "," + name + "," + logins + "," + performanceActivityScore + "," + performanceGameScore
             var header = List.of("Id ciclo",
@@ -296,5 +331,16 @@ public class GameCycleService implements IGameCycleService{
                 .setResult(pagedResponse)
                 .setDescription("Current cycle retrieved")
                 .createResponseDto();
+    }
+
+    @Override
+    public Optional<Tuple<byte[], String>> getReportFile(String cycleId, String fileName) {
+
+        var bytes = fileManager.downloadReportFile(cycleId, fileName);
+
+        if (bytes == null)
+            return Optional.empty();
+
+        return Optional.of(new Tuple<>(bytes, "text/csv"));
     }
 }

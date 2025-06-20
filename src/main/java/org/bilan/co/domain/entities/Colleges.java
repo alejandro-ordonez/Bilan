@@ -15,9 +15,6 @@ public class Colleges {
     @Id
     private Integer id;
 
-    @Column(name = "secretaria")
-    private String secretaria;
-
     @Column(name = "nombre_establecimiento")
     private String name;
 

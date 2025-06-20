@@ -69,9 +69,6 @@ public class InsertTeachersTest {
         userInfo.setCreatedAt(new Date());
         userInfo.setModifiedAt(new Date());
         userInfo.setConfirmed(false);
-        userInfo.setCodDaneMinResidencia(studentString[17]);
-        userInfo.setCodDane(studentString[23]);
-        userInfo.setCodDaneSede(studentString[24]);
 
         return Optional.of(userInfo);
     }
