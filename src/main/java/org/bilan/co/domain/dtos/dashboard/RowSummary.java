@@ -16,4 +16,8 @@ public class RowSummary<T> {
     private String name;
     private Object logins;
     private List<T> modules;
+
+    public String toCommaSeparated(){
+        return name + ", " + logins;
+    }
 }

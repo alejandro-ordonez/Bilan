@@ -46,10 +46,13 @@ public class GameCycleFilter extends OncePerRequestFilter {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
+        String bearerToken = request.getHeader("Authorization");
+
         // Allow if user has a specific role
-        if (currentCycle.getGameStatus() == GameCycleStatus.ProcessingClosing && auth != null && auth.isAuthenticated()) {
-            String bearerToken = request.getHeader("Authorization");
-            AuthenticatedUserDto user = jwt.getInfoFromToken((bearerToken));
+        if (currentCycle.getGameStatus() == GameCycleStatus.ProcessingClosing && auth != null &&
+                auth.isAuthenticated() && bearerToken != null) {
+
+            AuthenticatedUserDto user = jwt.getInfoFromToken(bearerToken);
 
             var isPrivileged = user.getUserType() == UserType.Admin;
 

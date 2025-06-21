@@ -8,6 +8,7 @@ import org.bilan.co.application.general.GeneralInfoService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.common.PagedResponse;
+import org.bilan.co.domain.dtos.dashboard.TribeSummaryDto;
 import org.bilan.co.domain.dtos.game.GameCycleDto;
 import org.bilan.co.domain.entities.GameCycles;
 import org.bilan.co.domain.entities.UserInfo;
@@ -126,13 +127,7 @@ public class GameCycleService implements IGameCycleService{
         }
 
         // Remove all enrollments
-        statsRepository.deleteAll();
-        resolvedAnswerByRepository.deleteAll();
-        sessionsRepository.deleteAll();
-        evidences.deleteAll();
-        evaluationRepository.deleteAll();
-        classroomRepository.deleteAll();
-        studentsRepository.deleteAll();
+        gameCycleRepository.cleanStudentData();
 
         // Set the cycle as closed
         cycle.get().setGameStatus(GameCycleStatus.Closed);
@@ -195,16 +190,16 @@ public class GameCycleService implements IGameCycleService{
 
                 var stateStatisticsString = stateStatistics.getStudents() + "," + stateStatistics.getTimeInApp();
 
-                var tribeSummary = stateStatistics.getData()
-                        .stream()
-                        .flatMap(row -> row.getModules().stream())
-                        .map(tribeSummaryDto -> state + ", " + stateStatisticsString + ", " +
-                                tribeSummaryDto.toCommaSeparated())
-                        .toList();
 
-                for (var line : tribeSummary){
-                    writer.write(line);
-                    writer.newLine();
+                for (var row : stateStatistics.getData()){
+                    String common = state.getStateName() + ", " + stateStatisticsString + ", " + row.toCommaSeparated() + ", ";
+
+                    for (var summary : row.getModules()){
+                        String line = common + summary.toCommaSeparated();
+
+                        writer.write(line);
+                        writer.newLine();
+                    }
                 }
             }
 
