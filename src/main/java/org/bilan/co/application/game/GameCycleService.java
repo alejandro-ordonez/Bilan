@@ -320,7 +320,8 @@ public class GameCycleService implements IGameCycleService{
                 .stream()
                 .map(cycle -> {
                     var dto = mapper.convertValue(cycle, GameCycleDto.class);
-                    dto.setFileNames(List.of(Constants.GENERAL_STATISTICS + Constants.CSV, Constants.STATE_STATISTICS + Constants.CSV));
+                    if(dto.getGameStatus() == GameCycleStatus.Closed)
+                        dto.setFileNames(List.of(Constants.GENERAL_STATISTICS + Constants.CSV, Constants.STATE_STATISTICS + Constants.CSV));
                     return dto;
                 }).toList();
 
@@ -329,7 +330,7 @@ public class GameCycleService implements IGameCycleService{
         return new ResponseDtoBuilder<PagedResponse<GameCycleDto>>()
                 .setCode(200)
                 .setResult(pagedResponse)
-                .setDescription("Current cycle retrieved")
+                .setDescription("Cycles retrieved")
                 .createResponseDto();
     }
 

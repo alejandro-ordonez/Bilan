@@ -38,15 +38,15 @@ public class StudentStats implements Serializable {
 
     @Max(15)
     @Column(name = "general_totems")
-    private Integer generalTotems = 10;
+    private Integer generalTotems = 4;
 
     @Max(3)
     @Column(name = "analytical_totems")
-    private Integer analyticalTotems = 0;
+    private Integer analyticalTotems = 3;
 
     @Max(3)
     @Column(name = "critical_totems")
-    private Integer criticalTotems = 0;
+    private Integer criticalTotems = 3;
 
     @Max(5)
     @Column(name = "current_cycle")
