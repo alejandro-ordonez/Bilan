@@ -92,7 +92,7 @@ JAVA="java"
 if check_package $JAVA; then
     echo "Java is already installed"
 else
-    sdk install java 17.0.8-zulu
+    sdk install java 21.0.2-open
     echo "Java installed"
 fi
 
