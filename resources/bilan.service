@@ -11,8 +11,6 @@ Environment="SPRING_DATASOURCE_USERNAME="
 Environment="SPRING_DATASOURCE_PASSWORD="
 Environment="SPRING_PROFILES_ACTIVE="
 Environment="JWT_SECRET="
-Environment="BILAN_SIMAT_URL="
-Environment="BILAN_SINEB_URL="
 
 [Install]
 WantedBy=multi-user.target
