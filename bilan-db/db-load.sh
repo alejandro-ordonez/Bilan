@@ -2,7 +2,7 @@
 
 tmp_path="."
 sql_db_artifacts=("db" "views" "procedures"  
-"roles" "context" "tribes" "questions" "actions" "answers" "challenges" "privilages" "courses" "departamento-municipio" "colleges" "post-install")
+"roles" "context" "tribes" "questions" "actions" "answers" "challenges" "privilages" "courses" "departamento-municipio" "post-install")
 
 for i in "${sql_db_artifacts[@]}"; do
     if [ ! -r "$tmp_path/bilan-$i.sql" ]; then
