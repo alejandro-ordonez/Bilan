@@ -70,6 +70,7 @@ create_user(){
     # Commands
     CREATE_USER="CREATE USER '${USER}'@'${HOST}' IDENTIFIED BY '${USER_PASSWORD}';"
 
+    echo "Creating user: '${USER}'@'${HOST}'"
     # Execute the commands
     mariadb -e "${CREATE_USER};"
 

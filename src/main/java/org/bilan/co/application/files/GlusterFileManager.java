@@ -41,7 +41,7 @@ public class GlusterFileManager implements IFileManager{
 
     @Override
     public boolean stageImportFile(InputStream file, BucketName bucket, String fileName, String extension) {
-        var filePath = Constants.STAGED_PATH + "\\" + fileName;
+        var filePath = Path.of(Constants.STAGED_PATH, fileName).toString();
         return uploadFile(file, bucket, filePath, extension);
     }
 
