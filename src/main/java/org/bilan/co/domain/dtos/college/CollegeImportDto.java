@@ -25,10 +25,10 @@ public class CollegeImportDto extends ImportIdentifier {
     public static CollegeImportDto readFromStringArray(String[] values) {
         var college = new CollegeImportDto();
 
-        college.codDaneMunicipality = values[CollegeImportIndexes.CodDaneMunicipality.ordinal()];
-        college.name = values[CollegeImportIndexes.Name.ordinal()];
-        college.codDaneSede = values[CollegeImportIndexes.CodDaneSede.ordinal()];
-        college.campusName = values[CollegeImportIndexes.CampusName.ordinal()];
+        college.codDaneMunicipality = values[CollegeImportIndexes.CodDaneMunicipality.ordinal()].trim();
+        college.name = values[CollegeImportIndexes.Name.ordinal()].trim();
+        college.codDaneSede = values[CollegeImportIndexes.CodDaneSede.ordinal()].trim();
+        college.campusName = values[CollegeImportIndexes.CampusName.ordinal()].trim();
 
         return college;
     }

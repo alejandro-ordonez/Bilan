@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.bilan.co.domain.dtos.ImportIdentifier;
 import org.bilan.co.domain.dtos.user.enums.TeacherImportIndexes;
 import org.bilan.co.domain.enums.DocumentType;
-import org.bilan.co.utils.Constants;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -35,11 +34,11 @@ public class TeacherInfoImportDto extends ImportIdentifier {
     private String lastName;
 
     public static TeacherInfoImportDto readFromStringArray(String[] values){
-        var document = values[TeacherImportIndexes.Document.ordinal()];
-        var documentType = DocumentType.valueOf(values[TeacherImportIndexes.DocumentType.ordinal()]);
-        var email = values[TeacherImportIndexes.Email.ordinal()];
-        var name = values[TeacherImportIndexes.Name.ordinal()];
-        var lastName = values[TeacherImportIndexes.LastName.ordinal()];
+        var document = values[TeacherImportIndexes.Document.ordinal()].trim();
+        var documentType = DocumentType.valueOf(values[TeacherImportIndexes.DocumentType.ordinal()].trim());
+        var email = values[TeacherImportIndexes.Email.ordinal()].trim();
+        var name = values[TeacherImportIndexes.Name.ordinal()].trim();
+        var lastName = values[TeacherImportIndexes.LastName.ordinal()].trim();
 
         var teacher = new TeacherInfoImportDto();
 

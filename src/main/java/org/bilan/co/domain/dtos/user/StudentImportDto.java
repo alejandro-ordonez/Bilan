@@ -36,7 +36,7 @@ public class StudentImportDto extends ImportIdentifier {
     String course;
 
     public static StudentImportDto readFromStringArray(String[] values) throws IllegalArgumentException {
-        DocumentType documentType = DocumentType.valueOf(values[StudentImportIndexes.DocumentType.ordinal()]);
+        DocumentType documentType = DocumentType.valueOf(values[StudentImportIndexes.DocumentType.ordinal()].trim());
 
         StudentImportDto student = new StudentImportDto();
         student.setDocument(values[StudentImportIndexes.Document.ordinal()].trim());

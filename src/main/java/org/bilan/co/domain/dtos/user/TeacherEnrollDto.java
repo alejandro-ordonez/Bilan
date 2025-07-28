@@ -30,14 +30,14 @@ public class TeacherEnrollDto extends ImportIdentifier {
     String tribe;
 
     public static TeacherEnrollDto readFromStringArray(String[] values) throws IllegalArgumentException {
-        DocumentType documentType = DocumentType.valueOf(values[TeacherEnrollmentIndexes.DocumentType.ordinal()]);
+        DocumentType documentType = DocumentType.valueOf(values[TeacherEnrollmentIndexes.DocumentType.ordinal()].trim());
 
         TeacherEnrollDto teacher = new TeacherEnrollDto();
-        teacher.setDocument(values[TeacherEnrollmentIndexes.Document.ordinal()]);
+        teacher.setDocument(values[TeacherEnrollmentIndexes.Document.ordinal()].trim());
         teacher.setDocumentType(documentType);
-        teacher.setGrade(values[TeacherEnrollmentIndexes.Grade.ordinal()]);
-        teacher.setCourse(values[TeacherEnrollmentIndexes.Course.ordinal()]);
-        teacher.setTribe(values[TeacherEnrollmentIndexes.Tribe.ordinal()]);
+        teacher.setGrade(values[TeacherEnrollmentIndexes.Grade.ordinal()].trim());
+        teacher.setCourse(values[TeacherEnrollmentIndexes.Course.ordinal()].trim());
+        teacher.setTribe(values[TeacherEnrollmentIndexes.Tribe.ordinal()].trim());
 
         return teacher;
     }
