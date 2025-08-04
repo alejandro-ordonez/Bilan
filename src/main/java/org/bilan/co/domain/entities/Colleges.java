@@ -13,6 +13,8 @@ import java.util.List;
 public class Colleges {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
     private Integer id;
 
     @Column(name = "nombre_establecimiento")
