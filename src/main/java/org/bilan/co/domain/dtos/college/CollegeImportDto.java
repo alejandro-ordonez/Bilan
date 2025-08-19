@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import org.bilan.co.domain.dtos.ImportIdentifier;
 import org.bilan.co.domain.dtos.college.enums.CollegeImportIndexes;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(of = "codDaneSede", callSuper = false)
 @Data
 public class CollegeImportDto extends ImportIdentifier {
     @NotEmpty(message = "Cod dane municipio no puede estar vacío")

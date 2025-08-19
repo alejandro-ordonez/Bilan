@@ -29,10 +29,7 @@ import org.springframework.validation.Validator;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -347,7 +344,7 @@ public class ImportVerifierJob {
         importResult.setImportId(request.getRequestId());
         importResult.setHeaders(request.getHeaders());
 
-        List<T> results = new ArrayList<>();
+        Set<T> results = new HashSet<>();
 
         var path = fileManager.buildPath(
                 request.getBucket(),
@@ -413,8 +410,14 @@ public class ImportVerifierJob {
                     }
                 }
 
-                results.add(parsed);
+                if (!results.add(parsed)) {
+                    RejectedRow rejectedRow = new RejectedRow((parsed.getIdentifier()), lineNumber, line);
+                    rejectedRow.getErrors().add("El registro se encuentra duplicado en el archivo");
+                    importResult.addRejected(rejectedRow);
+                }
             });
+
+            log.info("Finished reading the file");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -431,6 +434,6 @@ public class ImportVerifierJob {
         else
             importResult.setStatus(ImportStatus.Queued);
 
-        return new Tuple<>(importResult, results);
+        return new Tuple<>(importResult, results.stream().toList());
     }
 }

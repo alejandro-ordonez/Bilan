@@ -11,7 +11,7 @@ import org.bilan.co.domain.dtos.ImportIdentifier;
 import org.bilan.co.domain.dtos.user.enums.TeacherImportIndexes;
 import org.bilan.co.domain.enums.DocumentType;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(of = {"document", "documentType"}, callSuper = false)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

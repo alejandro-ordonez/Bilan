@@ -9,7 +9,7 @@ import org.bilan.co.domain.dtos.ImportIdentifier;
 import org.bilan.co.domain.dtos.user.enums.TeacherEnrollmentIndexes;
 import org.bilan.co.domain.enums.DocumentType;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(of = {"document", "documentType", "grade", "course", "tribe"}, callSuper = false)
 @Data
 public class TeacherEnrollDto extends ImportIdentifier {
     @NotNull

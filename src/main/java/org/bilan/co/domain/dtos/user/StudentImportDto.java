@@ -11,7 +11,7 @@ import org.bilan.co.domain.dtos.user.enums.StudentImportIndexes;
 import org.bilan.co.domain.enums.DocumentType;
 
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(of = {"document", "documentType"}, callSuper = false)
 @Data
 @NoArgsConstructor
 public class StudentImportDto extends ImportIdentifier {
