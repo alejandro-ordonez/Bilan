@@ -162,6 +162,7 @@ public class ImportService implements IUserImportService {
             case StudentImport -> BucketName.BILAN_STUDENT_IMPORT;
             case TeacherEnrollment -> BucketName.BILAN_TEACHER_ENROLLMENT;
             case TeacherImport -> BucketName.BILAN_TEACHER;
+            case CollegesImport -> BucketName.BILAN_COLLEGE_IMPORT;
             default -> throw new IllegalArgumentException();
         };
 

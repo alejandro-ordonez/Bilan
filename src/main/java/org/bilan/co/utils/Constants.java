@@ -1,15 +1,13 @@
 package org.bilan.co.utils;
 
-import java.util.List;
-
 public final class Constants {
     public static final String RESOURCE_NOT_FOUND = "Resource not found";
     public static final String AUTHORIZATION = "Authorization";
 
     public static final String CACHE_COLLEGES_BY_MUN = "colleges-mun";
     public static final String STATES = "states";
-    public static final String CITIES = "states";
-    public static final String COURSES = "states";
+    public static final String CITIES = "cities";
+    public static final String COURSES = "courses";
 
     public static final int TOTAL_PHASES = 15;
     public static final int MAX_SIZE_PAGE = 20;

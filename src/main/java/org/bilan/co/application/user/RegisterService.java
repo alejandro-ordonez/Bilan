@@ -339,17 +339,18 @@ public class RegisterService implements IRegisterService {
 
         if(regUserDto.getUserType().equals(UserType.DirectiveTeacher)){
             teacher.setPositionName(Constants.DIREC_TEACHER);
-            role.setId(2);
+            role.setId(3);
+            teacher.setRole(role);
+            userInfoRepository.save(teacher);
         }
 
         else if(regUserDto.getUserType().equals(UserType.Teacher)){
             teacher.setPositionName(Constants.TEACHER);
             role.setId(2);
+            teacher.setRole(role);
+            teachersRepository.save(teacher);
         }
 
-        teacher.setRole(role);
-
-        teachersRepository.save(teacher);
         return new ResponseDto<>("Teacher registered successfully", HttpStatus.OK.value(),
                 UserState.UserRegistered);
 

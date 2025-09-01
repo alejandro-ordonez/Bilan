@@ -24,8 +24,7 @@ LEFT JOIN answers a
  ORDER BY s.document;
 
 CREATE OR REPLACE VIEW v_performance_game_calc_student AS 
-SELECT c.codigo_dane 
-	 , c.id AS college_id
+SELECT c.id AS college_id
 	 , c.nombre_establecimiento
 	 , c.nombre_sede 
 	 , c.codigo_dane_sede 

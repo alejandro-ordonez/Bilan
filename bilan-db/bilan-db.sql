@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS `challenges` (
 DROP TABLE IF EXISTS `colleges`;
 CREATE TABLE IF NOT EXISTS `colleges` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `codigo_dane` varchar(255) NOT NULL,
   `nombre_establecimiento` varchar(255) NOT NULL,
   `codigo_dane_sede` varchar(255) NOT NULL,
   `nombre_sede` varchar(255) NOT NULL,

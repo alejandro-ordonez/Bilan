@@ -187,7 +187,6 @@ CREATE PROCEDURE `p_statistics_secretary_state_mun`(MUN_ID INT(11))
 	    FROM (	 SELECT v.*
 	    			  , c.id AS collegeId
 		 			  , CONCAT(c.nombre_establecimiento, ' - ', c.nombre_sede)  AS collegeName
-	    			  , c.codigo_dane 
 	     			  , c.nombre_establecimiento 
 	     			  , c.nombre_sede 
 	               FROM v_stadistics v

@@ -20,7 +20,10 @@ public class CachingConfig {
         cacheManager.setCaches(Arrays.asList(
                 new ConcurrentMapCache("colleges"),
                 new ConcurrentMapCache(Constants.CACHE_COLLEGES_BY_MUN),
-                new ConcurrentMapCache(Constants.STATES)));
+                new ConcurrentMapCache(Constants.STATES),
+                new ConcurrentMapCache(Constants.CITIES),
+                new ConcurrentMapCache(Constants.COURSES)
+        ));
         return cacheManager;
     }
 }
