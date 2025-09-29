@@ -323,7 +323,7 @@ public class RegisterService implements IRegisterService {
 
         if (college.isEmpty()) {
             return new ResponseDto<>("College not found",
-                    HttpStatus.BAD_REQUEST.value(), UserState.UserNotRegistered);
+                    HttpStatus.BAD_REQUEST.value(), UserState.CollegeNotFound);
         }
 
         Roles role = new Roles();

@@ -8,5 +8,6 @@ public enum UserState {
     UserUpdated,
     UnknownUserType,
     UserNotRegistered,
+    CollegeNotFound,
     UserRequireUpdate
 }
