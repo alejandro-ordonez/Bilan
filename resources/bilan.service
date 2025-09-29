@@ -12,5 +12,11 @@ Environment="SPRING_DATASOURCE_PASSWORD="
 Environment="SPRING_PROFILES_ACTIVE="
 Environment="JWT_SECRET="
 
+# Restart configuration
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=300
+StartLimitBurst=5
+
 [Install]
 WantedBy=multi-user.target

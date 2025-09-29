@@ -234,30 +234,20 @@ public class RegisterService implements IRegisterService {
 
     public ResponseDto<UserState> createUser(RegisterUserDto regUserDto) {
         try{
-            switch (regUserDto.getUserType()) {
-                case DirectiveTeacher:
-                case Teacher:
-                    return this.createTeacher(regUserDto);
-
-                case Student:
-                    return this.createStudent(regUserDto);
-
-                case MinUser:
-                    return this.createMinUser(regUserDto);
-
-                case SecEdu:
-                    return this.createSecEdu(regUserDto);
-
-                default:
-                    return new ResponseDtoBuilder<UserState>()
-                            .setDescription("UserType does not exist")
-                            .setCode(HttpStatus.BAD_REQUEST.value())
-                            .setResult(UserState.UnknownUserType)
-                            .createResponseDto();
-            }
+            return switch (regUserDto.getUserType()) {
+                case DirectiveTeacher, Teacher -> this.createTeacher(regUserDto);
+                case Student -> this.createStudent(regUserDto);
+                case MinUser -> this.createMinUser(regUserDto);
+                case SecEdu -> this.createSecEdu(regUserDto);
+                default -> new ResponseDtoBuilder<UserState>()
+                        .setDescription("UserType does not exist")
+                        .setCode(HttpStatus.BAD_REQUEST.value())
+                        .setResult(UserState.UnknownUserType)
+                        .createResponseDto();
+            };
         }
         catch (Exception e){
-            log.error("Failed to save the user: "+ regUserDto.getDocument(), e);
+            log.error("Failed to save the user: {}", regUserDto.getDocument(), e);
             return new ResponseDto<>("Something was wrong", HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     UserState.UserNotRegistered);
         }
@@ -321,6 +311,7 @@ public class RegisterService implements IRegisterService {
 
     private ResponseDto<UserState> createTeacher(RegisterUserDto regUserDto) {
         Teachers teacher = teachersRepository.findById(regUserDto.getDocument()).orElse(null);
+
         if (Objects.nonNull(teacher)) {
             return new ResponseDto<>("Teacher already exists",
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
@@ -328,11 +319,13 @@ public class RegisterService implements IRegisterService {
 
         teacher = createBaseUser(Teachers.class, regUserDto);
 
-        Optional<Colleges> college = collegesRepository.findByCodDaneSede(regUserDto.getCodDane());
+        Optional<Colleges> college = collegesRepository.findByCodDaneSede(regUserDto.getCodDane().trim());
+
         if (college.isEmpty()) {
             return new ResponseDto<>("College not found",
                     HttpStatus.BAD_REQUEST.value(), UserState.UserNotRegistered);
         }
+
         Roles role = new Roles();
 
         teacher.setCollege(college.get());
