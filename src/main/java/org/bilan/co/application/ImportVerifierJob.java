@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -418,8 +417,13 @@ public class ImportVerifierJob {
             });
 
             log.info("Finished reading the file");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+        } catch (Exception e) {
+            log.error("Failed to process the file.", e);
+            importResult.setStatus(ImportStatus.Rejected);
+            importResult.setAcceptedCount(0);
+
+            return new Tuple<>(importResult, results.stream().toList());
         }
 
 

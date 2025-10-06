@@ -356,6 +356,13 @@ public class RegisterService implements IRegisterService {
                     HttpStatus.BAD_REQUEST.value(), UserState.UserExists);
         }
 
+        Optional<Colleges> college = collegesRepository.findByCodDaneSede(regUserDto.getCodDane().trim());
+
+        if (college.isEmpty()) {
+            return new ResponseDto<>("College not found",
+                    HttpStatus.BAD_REQUEST.value(), UserState.CollegeNotFound);
+        }
+
         student = createBaseUser(Students.class, regUserDto);
         StudentStats studentStats = new StudentStats();
         student.setStudentStats(studentStats);
@@ -373,10 +380,7 @@ public class RegisterService implements IRegisterService {
 
         student.setPositionName(Constants.STUDENT);
 
-        Colleges college = new Colleges();
-        college.setId(regUserDto.getCollegeId());
-
-        student.setColleges(college);
+        student.setColleges(college.get());
         studentsRepository.save(student);
         return new ResponseDto<>("Student registered successfully", HttpStatus.OK.value(),
                 UserState.UserRegistered);
