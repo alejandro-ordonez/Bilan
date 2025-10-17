@@ -284,7 +284,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `teachers_batch_insert`;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `teachers_batch_insert`(
+CREATE PROCEDURE `teachers_batch_insert`(
 	IN `p_documents` LONGTEXT,
 	IN `p_document_types` LONGTEXT,
 	IN `p_names` LONGTEXT,
