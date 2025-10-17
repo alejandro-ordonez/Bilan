@@ -282,3 +282,77 @@ END
 ;;
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `teachers_batch_insert`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `teachers_batch_insert`(
+	IN `p_documents` LONGTEXT,
+	IN `p_document_types` LONGTEXT,
+	IN `p_names` LONGTEXT,
+	IN `p_last_names` LONGTEXT,
+	IN `p_emails` LONGTEXT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+    DECLARE i INT DEFAULT 0;
+    DECLARE cnt INT;
+    DECLARE v_user_info_id VARCHAR(15);
+    DECLARE v_teacher_id VARCHAR(15);
+    DECLARE v_document VARCHAR(255);
+    DECLARE v_document_type VARCHAR(50);
+    DECLARE v_name VARCHAR(255);
+    DECLARE v_last_name VARCHAR(255);
+    DECLARE v_email VARCHAR(255);
+    DECLARE v_password VARCHAR(255);
+    
+    SELECT JSON_LENGTH(p_documents) INTO cnt;
+    SET v_password = "$2a$10$Cy1PhGwyM3d4jrcyyRNJ/Orn43td.cTvY2gOQeffvlxT5uEFGgtkC";
+    
+    WHILE i < cnt DO
+        SET v_document = JSON_UNQUOTE(JSON_EXTRACT(p_documents, CONCAT('$[', i, ']')));
+        SET v_document_type = JSON_UNQUOTE(JSON_EXTRACT(p_document_types, CONCAT('$[', i, ']')));
+        SET v_name = JSON_UNQUOTE(JSON_EXTRACT(p_names, CONCAT('$[', i, ']')));
+        SET v_last_name = JSON_UNQUOTE(JSON_EXTRACT(p_last_names, CONCAT('$[', i, ']')));
+        SET v_email = JSON_UNQUOTE(JSON_EXTRACT(p_emails, CONCAT('$[', i, ']')));
+        
+        -- Check if teacher exists
+        SELECT document INTO v_user_info_id FROM user_info WHERE document = v_document LIMIT 1;
+        
+        IF v_user_info_id IS NOT NULL THEN
+            -- UPDATE existing teacher
+            UPDATE user_info SET 
+                document_type = v_document_type,
+                name = v_name,
+                last_name = v_last_name,
+                email = v_email,
+                password = v_password,
+                modified_at = NOW()
+            WHERE document = v_user_info_id;           
+            
+        ELSE
+            -- INSERT new teacher
+            INSERT INTO user_info (
+                document, document_type, name, last_name, email, password, 
+                role_id, is_enabled, confirmed, position_name, created_at, modified_at
+            ) VALUES (
+                v_document, v_document_type, v_name, v_last_name, v_email, v_password,
+                2, TRUE, FALSE, 'Docente', NOW(), NOW()
+            );
+            
+        END IF;
+        
+        SELECT document INTO v_teacher_id FROM teachers WHERE document = v_document LIMIT 1;
+        
+        IF v_teacher_id IS NULL THEN
+        		INSERT INTO teachers (document) 
+				VALUES (v_document);
+        END IF;
+        
+        SET i = i + 1;
+    END WHILE;
+END
+;;
+DELIMITER ;
