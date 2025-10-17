@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.bilan.co.domain.dtos.user.TeacherInfoImportDto;
 import org.bilan.co.domain.enums.UserType;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
@@ -38,4 +39,15 @@ public class Teachers extends UserInfo implements Serializable {
 
     @Transient
     private UserType userType = UserType.Teacher;
+
+    public static Teachers buildTeacher(TeacherInfoImportDto info) {
+        Teachers teacher = new Teachers();
+
+        teacher.setDocument(info.getDocument());
+        teacher.setDocumentType(info.getDocumentType());
+        teacher.setName(info.getName());
+        teacher.setLastName(info.getLastName());
+        teacher.setEmail(info.getEmail());
+        return teacher;
+    }
 }

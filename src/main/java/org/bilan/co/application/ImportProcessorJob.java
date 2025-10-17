@@ -1,6 +1,8 @@
 package org.bilan.co.application;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +32,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -114,8 +119,6 @@ public class ImportProcessorJob {
 
         jobLogger.info("Processing pending requests: {}", pendingRequests.size());
 
-        // Group them to launch multiple jobs to process the batch in the given frame;
-
         jobScheduler.enqueue(pendingRequests.stream(),
                 (entry) -> selectProcess(entry.getImportType(), entry.getImportIds()));
     }
@@ -138,6 +141,17 @@ public class ImportProcessorJob {
             if (importRequest.isEmpty())
                 throw new IllegalArgumentException("Invalid request");
 
+            // Check if already processing - skip to prevent duplicate processing
+            if (importRequest.get().getStatus() == ImportStatus.Processing) {
+                jobLogger.warn("Import {} is already being processed, skipping", importId);
+                continue;
+            }
+
+            // Immediately mark as Processing to claim this import
+            importRequest.get().setStatus(ImportStatus.Processing);
+            importRequest.get().setModified(LocalDateTime.now());
+            importRequestRepository.saveAndFlush(importRequest.get());
+
             var bucket = BucketName.getFromImportType(importRequest.get().getType());
             var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
 
@@ -152,10 +166,6 @@ public class ImportProcessorJob {
 
                 continue;
             }
-
-            importRequest.get().setStatus(ImportStatus.Processing);
-            importRequest.get().setModified(LocalDateTime.now());
-            importRequestRepository.save(importRequest.get());
 
             try {
                 processStudentImport(payload);
@@ -204,6 +214,17 @@ public class ImportProcessorJob {
             if (importRequest.isEmpty())
                 throw new IllegalArgumentException("Invalid request");
 
+            // Check if already processing - skip to prevent duplicate processing
+            if (importRequest.get().getStatus() == ImportStatus.Processing) {
+                jobLogger.warn("Import {} is already being processed, skipping", importId);
+                continue;
+            }
+
+            // Immediately mark as Processing to claim this import
+            importRequest.get().setStatus(ImportStatus.Processing);
+            importRequest.get().setModified(LocalDateTime.now());
+            importRequestRepository.saveAndFlush(importRequest.get());
+
             var bucket = BucketName.getFromImportType(importRequest.get().getType());
             var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
 
@@ -220,15 +241,13 @@ public class ImportProcessorJob {
                 continue;
             }
 
-            importRequest.get().setStatus(ImportStatus.Processing);
-            importRequest.get().setModified(LocalDateTime.now());
-            importRequestRepository.save(importRequest.get());
-
             try {
-                processTeacherImport(payload);
+                processTeacherImport(payload, importRequest.get());
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
-                jobLogger.error("Something went wrong when processing the teacher import {}", importRequest.get().getImportId());
+                jobLogger.error("Something went wrong when processing the teacher import {}",
+                        importRequest.get().getImportId(),
+                        e);
                 importRequest.get().setStatus(ImportStatus.Failed);
             }
 
@@ -237,37 +256,47 @@ public class ImportProcessorJob {
     }
 
     @Transactional
-    public void processTeacherImport(StagedImportRequestDto<TeacherInfoImportDto> request) {
-        List<Teachers> teachers = new ArrayList<>();
+    public void processTeacherImport(StagedImportRequestDto<TeacherInfoImportDto> request, ImportRequests importRequest) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
 
-        for (var teacherInfo : request.getProcessed()) {
-            Teachers teacher = new Teachers();
+        List<TeacherInfoImportDto> processed = request.getProcessed();
 
-            teacher.setDocument(teacherInfo.getDocument());
-            teacher.setDocumentType(teacherInfo.getDocumentType());
-            teacher.setName(teacherInfo.getName());
-            teacher.setLastName(teacherInfo.getLastName());
-            teacher.setEmail(teacherInfo.getEmail());
-            teacher.setIsEnabled(false);
-            teacher.setPositionName(Constants.TEACHER);
-            teacher.setCreatedAt(new Date());
-            teacher.setModifiedAt(new Date());
-            teacher.setConfirmed(false);
-            teacher.setPassword(passwordEncoder.encode(teacher.getDocument()));
+        int batchSize = 5000;
+        int totalBatches = (int) Math.ceil((double) processed.size() / batchSize);
+        jobLogger.info("Processing {} teachers, in {} batches",
+                processed.size(),
+                totalBatches
+        );
 
-            Roles role = new Roles();
-            role.setId(2);
+        for (int i = 0; i < processed.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, processed.size());
+            jobLogger.info("Processing batch #{} of {}", (i / batchSize) + 1, totalBatches);
 
-            teacher.setRole(role);
-            teachers.add(teacher);
+            List<Teachers> batch = processed.subList(i, end)
+                    .stream()
+                    .map(Teachers::buildTeacher)
+                    .toList();
 
-            // These will be set on the enrollment
-            teacher.setCollege(null);
+            // Stored procedure args
+            List<String> documents = batch.stream().map(Teachers::getDocument).toList();
+            List<String> docTypes = batch.stream().map(teacher -> teacher.getDocumentType().toString()).toList();
+            List<String> names = batch.stream().map(Teachers::getName).toList();
+            List<String> lastNames = batch.stream().map(Teachers::getLastName).toList();
+            List<String> emails = batch.stream().map(Teachers::getEmail).toList();
+
+            teachersRepository.upsertTeachers(
+                    mapper.writeValueAsString(documents),
+                    mapper.writeValueAsString(docTypes),
+                    mapper.writeValueAsString(names),
+                    mapper.writeValueAsString(lastNames),
+                    mapper.writeValueAsString(emails)
+            );
+
+            // Update modified timestamp to indicate active processing
+            importRequest.setModified(LocalDateTime.now());
+            importRequestRepository.save(importRequest);
         }
-
-        teachersRepository.saveAll(teachers);
     }
-
 
     @Transactional
     public void processCollegeImports(List<String> requests) {
@@ -278,6 +307,17 @@ public class ImportProcessorJob {
 
             if (importRequest.isEmpty())
                 throw new IllegalArgumentException("Invalid request");
+
+            // Check if already processing - skip to prevent duplicate processing
+            if (importRequest.get().getStatus() == ImportStatus.Processing) {
+                jobLogger.warn("Import {} is already being processed, skipping", importId);
+                continue;
+            }
+
+            // Immediately mark as Processing to claim this import
+            importRequest.get().setStatus(ImportStatus.Processing);
+            importRequest.get().setModified(LocalDateTime.now());
+            importRequestRepository.saveAndFlush(importRequest.get());
 
             var bucket = BucketName.getFromImportType(importRequest.get().getType());
             var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
@@ -294,10 +334,6 @@ public class ImportProcessorJob {
 
                 continue;
             }
-
-            importRequest.get().setStatus(ImportStatus.Processing);
-            importRequest.get().setModified(LocalDateTime.now());
-            importRequestRepository.save(importRequest.get());
 
             try {
                 processCollegeImport(payload);
@@ -347,6 +383,17 @@ public class ImportProcessorJob {
             if (importRequest.isEmpty())
                 throw new IllegalArgumentException("Invalid request");
 
+            // Check if already processing - skip to prevent duplicate processing
+            if (importRequest.get().getStatus() == ImportStatus.Processing) {
+                jobLogger.warn("Import {} is already being processed, skipping", importId);
+                continue;
+            }
+
+            // Immediately mark as Processing to claim this import
+            importRequest.get().setStatus(ImportStatus.Processing);
+            importRequest.get().setModified(LocalDateTime.now());
+            importRequestRepository.saveAndFlush(importRequest.get());
+
             var bucket = BucketName.getFromImportType(importRequest.get().getType());
             var payloadPath = fileManager.buildPath(bucket, Constants.QUEUED_PATH, importId, Constants.JSON);
 
@@ -359,10 +406,6 @@ public class ImportProcessorJob {
                 importRequestRepository.save(importRequest.get());
                 continue;
             }
-
-            importRequest.get().setStatus(ImportStatus.Processing);
-            importRequest.get().setModified(LocalDateTime.now());
-            importRequestRepository.save(importRequest.get());
 
             try {
 
