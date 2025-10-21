@@ -134,7 +134,7 @@ public class TeacherService implements ITeacherService{
     @Override
     public ResponseDto<TeacherDto> getTeacher(String document) {
         Optional<Teachers> teacherQuery = this.teachersRepository.findById(document);
-        if(!teacherQuery.isPresent()){
+        if (teacherQuery.isEmpty()) {
             return new ResponseDto<>("User not found", 404, null);
         }
 

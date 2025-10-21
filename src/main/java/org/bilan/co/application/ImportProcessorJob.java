@@ -171,7 +171,9 @@ public class ImportProcessorJob {
                 processStudentImport(payload);
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
-                jobLogger.error("Something went wrong when processing the student import {}", importRequest.get().getImportId());
+                jobLogger.error("Something went wrong when processing the student import {}",
+                        importRequest.get().getImportId(), e);
+
                 importRequest.get().setStatus(ImportStatus.Failed);
             }
 
@@ -339,7 +341,8 @@ public class ImportProcessorJob {
                 processCollegeImport(payload);
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
-                jobLogger.error("Something went wrong when processing the college import {}", importRequest.get().getImportId());
+                jobLogger.error("Something went wrong when processing the college import {}",
+                        importRequest.get().getImportId(), e);
                 importRequest.get().setStatus(ImportStatus.Failed);
             }
 
@@ -416,7 +419,9 @@ public class ImportProcessorJob {
 
                 importRequest.get().setStatus(ImportStatus.Ok);
             } catch (Exception e) {
-                jobLogger.error("Something went wrong when processing the teacher enroll import {}", importRequest.get().getImportId());
+                jobLogger.error("Something went wrong when processing the teacher enroll import {}",
+                        importRequest.get().getImportId(), e);
+
                 importRequest.get().setStatus(ImportStatus.Failed);
             }
 

@@ -36,6 +36,14 @@ public class InsertTestUsers {
     private IUserService userService;
 
     @Test
+    public void generateHash() {
+        String p1 = passwordEncoder.encode("bilan-teacher-2021");
+        String p2 = passwordEncoder.encode("Bilan_teacher");
+        System.out.print(p1);
+        System.out.print(p2);
+    }
+
+    @Test
     public void insertTestStudents() throws IOException {
         File csv = new File("D:\\23-11-2021.csv");
 

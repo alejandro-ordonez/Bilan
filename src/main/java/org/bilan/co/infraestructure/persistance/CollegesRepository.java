@@ -52,5 +52,5 @@ public interface CollegesRepository extends JpaRepository<Colleges, Integer> {
     Colleges collegeByCampusCodeDane(String campusCodeDane);
 
     @Query("SELECT c.id FROM Colleges c WHERE c.campusCodeDane = :codDaneSede")
-    Integer getIdByCodDaneSede(String codDaneSede);
+    Optional<Integer> getIdByCodDaneSede(String codDaneSede);
 }

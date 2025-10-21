@@ -13,16 +13,25 @@ public final class TeacherUtils {
     private TeacherUtils(){}
 
     public static TeacherDto parseTeacher(Teachers teacher) {
+        String codDane = "";
+        String codDaneResidencia = "";
+
+        if (teacher.getCollege() != null) {
+            codDane = teacher.getCollege().getCampusCodeDane();
+            codDaneResidencia = teacher.getCollege().getStateMunicipality().getCodDaneMunicipality();
+        }
+
+
         TeacherDto teacherDto = new TeacherDto();
-        teacherDto.setCodDane(teacher.getCollege().getCampusCodeDane());
+        teacherDto.setCodDane(codDane);
         teacherDto.setClassRoomDtoList(
                 teacher.getClassrooms()
                         .stream()
                         .map(TeacherUtils::parseClassRoom)
                         .collect(Collectors.toList()));
 
-        teacherDto.setCodDaneSede(teacher.getCollege().getCampusCodeDane());
-        teacherDto.setCodDaneMinResidencia(teacher.getCollege().getStateMunicipality().getCodDaneMunicipality());
+        teacherDto.setCodDaneSede(codDane);
+        teacherDto.setCodDaneMinResidencia(codDaneResidencia);
         teacherDto.setDocument(teacher.getDocument());
         teacherDto.setDocumentType(teacher.getDocumentType());
         teacherDto.setEmail(teacher.getEmail());

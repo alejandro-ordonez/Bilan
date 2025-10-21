@@ -171,17 +171,28 @@ public class StudentService implements IStudentService {
     public ResponseDto<PagedResponse<StudentDto>> getStudents(int nPage, String partialDocument, String jwt) {
         AuthenticatedUserDto authenticatedUserDto = jwtTokenUtil.getInfoFromToken(jwt);
         String codDaneSede = this.teachersRepository.getCodDaneSede(authenticatedUserDto.getDocument());
-        int collegeId = this.collegesRepository.getIdByCodDaneSede(codDaneSede);
+
+        Optional<Integer> collegeId = this.collegesRepository.getIdByCodDaneSede(codDaneSede);
+
+        if (collegeId.isEmpty())
+            throw new IllegalArgumentException("The college couldn't be found");
 
         Page<Students> query;
 
-        String purgedDocument = partialDocument.trim();
+        String purgedDocument;
+
+        if (partialDocument == null)
+            purgedDocument = "";
+
+        else
+            purgedDocument = partialDocument.trim();
+
         if(purgedDocument.isEmpty())
-            query = studentsRepository.getStudents(PageRequest.of(nPage, 10), authenticatedUserDto.getDocument() , collegeId);
+            query = studentsRepository.getStudents(PageRequest.of(nPage, 10), authenticatedUserDto.getDocument(), collegeId.get());
 
         else{
             query = studentsRepository.searchStudentsWithDocument(
-                    PageRequest.of(nPage, 10), partialDocument, authenticatedUserDto.getDocument(), collegeId);
+                    PageRequest.of(nPage, 10), partialDocument, authenticatedUserDto.getDocument(), collegeId.get());
         }
 
         PagedResponse<StudentDto> studentsResponse = new PagedResponse<>();
