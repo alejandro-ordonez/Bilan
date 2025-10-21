@@ -66,6 +66,9 @@ public class ImportVerifierJob {
     @Autowired
     private StateMunicipalityRepository municipalityRepository;
 
+    @Autowired
+    private CollegesRepository collegesRepository;
+
     private Map<String, Courses> availableCourses;
 
     public ImportVerifierJob(){
@@ -287,6 +290,11 @@ public class ImportVerifierJob {
 
     public List<String> validateCollege(CollegeImportDto college) {
         var errors = new ArrayList<String>();
+
+        var collegeExists = collegesRepository.findByCodDaneSede(college.getCodDaneSede());
+
+        if (collegeExists.isPresent())
+            errors.add("El colegio ya existe");
 
         var municipality = municipalityRepository.findByCodDane(college.getCodDaneMunicipality());
 
