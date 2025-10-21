@@ -33,18 +33,6 @@ public class StudentStatsService implements IStudentStatsService {
     @Autowired
     private SessionsRepository sessionsRepository;
     @Autowired
-    private TribesRepository tribesRepository;
-    @Autowired
-    private ResolvedAnswerByRepository resolvedAnswerByRepository;
-    @Autowired
-    private AnswersRepository answersRepository;
-    @Autowired
-    private ChallengesRepository challengesRepository;
-    @Autowired
-    private QuestionsRepository questionsRepository;
-    @Autowired
-    private IActionsService actionsService;
-    @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
 

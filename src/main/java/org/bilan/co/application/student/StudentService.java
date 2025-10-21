@@ -57,7 +57,7 @@ public class StudentService implements IStudentService {
         studentStatsRecord.setDocument(document);
 
         Optional<Students> studentQuery = studentsRepository.findById(document);
-        if (!studentQuery.isPresent())
+        if (studentQuery.isEmpty())
             return new StudentDashboardDto();
 
         studentStatsRecord.setName(studentQuery.get().getName());

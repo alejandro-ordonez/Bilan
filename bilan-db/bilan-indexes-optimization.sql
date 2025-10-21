@@ -11,21 +11,18 @@ USE `bilan`;
 -- -------------------------------------------------------------------------
 
 -- 1. resolved_answer_by: Composite index for v_performance_game view
--- This is THE most critical index - used in the main performance calculation view
 DROP INDEX IF EXISTS idx_resolved_answer_student_tribe_question ON resolved_answer_by;
-CREATE INDEX idx_resolved_answer_student_tribe_question
-ON resolved_answer_by(student_id_document, tribe_id_id, id_question);
-
--- Alternative covering index that includes the answer (if queries need it)
 DROP INDEX IF EXISTS idx_resolved_answer_covering ON resolved_answer_by;
-CREATE INDEX idx_resolved_answer_covering
-ON resolved_answer_by(student_id_document, tribe_id_id, id_question, id_answer);
+CREATE INDEX idx_resolved_answer_student_question_tribe
+ON resolved_answer_by(student_id_document, id_question, tribe_id_id);
 
 -- 2. evidences: Composite index for v_stadistics view
--- Used in LEFT JOIN with students and tribes
 DROP INDEX IF EXISTS idx_evidences_tribe_student_phase ON evidences;
-CREATE INDEX idx_evidences_tribe_student_phase
-ON evidences(id_tribe, id_student, phase);
+DROP INDEX IF EXISTS idx_evidences_student_phase ON evidences;
+CREATE INDEX idx_evidences_tribe_student
+ON evidences(id_tribe, id_student);
+CREATE INDEX idx_evidences_student_tribe
+ON evidences(id_student, id_tribe);
 
 -- 3. students: Composite index for filtering by college, grade, and course
 -- Used in ALL grade-level statistics procedures
@@ -100,10 +97,6 @@ DROP INDEX IF EXISTS idx_user_info_role_enabled ON user_info;
 CREATE INDEX idx_user_info_role_enabled
 ON user_info(role_id, is_enabled);
 
--- 12. evidences: Additional index for student-phase queries without tribe
-DROP INDEX IF EXISTS idx_evidences_student_phase ON evidences;
-CREATE INDEX idx_evidences_student_phase
-ON evidences(id_student, phase);
 
 -- 13. logs: Index for event analysis and user tracking
 DROP INDEX IF EXISTS idx_logs_user_created ON logs;

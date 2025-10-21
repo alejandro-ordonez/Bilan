@@ -409,7 +409,7 @@ public class ImportVerifierJob {
                     var validation = specialValidation.apply(parsed);
 
                     if(!validation.isEmpty()){
-                        log.error("El registro no es válido");
+                        log.warn("El registro no es válido");
                         RejectedRow rejectedRow = new RejectedRow(parsed.getIdentifier(), lineNumber, line);
                         rejectedRow.getErrors().addAll(validation);
                         importResult.addRejected(rejectedRow);
