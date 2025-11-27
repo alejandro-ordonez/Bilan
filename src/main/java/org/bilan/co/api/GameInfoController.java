@@ -5,6 +5,8 @@ import org.bilan.co.application.game.IGameInfoService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.game.GameInfoDto;
+import org.bilan.co.utils.Constants;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,7 @@ public class GameInfoController {
     }
 
     @GetMapping
+    @Cacheable(Constants.GAME_INFO)
     public ResponseEntity<ResponseDto<GameInfoDto>> getAll() {
         GameInfoDto gameInfoDto = gameInfoService.getGameInfo();
 

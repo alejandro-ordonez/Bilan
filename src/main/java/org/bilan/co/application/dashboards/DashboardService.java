@@ -19,31 +19,31 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import static java.util.concurrent.CompletableFuture.supplyAsync;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Service
 public class DashboardService implements IDashboardService {
 
     private final DashboardRepository dashboardRepository;
-    private final TeachersRepository teachersRepository;
     private final StudentsRepository studentsRepository;
     private final CollegesRepository collegesRepository;
 
     private final CoursesRepository coursesRepository;
     private final StateMunicipalityRepository stateMunicipalityRepository;
+    private final ExecutorService executor;
 
     public DashboardService(DashboardRepository dashboardRepository, TeachersRepository teachersRepository,
                             StudentsRepository studentsRepository, CollegesRepository collegesRepository,
                             CoursesRepository coursesRepository,
-                            StateMunicipalityRepository stateMunicipalityRepository) {
+                            StateMunicipalityRepository stateMunicipalityRepository,
+                            ExecutorService executorService) {
         this.dashboardRepository = dashboardRepository;
-        this.teachersRepository = teachersRepository;
         this.studentsRepository = studentsRepository;
         this.collegesRepository = collegesRepository;
         this.stateMunicipalityRepository = stateMunicipalityRepository;
         this.coursesRepository = coursesRepository;
+        this.executor = executorService;
     }
 
     @Override
@@ -89,173 +89,176 @@ public class DashboardService implements IDashboardService {
     }
 
     private Optional<GeneralDashboardDto> buildGeneral() {
-
         CompletableFuture<List<String>> states =
-                supplyAsync(this.stateMunicipalityRepository::states);
+                CompletableFuture.supplyAsync(stateMunicipalityRepository::states, executor);
 
         CompletableFuture<List<Object[]>> logins =
-                supplyAsync(this.dashboardRepository::login);
+                CompletableFuture.supplyAsync(dashboardRepository::login, executor);
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(this.dashboardRepository::statistics);
+                CompletableFuture.supplyAsync(dashboardRepository::statistics, executor);
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(this.dashboardRepository::statisticsPerformance);
+                CompletableFuture.supplyAsync(dashboardRepository::statisticsPerformance, executor);
 
-        try {
-            return CompletableFuture
-                    .allOf(activities, games, states, logins)
-                    .thenApplyAsync(ig -> DashboardFunction.buildMainDashboard(activities.join(), games.join(),
-                            states.join(), logins.join()))
-                    .thenApply(Factories::createMainDashboard)
-                    .thenApply(Optional::of)
-                    .join();
-        } catch (Exception e) {
-            log.error("Error fetching data needed to generate government statistics", e);
-        }
-        return Optional.empty();
+        return CompletableFuture.allOf(states, logins, activities, games)
+                .thenApply(v -> DashboardFunction.buildMainDashboard(
+                        activities.join(), games.join(), states.join(), logins.join()))
+                .thenApply(Factories::createMainDashboard)
+                .thenApply(Optional::of)
+                .exceptionally(e -> {
+                    log.error("Error fetching dashboard data", e);
+                    return Optional.empty();
+                })
+                .join();
     }
 
-    private Optional<GeneralDashboardDto> buildState(String state) {
 
+    private Optional<GeneralDashboardDto> buildState(String state) {
         CompletableFuture<List<IMunicipality>> municipalitiesByState =
-                supplyAsync(() -> this.stateMunicipalityRepository.findMunicipalitiesByState(state));
+                CompletableFuture.supplyAsync(() -> stateMunicipalityRepository.findMunicipalitiesByState(state), executor);
 
         CompletableFuture<List<Object[]>> logins =
-                supplyAsync(() -> this.dashboardRepository.loginState(state));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.loginState(state), executor);
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(() -> this.dashboardRepository.statistics(state));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statistics(state), executor);
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(() -> this.dashboardRepository.statisticsPerformance(state));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statisticsPerformance(state), executor);
 
-        try {
-            return CompletableFuture
-                    .allOf(activities, games, municipalitiesByState, logins)
-                    .thenApplyAsync(ig -> DashboardFunction.buildState(activities.join(), games.join(),
-                            municipalitiesByState.join(), logins.join()))
-                    .thenApply(Factories::createStateDashboard)
-                    .thenApply(Optional::of)
-                    .join();
-        } catch (Exception e) {
-            log.error("Error fetching data needed to generate government statistics", e);
-        }
-        return Optional.empty();
+        return CompletableFuture.allOf(municipalitiesByState, logins, activities, games)
+                .thenApply(v -> DashboardFunction.buildState(
+                        activities.join(),
+                        games.join(),
+                        municipalitiesByState.join(),
+                        logins.join()))
+                .thenApply(Factories::createStateDashboard)
+                .thenApply(Optional::of)
+                .exceptionally(e -> {
+                    log.error("Error fetching data needed to generate state dashboard", e);
+                    return Optional.empty();
+                })
+                .join();
     }
 
     private Optional<GeneralDashboardDto> buildMunicipality(Integer munId, PageRequest pageRequest) {
-
         CompletableFuture<List<ICollege>> collegesByMun =
-                supplyAsync(() -> this.collegesRepository.findByMunId(munId));
+                CompletableFuture.supplyAsync(() -> collegesRepository.findByMunId(munId), executor);
 
         CompletableFuture<List<Object[]>> logins =
-                supplyAsync(() -> this.dashboardRepository.loginMunicipality(munId));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.loginMunicipality(munId), executor);
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(() -> this.dashboardRepository.statistics(munId));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statistics(munId), executor);
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(() -> this.dashboardRepository.statisticsPerformance(munId));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statisticsPerformance(munId), executor);
 
-        try {
-            return CompletableFuture
-                    .allOf(activities, games, collegesByMun, logins)
-                    .thenApplyAsync(ig -> DashboardFunction.buildMun(activities.join(), games.join(),
-                            collegesByMun.join(), logins.join()))
-                    .thenApply(info -> Factories.createMunicipalityDashboard(info, pageRequest))
-                    .thenApply(Optional::of)
-                    .join();
-        } catch (Exception e) {
-            log.error("Error fetching data needed to generate government statistics", e);
-        }
-        return Optional.empty();
+        return CompletableFuture.allOf(activities, games, collegesByMun, logins)
+                .thenApply(v -> DashboardFunction.buildMun(
+                        activities.join(),
+                        games.join(),
+                        collegesByMun.join(),
+                        logins.join()))
+                .thenApply(info -> Factories.createMunicipalityDashboard(info, pageRequest))
+                .thenApply(Optional::of)
+                .exceptionally(e -> {
+                    log.error("Error fetching data needed to generate municipality dashboard", e);
+                    return Optional.empty();
+                })
+                .join();
     }
 
     private Optional<CollegeDashboardDto> buildCollege(int collegeId) {
-
         CompletableFuture<ICollege> college =
-                supplyAsync(() -> this.collegesRepository.singleById(collegeId));
+                CompletableFuture.supplyAsync(() -> collegesRepository.singleById(collegeId), executor);
 
         CompletableFuture<List<Object[]>> logins =
-                supplyAsync(() -> this.dashboardRepository.loginCollege(collegeId));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.loginCollege(collegeId), executor);
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(() -> this.dashboardRepository.statisticsCollege(collegeId));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statisticsCollege(collegeId), executor);
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(() -> this.dashboardRepository.statisticsCollegePerformance(collegeId));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statisticsCollegePerformance(collegeId), executor);
 
-        try {
-            return CompletableFuture
-                    .allOf(activities, games, college, logins)
-                    .thenApplyAsync(ig -> DashboardFunction.build(activities.join(), games.join(), college.join(),
-                            logins.join()))
-                    .thenApply(Factories::createCollegeDashboard)
-                    .thenApply(Optional::of)
-                    .join();
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Error fetching data needed to generate college statistics {}", e.getMessage());
-        }
-        return Optional.empty();
+        return CompletableFuture.allOf(activities, games, college, logins)
+                .thenApply(v -> DashboardFunction.build(
+                        activities.join(),
+                        games.join(),
+                        college.join(),
+                        logins.join()))
+                .thenApply(Factories::createCollegeDashboard)
+                .thenApply(Optional::of)
+                .exceptionally(e -> {
+                    log.error("Error fetching data needed to generate college statistics", e);
+                    return Optional.empty();
+                })
+                .join();
     }
 
     private Optional<GradeDashboardDto> buildCourseGrade(int collegeId, String grade, String courseId) {
-
         Optional<Courses> c = coursesRepository.findFirstByCourseName(courseId);
-
         if (c.isEmpty()) {
             return Optional.empty();
         }
 
+        int courseDbId = c.get().getId();
+
         CompletableFuture<List<Students>> students =
-                supplyAsync(() -> this.studentsRepository.findStudentsByCollegeAndGrade(collegeId, grade, c.get().getId()));
+                CompletableFuture.supplyAsync(() -> studentsRepository.findStudentsByCollegeAndGrade(collegeId, grade, courseDbId), executor);
 
         CompletableFuture<List<Object[]>> logins =
-                supplyAsync(() -> this.dashboardRepository.loginCourseGrade(collegeId, grade, c.get().getId()));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.loginCourseGrade(collegeId, grade, courseDbId), executor);
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(() -> this.dashboardRepository.statistics(collegeId, grade, c.get().getId()));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statistics(collegeId, grade, courseDbId), executor);
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(() -> this.dashboardRepository.statisticsPerformance(collegeId, grade, c.get().getId()));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statisticsPerformance(collegeId, grade, courseDbId), executor);
 
-        try {
-            return CompletableFuture
-                    .allOf(activities, games, students)
-                    .thenApplyAsync(ig -> DashboardFunction.build(activities.join(), games.join(),
-                            students.join(), logins.join()))
-                    .thenApply(Factories::createCourseGradeDashboard)
-                    .thenApply(Optional::of)
-                    .join();
-        } catch (Exception e) {
-            log.error("Error fetching data needed to generate college statistics", e);
-        }
-        return Optional.empty();
+        return CompletableFuture.allOf(activities, games, students, logins)
+                .thenApply(v -> DashboardFunction.build(
+                        activities.join(),
+                        games.join(),
+                        students.join(),
+                        logins.join()))
+                .thenApply(Factories::createCourseGradeDashboard)
+                .thenApply(Optional::of)
+                .exceptionally(e -> {
+                    log.error("Error fetching data needed to generate course grade dashboard", e);
+                    return Optional.empty();
+                })
+                .join();
     }
 
-    private Optional<StudentDashboardDto> buildStudent(String document) {
-
-        CompletableFuture<Students> students =
-                supplyAsync(() -> this.studentsRepository.findById(document).get());
+    public Optional<StudentDashboardDto> buildStudent(String document) {
+        CompletableFuture<Optional<Students>> students =
+                CompletableFuture.supplyAsync(() -> studentsRepository.findById(document), executor);
 
         CompletableFuture<List<IPerformanceActivity>> activities =
-                supplyAsync(() -> this.dashboardRepository.statisticsStudent(document));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statisticsStudent(document), executor);
 
         CompletableFuture<List<IPerformanceGame>> games =
-                supplyAsync(() -> this.dashboardRepository.statisticsStudentPerformance(document));
+                CompletableFuture.supplyAsync(() -> dashboardRepository.statisticsStudentPerformance(document), executor);
 
-        try {
-            return CompletableFuture
-                    .allOf(activities, games, students)
-                    .thenApplyAsync(ig -> DashboardFunction.build(activities.join(), games.join(), students.join()))
-                    .thenApply(Factories::createStudentDashboard)
-                    .thenApply(Optional::of)
-                    .join();
-        } catch (Exception e) {
-            log.error("Error fetching data needed to generate college statistics", e);
-        }
-        return Optional.empty();
+        return CompletableFuture.allOf(activities, games, students)
+                .thenApply(v -> {
+                    Optional<Students> studentOpt = students.join();
+                    // or handle gracefully
+                    return studentOpt.map(value -> DashboardFunction.build(
+                            activities.join(),
+                            games.join(),
+                            value)).orElse(null);
+
+                })
+                .thenApply(result -> result == null ? null : Factories.createStudentDashboard(result))
+                .thenApply(Optional::ofNullable)
+                .exceptionally(e -> {
+                    log.error("Error fetching data needed to generate student dashboard", e);
+                    return Optional.empty();
+                })
+                .join();
     }
 }

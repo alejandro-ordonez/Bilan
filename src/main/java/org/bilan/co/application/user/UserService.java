@@ -322,9 +322,9 @@ public class UserService implements IUserService {
                 return new User("", "", new ArrayList<>());
             }
 
-            UserInfoDto parsedUser = parseUser(user);
-            boolean userValid = authDto.getUserType().equals(parsedUser.getUserType()) &&
-                    authDto.getDocumentType().equals(parsedUser.getDocumentType());
+            UserType userType = UserType.findByRol(user.getRole().getName());
+            boolean userValid = authDto.getUserType().equals(userType) &&
+                    authDto.getDocumentType().equals(user.getDocumentType());
 
             if (!userValid) {
                 log.error("User credentials are not correct");

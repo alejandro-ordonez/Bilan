@@ -1,6 +1,7 @@
 package org.bilan.co.infraestructure.persistance.evidence;
 
 import org.bilan.co.domain.entities.Evidences;
+import org.bilan.co.domain.enums.Phase;
 import org.bilan.co.domain.projections.IEvidence;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -52,4 +53,10 @@ public interface EvidenceRepository extends JpaRepository<Evidences, Long> {
     List<Evidences> getEvidencesEvaluated(String document);
 
     Optional<Evidences> findByFileName(String fileName);
+
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM Evidences e " +
+            "WHERE e.phase = :phase AND e.tribe.id = :tribeId AND e.idStudent.document = :studentDocument")
+    boolean existsByPhaseAndTribeAndStudent(@Param("phase") Phase phase,
+                                            @Param("tribeId") Long tribeId,
+                                            @Param("studentDocument") String studentDocument);
 }

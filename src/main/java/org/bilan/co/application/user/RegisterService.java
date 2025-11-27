@@ -159,7 +159,7 @@ public class RegisterService implements IRegisterService {
     private ResponseDto<UserState> userAlreadyExists() {
         return new ResponseDtoBuilder<UserState>()
                 .setDescription("User already exist")
-                .setCode(500)
+                .setCode(200)
                 .setResult(UserState.UserExists)
                 .createResponseDto();
     }

@@ -17,6 +17,8 @@ import org.bilan.co.infraestructure.persistance.EvaluationRepository;
 import org.bilan.co.infraestructure.persistance.TeachersRepository;
 import org.bilan.co.infraestructure.persistance.evidence.EvidenceRepository;
 import org.bilan.co.utils.Constants;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +44,7 @@ public class EvidenceService implements IEvidenceService {
     }
 
     @Override
+    @CacheEvict(value = Constants.EVIDENCE_CHECK, key = "#phase + '_' + #tribeId + '_' + #user.document")
     public ResponseDto<String> upload(Phase phase, Long tribeId,
                                       MultipartFile file, AuthenticatedUserDto user) {
         UUID newFileId = UUID.randomUUID();
@@ -62,6 +65,17 @@ public class EvidenceService implements IEvidenceService {
             return new ResponseDto<>("Something was wrong by uploading the file",
                     HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
         }
+    }
+
+    @Override
+    @Cacheable(value = Constants.EVIDENCE_CHECK, key = "#phase + '_' + #tribeId + '_' + #user.document")
+    public ResponseDto<Boolean> checkSubmitted(Phase phase, Long tribeId, AuthenticatedUserDto user) {
+        boolean exists = evidenceRepository.existsByPhaseAndTribeAndStudent(
+                phase,
+                tribeId,
+                user.getDocument()
+        );
+        return new ResponseDto<>("Check completed", HttpStatus.OK.value(), exists);
     }
 
     @Override

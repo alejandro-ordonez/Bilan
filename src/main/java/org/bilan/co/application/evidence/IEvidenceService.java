@@ -15,6 +15,8 @@ public interface IEvidenceService {
 
     ResponseDto<String> upload(Phase phase, Long tribeId, MultipartFile file, AuthenticatedUserDto authenticatedUser);
 
+    ResponseDto<Boolean> checkSubmitted(Phase phase, Long tribeId, AuthenticatedUserDto authenticatedUser);
+
     ResponseDto<String> evaluate(AuthenticatedUserDto authenticatedUser, EvaluationDto evaluationDto);
 
     ResponseDto<List<IEvidence>> filter(EvidenceService.FilterEvidence filter, AuthenticatedUserDto user);

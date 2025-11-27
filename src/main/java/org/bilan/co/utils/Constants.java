@@ -5,6 +5,10 @@ public final class Constants {
     public static final String AUTHORIZATION = "Authorization";
 
     public static final String CACHE_COLLEGES_BY_MUN = "colleges-mun";
+    public static final String COLLEGES_BY_STATE = "colleges-by-state";
+    public static final String GRADES_COURSES = "grades-courses";
+    public static final String GAME_INFO = "game-info";
+    public static final String GAME_CYCLE = "game-cycle";
     public static final String STATES = "states";
     public static final String CITIES = "cities";
     public static final String COURSES = "courses";
@@ -33,6 +37,11 @@ public final class Constants {
     public static final String CSV = ".csv";
     public static final String GENERAL_STATISTICS = "general-statistics";
     public static final String STATE_STATISTICS = "state-statistics";
+    public static final String MUNICIPALITY_STATISTICS = "municipality-statistics";
+    public static final String COLLEGE_STATISTICS = "college-statistics";
+    public static final String GRADE_STATISTICS = "grade-statistics";
+    public static final String STUDENT_STATISTICS = "student-statistics";
+    public static final String EVIDENCE_CHECK = "evidence-check";
 
     // Headers
     public static final String StudentImportHeaders = String.join(", ","Documento", "Tipo de documento", "Nombre", "Apellido", "Grado", "Curso");

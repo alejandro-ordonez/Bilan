@@ -177,6 +177,51 @@ systemctl start $MARIADB_SERVICE
 ##############################################################
 
 
+#################### Optimize MariaDB ########################
+echo ""
+echo "######### Optimizing MariaDB performance..........."
+echo ""
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OPTIMIZE_SCRIPT="${SCRIPT_DIR}/optimize-mariadb.sh"
+
+# Check if optimize script exists
+if [ -f "$OPTIMIZE_SCRIPT" ]; then
+    echo "Running MariaDB optimization script..."
+    echo ""
+
+    # Run the optimization script
+    bash "$OPTIMIZE_SCRIPT"
+
+    echo ""
+    echo "MariaDB optimization complete!"
+    echo ""
+
+    # Restart MariaDB to apply the new configuration
+    echo "Restarting MariaDB to apply optimized settings..."
+    systemctl restart $MARIADB_SERVICE
+
+    # Wait a moment for the service to fully restart
+    sleep 3
+
+    # Verify service is running
+    if systemctl is-active --quiet "$MARIADB_SERVICE"; then
+        echo "MariaDB restarted successfully with optimized configuration!"
+    else
+        echo "Warning: MariaDB failed to restart. Check logs: journalctl -u mariadb -n 50"
+        exit 1
+    fi
+else
+    echo "Warning: Optimization script not found at $OPTIMIZE_SCRIPT"
+    echo "Skipping optimization. MariaDB will run with default settings."
+    echo "You can run it manually later: sudo $OPTIMIZE_SCRIPT"
+fi
+
+echo ""
+##############################################################
+
+
 ######################### Create DB ##########################
 mariadb -e "CREATE DATABASE bilan;"
 echo "Database bilan created;"

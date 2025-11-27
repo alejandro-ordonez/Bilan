@@ -8,7 +8,6 @@ import org.bilan.co.application.general.GeneralInfoService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.ResponseDtoBuilder;
 import org.bilan.co.domain.dtos.common.PagedResponse;
-import org.bilan.co.domain.dtos.dashboard.TribeSummaryDto;
 import org.bilan.co.domain.dtos.game.GameCycleDto;
 import org.bilan.co.domain.entities.GameCycles;
 import org.bilan.co.domain.entities.UserInfo;
@@ -21,6 +20,8 @@ import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +79,7 @@ public class GameCycleService implements IGameCycleService{
     private JwtTokenUtil jwt;
 
     @Override
+    @CacheEvict(value = Constants.GAME_CYCLE, allEntries = true)
     public ResponseDto<GameCycleDto> resetGame(String jwtToken) {
         var user = jwt.getInfoFromToken(jwtToken);
         log.info("Reset requested by: {}", user.getDocument());
@@ -109,6 +111,7 @@ public class GameCycleService implements IGameCycleService{
     }
 
 
+    @CacheEvict(value = Constants.GAME_CYCLE, allEntries = true)
     public void resetGameJob(String cycleId, String document) {
 
         var cycle = gameCycleRepository.findById(cycleId);
@@ -277,6 +280,7 @@ public class GameCycleService implements IGameCycleService{
     }
 
     @Override
+    @Cacheable(Constants.GAME_CYCLE)
     public ResponseDto<GameCycleDto> getCurrentCycle() {
         var cycle = gameCycleRepository.getActiveCycle();
 

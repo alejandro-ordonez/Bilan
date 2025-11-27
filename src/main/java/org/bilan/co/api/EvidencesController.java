@@ -7,7 +7,6 @@ import org.bilan.co.domain.dtos.teacher.EvaluationDto;
 import org.bilan.co.domain.dtos.user.AuthenticatedUserDto;
 import org.bilan.co.domain.enums.Phase;
 import org.bilan.co.domain.projections.IEvidence;
-import org.bilan.co.domain.utils.Tuple;
 import org.bilan.co.utils.Constants;
 import org.bilan.co.utils.JwtTokenUtil;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/evidences")
@@ -42,6 +40,15 @@ public class EvidencesController {
                                                       @RequestHeader(Constants.AUTHORIZATION) String token) {
         AuthenticatedUserDto user = jwtTokenUtil.getInfoFromToken(token);
         return ResponseEntity.ok(evidenceService.upload(phase, tribeId, file, user));
+    }
+
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @GetMapping("/check-submitted")
+    public ResponseEntity<ResponseDto<Boolean>> checkSubmitted(@RequestParam("phase") Phase phase,
+                                                               @RequestParam("tribeId") Long tribeId,
+                                                               @RequestHeader(Constants.AUTHORIZATION) String token) {
+        AuthenticatedUserDto user = jwtTokenUtil.getInfoFromToken(token);
+        return ResponseEntity.ok(evidenceService.checkSubmitted(phase, tribeId, user));
     }
 
     @PreAuthorize("hasAuthority('TEACHER')")

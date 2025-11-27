@@ -4,6 +4,8 @@ import org.bilan.co.application.college.ICollegeService;
 import org.bilan.co.domain.dtos.ResponseDto;
 import org.bilan.co.domain.dtos.college.CollegeDto;
 import org.bilan.co.domain.dtos.course.GradeCoursesDto;
+import org.bilan.co.utils.Constants;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,12 +27,14 @@ public class CollegeController {
     }
 
     @GetMapping
+    @Cacheable(value = Constants.COLLEGES_BY_STATE, key = "#stateMunId")
     public ResponseEntity<ResponseDto<List<CollegeDto>>> findCollegesByState(@RequestParam Integer stateMunId) {
         return ResponseEntity.ok(collegeService.findCollegesByState(stateMunId));
     }
 
     @PreAuthorize("hasAnyAuthority('MIN_USER', 'SEC_EDU', 'DIRECT_TEACHER', 'TEACHER', 'ADMIN')")
     @GetMapping("/grades-courses")
+    @Cacheable(value = Constants.GRADES_COURSES, key = "#collegeId")
     public ResponseEntity<ResponseDto<List<GradeCoursesDto>>> getGradesAndCourses(@RequestParam Integer collegeId) {
         return ResponseEntity.ok(collegeService.getGradesAndCourses(collegeId));
     }
