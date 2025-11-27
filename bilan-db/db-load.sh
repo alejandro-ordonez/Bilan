@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 tmp_path="."
-sql_db_artifacts=("db" "indexes-optimization" "views" "procedures"  
+sql_db_artifacts=("db" "indexes-optimization" "views-optimized" "procedures"  
 "roles" "context" "tribes" "questions" "actions" "answers" "challenges" "privilages" "courses" "departamento-municipio" "post-install")
 
 for i in "${sql_db_artifacts[@]}"; do
