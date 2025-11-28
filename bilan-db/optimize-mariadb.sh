@@ -434,9 +434,6 @@ collation-server = utf8mb4_unicode_ci
 # Network Settings
 ################################################################################
 
-# Skip name resolution for better connection performance
-skip-name-resolve
-
 # Maximum packet size
 max_allowed_packet = 64M
 
